@@ -7,10 +7,10 @@
 Make sure that you are in the directory with the machinelearn.yml
 
 ```bash
-$ conda env create -f environment_proj1.yml
+$ conda env create -f environment_proj2.yml
 ```
 ```bash
-$ conda activate environment_proj1
+$ conda activate environment_proj2
 ```
 
 When done, deactive enviroment with:
