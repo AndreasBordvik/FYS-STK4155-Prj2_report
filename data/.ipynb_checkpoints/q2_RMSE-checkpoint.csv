@@ -1,0 +1,5 @@
+,RMSE
+Linear regression,0.2164
+ANN (without wind direction),0.2154
+Multiple linear regression,0.2149
+ANN (with wind direction),0.2082

@@ -1,0 +1,120 @@
+% ======================================================================
+% starting package maintenance...
+% installation directory: C:\Users\andre\AppData\Local\Programs\MiKTeX
+% package repository: https://ftp.acc.umu.se/mirror/CTAN/systems/win32/miktex/tm/packages/
+% visiting repository https://ftp.acc.umu.se/mirror/CTAN/systems/win32/miktex/tm/packages/...
+% repository type: remote package repository
+% loading package repository manifest...
+% downloading https://ftp.acc.umu.se/mirror/CTAN/systems/win32/miktex/tm/packages/miktex-zzdb1-2.9.tar.lzma...
+% 0.24 MB, 5.14 Mbit/s
+% package repository digest: 7410fca1b4056d4b64b5764e6be578a9
+% going to download 66986 bytes
+% going to install 42 file(s) (1 package(s))
+% downloading https://ftp.acc.umu.se/mirror/CTAN/systems/win32/miktex/tm/packages/latexindent.tar.lzma...
+% 0.07 MB, 10.31 Mbit/s
+% extracting files from latexindent.tar.lzma...
+% ======================================================================
+\documentclass[11pt, a4paper]{article}
+
+% Basic packages
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{bm,ltablex,microtype}
+\usepackage[pdftex]{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{parskip}
+\usepackage[section]{placeins}
+\usepackage[table,xcdraw]{xcolor}
+%\usepackage[capitalise, noabbrev]{cleveref} Discarded in favor of hyperref
+\definecolor{linkcolor}{rgb}{0,0,0.4}
+
+\usepackage{fancyvrb}
+\usepackage{csvsimple}
+\usepackage{booktabs}
+\usepackage{multicol}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[margin=3cm]{geometry}
+%\usepackage{subfig}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage{todonotes}
+\usepackage{listings}
+\lstset{
+    language=Python,
+    inputencoding=utf8,
+    extendedchars=true,
+    literate={ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1 {æ}{{\ae}}1,
+    backgroundcolor=\color{white!88!black},
+    basicstyle=\footnotesize\ttfamily,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    commentstyle=\itshape\color{purple!60!black},
+    frame=single,
+    %identifierstyle=\color{orange},
+    keepspaces=true,
+    keywordstyle=\bfseries\color{violet},
+    numbers=left,
+    numbersep=5pt,
+    numberstyle=\tiny\color{black},
+    rulecolor=\color{black},
+    showstringspaces=false,
+    showtabs=false,
+    stepnumber=1,
+    stringstyle=\color{purple!60!black},
+    tabsize=2,
+    title=\lstname
+  }
+%\usepackage{tikz}
+%\usetikzlibrary{math,calc,positioning}
+
+
+
+\usepackage{hyperref}
+\hypersetup{
+    breaklinks=true,
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=linkcolor,
+    citecolor=black,
+    filecolor=black,
+    %filecolor=blue,
+    pdfmenubar=true,
+    pdftoolbar=true,
+    bookmarksdepth=3   % Uncomment (and tweak) for PDF bookmarks with more levels than the TOC
+    }
+
+% Set up fonts
+% \usepackage{fontspec}
+% \usepackage{unicode-math}
+% \setmainfont{STIX Two Text}
+% \setmathfont{STIX Two Math}
+
+\title{FYS-STK4155 - Project1}
+\author{David Andreas Bordvik}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+
+\section*{Appendix}
+Link to github repository containing all developed code for this project: \href{https://github.com/AndreasBordvik/FYS-STK4155-Prj1_report}{GitHub}
+
+\newpage
+\newpage
+
+\bibliographystyle{plain}
+\bibliography{bibliography}
+
+
+
+
+\end{document}
+
+
+% Local Variables:
+% TeX-engine: xetex
+% End:
