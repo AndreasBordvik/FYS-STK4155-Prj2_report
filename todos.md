@@ -1,7 +1,7 @@
 # Project 2 todos
 
 ## Part a)
-1. DONE: Implement SGD for OLS <br>
+1. ```DONE:``` Implement SGD for OLS <br>
 2. Implement SGD for Ridge <br>
 3. Create function that can differ between OLS and Ridge for the gradient update <br>
 4. Implement step lenght scheduler <br>
