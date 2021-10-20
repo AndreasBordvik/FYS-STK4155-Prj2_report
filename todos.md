@@ -4,7 +4,7 @@
 1. ```DONE:``` Implement SGD for OLS <br>
 2. Implement SGD for Ridge <br>
 3. Create function that can differ between OLS and Ridge for the gradient update <br>
-4. Implement step lenght scheduler <br>
+4. ```DONE:``` Implement step lenght scheduler <br>
 5. Add momentum to SGD <br>
 6. Add Adam ```(extra)``` <br>
 7. Perform an analysis of the results for OLS and Ridge regression as function of the chosen ```learning rates```, the number of ```mini-batches``` and ```epochs``` as well as algorithm for ```scaling the learning rate```. <br> 
