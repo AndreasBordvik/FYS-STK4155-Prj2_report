@@ -1,9 +1,13 @@
 import numpy as np
+from common import MSE
 from sklearn.preprocessing import StandardScaler
 
 # Activation functions
 def relu(x):
     return np.maximum(0,x)
+
+def leaky_relu(x):
+    return np.where(x > 0, x, 0.01*x)
 
 def sigmoid(x):
     return np.exp(x) / (1 + np.exp(x))
@@ -30,8 +34,8 @@ class Layer:
         self.input = nbf_inputs
         self.output = nbf_outputs
         self.activation = activation_function
-        self.weights = np.random.rand(nbf_inputs, nbf_outputs) -0.5 # TODO: include possible negative weight initialization
-        self.bias = np.random.rand(1, nbf_outputs) -0.5# TODO: include possible negative weight initialization
+        self.weights = np.random.rand(nbf_inputs, nbf_outputs)# TODO: include possible negative weight initialization
+        self.bias = np.random.rand(1, nbf_outputs)# TODO: include possible negative weight initialization
         self.accumulated_gradient = np.zeros_like(self.weights)
 
     def forward_prop(self, input_ : np.ndarray) -> np.ndarray:
@@ -39,31 +43,32 @@ class Layer:
         a = self.activation(z)
         return a, self.weights, self.bias
 
-    def backward_prop(self, X, y):
-        h = self.forward_prop(X)
-        error = y - y_hat 
-
-        # TODO: DO backprop
-
 class NeuralNetwork:
-    def __init__(self):
+    def __init__(self, cost = MSE):
         self.sequential_layers = []
+        self.cost = cost
         
-
     def add_layer(self, layer: Layer):
         self.sequential_layers.append(layer)
 
     def predict(self, input_):
         X = input_.copy()
         for layer in self.sequential_layers:
-            print(X, '\n')
+            #print(X, '\n')
             X, w, b = layer.forward_prop(X)
-            print(w, '\n')
-            print(b, '\n')
-
-
+            #print(w, '\n')
+            #print(b, '\n')
 
         return X
+
+    def backward_prop(self, X, y):
+        y_hat = self.predict(X)
+        E = self.cost(y, y_hat)
+        for layer in reversed(self.sequential_layers):
+            pass
+
+            
+            
 
 class own_LinRegGD():
     def __init__(self):
