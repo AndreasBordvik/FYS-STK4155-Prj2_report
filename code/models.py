@@ -58,8 +58,7 @@ class Layer:
     def forward_prop(self, input_: np.ndarray) -> np.ndarray:
         self.unactivated = (input_ @ self.weights) + self.bias
         self.activated = self.activation(self.unactivated)
-
-        return a, self.weights, self.bias
+        return self.activated, self.weights, self.bias
 
 
 class NeuralNetwork:
@@ -96,7 +95,9 @@ class NeuralNetwork:
         for i in range(len(self.sequential_layers)-2, 0, -1):
             current = self.sequential_layers[i]
             right = self.sequential_layers[i+1]
-            current.weights -= eta*current.deltas*right.activated
+
+            for j in range(num_samples):  # X.shape[0]?
+                current.weights -= eta*current.deltas[j]*right.activated[j]
 
         # error = self.grad_cost(y, y_hat)
         # self.sequential_layers[-1].deltas = error
