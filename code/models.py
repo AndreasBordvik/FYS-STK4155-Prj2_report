@@ -39,26 +39,27 @@ class Fixed_layer:
 
 
 class Layer:
-    def __init__(self, nbf_inputs: int, nbf_outputs: int, activation_function=lambda x: x):
+    def __init__(self, nbf_inputs: int, nbf_outputs: int, activation_function=lambda x: x, name="name"):
+        self.name = name
         self.input = nbf_inputs
         self.output = nbf_outputs
-        self.activation = activation_function
-        self.grad_activation = grad(activation_function)
+        self.activation = lambda z: np.exp(z) / (np.exp(z) + 1)
+        self.grad_activation = lambda a: a*(1-a)
         # TODO: include possible negative weight initialization
         self.weights = np.random.randn(
             nbf_inputs, nbf_outputs)  # TODO:Must be normal
         # TODO: include possible negative weight initialization
         self.bias = np.random.randn(1, nbf_outputs)
         # self.accumulated_gradient = np.zeros_like(self.weights)
-        self.unactivated = None
-        self.activated = None
+        self.z = None
+        self.a = None
         self.deltas = None
         # self.grad_activation = grad(activation_function)
 
     def forward_prop(self, input_: np.ndarray) -> np.ndarray:
-        self.unactivated = (input_ @ self.weights) + self.bias
-        self.activated = self.activation(self.unactivated)
-        return self.activated, self.weights, self.bias
+        self.z = (input_ @ self.weights) + self.bias
+        self.a = self.activation(self.z)
+        return self.a, self.weights, self.bias
 
 
 class NeuralNetwork:
@@ -80,24 +81,42 @@ class NeuralNetwork:
 
         return X
 
-    def backward_prop(self, X, y):
-        y_hat = self.predict(X)
+    def fit(self, X, t):  # fit using feed forward and backprop
+        t_hat = self.predict(X)  # t_hat = output activation
+
+        # Backprop
+        # Calculating the gradient of the error at the output
         output_layer = self.sequential_layers[-1]
+        a_out = output_layer.a  # output activation
+        print("a_out.shape:", a_out.shape)
+        print("t.shape:", t.reshape(-1, 1).shape)
+        print("output_layer.grad_activation(a_out).shape:",
+              output_layer.grad_activation(a_out).shape)
         output_layer.deltas = output_layer.grad_activation(
-            output_layer.unactivated) * self.grad_cost(y, y_hat)
+            a_out) * (t.reshape(-1, 1) - a_out)
 
-        for i in range(len(self.sequential_layers)-2, 0, -1):
-            current = self.sequential_layers[i]
-            right = self.sequential_layers[i+1]
+        for i in range(len(self.sequential_layers)-1, 0, -1):
+
+            current = self.sequential_layers[i-1]
+            print("current:", current.name)
+            right = self.sequential_layers[i]
+            print("right:", right.name)
+            print("current.weights.T.shape", current.weights.T.shape)
+            print("right.deltas.T.shape", right.deltas.T.shape)
+            print("right.deltas.shape", right.deltas.shape)
+            a_cur = current.a
             current.deltas = current.grad_activation(
-                current.unactivated) * (current.weights @ right.deltas)
+                a_cur) * (right.deltas @ current.weights.T)
+            current.deltas = 1
 
-        for i in range(len(self.sequential_layers)-2, 0, -1):
+        print("backprop has run")
+        """
+            for i in range(len(self.sequential_layers)-2, 0, -1):
             current = self.sequential_layers[i]
             right = self.sequential_layers[i+1]
 
             for j in range(num_samples):  # X.shape[0]?
-                current.weights -= eta*current.deltas[j]*right.activated[j]
+                current.weights -= eta*current.deltas[j]*right.activated[j]"""
 
         # error = self.grad_cost(y, y_hat)
         # self.sequential_layers[-1].deltas = error
