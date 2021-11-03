@@ -61,6 +61,9 @@ class Layer:
         self.a = self.activation(self.z)
         return self.a, self.weights, self.bias
 
+    def __str__(self):
+        return f"Layer name: {self.name}"
+
 
 class NeuralNetwork:
     def __init__(self, cost=MSE, learning_rate=0.001):
@@ -96,7 +99,10 @@ class NeuralNetwork:
 
         output_layer.deltas = output_layer.grad_activation(
             a_out) * (t.reshape(-1, 1) - a_out)
+        output_layer.deltas = np.mean(
+            output_layer.deltas, axis=0, keepdims=True)
 
+        output_layer.a = np.mean(output_layer.a, axis=0, keepdims=True)
         for i in range(len(self.sequential_layers)-1, 0, -1):
 
             current = self.sequential_layers[i-1]
@@ -109,24 +115,35 @@ class NeuralNetwork:
             a_cur = current.a
             current.deltas = current.grad_activation(
                 a_cur) * (right.deltas @ right.weights.T)
-            #current.deltas = 1
+
+            current.deltas = np.mean(current.deltas, axis=0, keepdims=True)
+            current.a = np.mean(current.a, axis=0, keepdims=True)
 
         print("backprop is done")
         print("Updating the weights")
-
+        print("\nhidden weights before update")
+        print(self.sequential_layers[0].weights, "\n")
         for i in range(len(self.sequential_layers)-1, 0, -1):
-            print("weights before:")
-            print(current.weights)
+            print("\nright.weights before:")
+            print(right.weights.shape)
+            print(right.weights)
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
+            print("\nCurrent is: ", current)
+            print("\nRight is: ", right)
 
-            print("right.deltas.shape:", right.deltas.shape)
+            print("\nright.deltas.shape:", right.deltas.shape)
 
-            print("current.a.shape:", current.a.shape)
-            current.weights -= self.eta * right.deltas * current.a
-            print("weights updated:")
-            print(current.weights)
+            print("\ncurrent.a.T.shape:", current.a.T.shape)
+            right.weights -= self.eta * right.deltas * current.a.T
+            print("\nright.weights updated:")
+            print(right.weights)
 
+        first_hidden = self.sequential_layers[0]
+        first_hidden.weights -= self.eta * first_hidden.deltas
+
+        print("\nhidden weights after update")
+        print(self.sequential_layers[0].weights, "\n")
         """
             for i in range(len(self.sequential_layers)-2, 0, -1):
             current = self.sequential_layers[i]
