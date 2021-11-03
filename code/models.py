@@ -63,10 +63,11 @@ class Layer:
 
 
 class NeuralNetwork:
-    def __init__(self, cost=MSE):
+    def __init__(self, cost=MSE, learning_rate=0.001):
         self.sequential_layers = []
         self.cost = cost
         self.grad_cost = None  # grad(cost)
+        self.eta = learning_rate
 
     def add_layer(self, layer: Layer):
         self.sequential_layers.append(layer)
@@ -82,7 +83,7 @@ class NeuralNetwork:
         return X
 
     def fit(self, X, t):  # fit using feed forward and backprop
-        t_hat = self.predict(X)  # t_hat = output activation
+        _ = self.predict(X)  # t_hat = output activation
 
         # Backprop
         # Calculating the gradient of the error at the output
@@ -92,6 +93,7 @@ class NeuralNetwork:
         print("t.shape:", t.reshape(-1, 1).shape)
         print("output_layer.grad_activation(a_out).shape:",
               output_layer.grad_activation(a_out).shape)
+
         output_layer.deltas = output_layer.grad_activation(
             a_out) * (t.reshape(-1, 1) - a_out)
 
@@ -107,9 +109,24 @@ class NeuralNetwork:
             a_cur = current.a
             current.deltas = current.grad_activation(
                 a_cur) * (right.deltas @ right.weights.T)
-            current.deltas = 1
+            #current.deltas = 1
 
-        print("backprop has run")
+        print("backprop is done")
+        print("Updating the weights")
+
+        for i in range(len(self.sequential_layers)-1, 0, -1):
+            print("weights before:")
+            print(current.weights)
+            current = self.sequential_layers[i-1]
+            right = self.sequential_layers[i]
+
+            print("right.deltas.shape:", right.deltas.shape)
+
+            print("current.a.shape:", current.a.shape)
+            current.weights -= self.eta * right.deltas * current.a
+            print("weights updated:")
+            print(current.weights)
+
         """
             for i in range(len(self.sequential_layers)-2, 0, -1):
             current = self.sequential_layers[i]
