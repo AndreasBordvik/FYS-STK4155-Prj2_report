@@ -107,7 +107,6 @@ class NeuralNetwork:
             a_cur = current.a
             current.deltas = current.grad_activation(
                 a_cur) * (right.deltas @ right.weights.T)
-            current.deltas = 1
 
         print("backprop has run")
         """
