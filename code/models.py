@@ -44,7 +44,8 @@ class Layer:
         self.input = nbf_inputs
         self.output = nbf_outputs
         self.activation = lambda z: np.exp(z) / (np.exp(z) + 1)
-        self.grad_activation = lambda a: a*(1-a)
+        self.grad_activation = grad(activation_function)
+        # self.grad_activation = lambda a: a*(1-a)
         # TODO: include possible negative weight initialization
         self.weights = np.random.randn(
             nbf_inputs, nbf_outputs)  # TODO:Must be normal
@@ -85,79 +86,55 @@ class NeuralNetwork:
 
         return X
 
+    def train_model(self, X, t, batch_size, epochs):
+        print("Training the model")
+        n_batches = int(X.shape[0] // batch_size)
+        Xt = np.concatenate((X, t), axis=1)
+        
+        for epoch in range(epochs):
+            print(f'Training epoch {epoch}/{epochs}')
+            batches = np.take(Xt, np.random.permutation(Xt.shape[0]), axis=0)
+            batches = np.array_split(batches, n_batches, axis=0)
+            
+            for i, batch in enumerate(batches):
+                print(f'Epoch={epoch} | {(i + 1) / len(batches) * 100:.2f}%')
+                xi = batch[:, :-1]
+                yi = batch[:, -1].reshape(-1,1)
+                self.fit(xi, yi)
+            print()
+
     def fit(self, X, t):  # fit using feed forward and backprop
         _ = self.predict(X)  # t_hat = output activation
-
         # Backprop
         # Calculating the gradient of the error at the output
         output_layer = self.sequential_layers[-1]
         a_out = output_layer.a  # output activation
-        print("a_out.shape:", a_out.shape)
-        print("t.shape:", t.reshape(-1, 1).shape)
-        print("output_layer.grad_activation(a_out).shape:",
-              output_layer.grad_activation(a_out).shape)
-
-        output_layer.deltas = output_layer.grad_activation(
-            a_out) * (t.reshape(-1, 1) - a_out)
+        output_layer.deltas = output_layer.grad_activation(a_out) * (t.reshape(-1, 1) - a_out)
         output_layer.deltas = np.mean(
             output_layer.deltas, axis=0, keepdims=True)
 
         output_layer.a = np.mean(output_layer.a, axis=0, keepdims=True)
         for i in range(len(self.sequential_layers)-1, 0, -1):
-
             current = self.sequential_layers[i-1]
-            print("current:", current.name)
             right = self.sequential_layers[i]
-            print("right:", right.name)
-            print("current.weights.T.shape", current.weights.T.shape)
-            print("right.deltas.T.shape", right.deltas.T.shape)
-            print("right.deltas.shape", right.deltas.shape)
             a_cur = current.a
             current.deltas = current.grad_activation(
                 a_cur) * (right.deltas @ right.weights.T)
-
             current.deltas = np.mean(current.deltas, axis=0, keepdims=True)
             current.a = np.mean(current.a, axis=0, keepdims=True)
 
-        print("backprop is done")
-        print("Updating the weights")
-        print("\nhidden weights before update")
-        print(self.sequential_layers[0].weights, "\n")
         for i in range(len(self.sequential_layers)-1, 0, -1):
-            print("\nright.weights before:")
-            print(right.weights.shape)
-            print(right.weights)
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
-            print("\nCurrent is: ", current)
-            print("\nRight is: ", right)
-
-            print("\nright.deltas.shape:", right.deltas.shape)
-
-            print("\ncurrent.a.T.shape:", current.a.T.shape)
             right.weights -= self.eta * right.deltas * current.a.T
-            print("\nright.weights updated:")
-            print(right.weights)
 
         first_hidden = self.sequential_layers[0]
         first_hidden.weights -= self.eta * first_hidden.deltas
 
-        print("\nhidden weights after update")
-        print(self.sequential_layers[0].weights, "\n")
-        """
-            for i in range(len(self.sequential_layers)-2, 0, -1):
-            current = self.sequential_layers[i]
-            right = self.sequential_layers[i+1]
-
-            for j in range(num_samples):  # X.shape[0]?
-                current.weights -= eta*current.deltas[j]*right.activated[j]"""
-
-        # error = self.grad_cost(y, y_hat)
-        # self.sequential_layers[-1].deltas = error
-        # for layer in reversed(self.sequential_layers):
-        #     error = layer.backprop(error)
-        #     layer.delta = error
-
+        # clean deltas in layers 
+        for i in range(len(self.sequential_layers)):
+            self.sequential_layers[i].deltas = 0 
+      
 
 class own_LinRegGD():
     def __init__(self):
