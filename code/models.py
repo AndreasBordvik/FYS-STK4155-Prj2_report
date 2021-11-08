@@ -40,12 +40,12 @@ class Fixed_layer:
 
 
 class Layer:
-    def __init__(self, nbf_inputs: int, nbf_outputs: int, activation_function=lambda x: x, name="name"):
+    def __init__(self, nbf_inputs: int, nbf_outputs: int, activation=lambda x: x, name="name"):
         self.name = name
         self.input = nbf_inputs
         self.output = nbf_outputs
         #self.activation = lambda z: np.exp(z) / (np.exp(z) + 1)
-        self.activation = activation_function
+        self.activation = activation
         self.grad_activation = elementwise_grad(self.activation)
         # self.grad_activation = lambda a: a*(1-a)
         # TODO: include possible negative weight initialization
@@ -75,7 +75,7 @@ class NeuralNetwork:
         self.grad_cost = None  # grad(cost)
         self.eta = learning_rate
 
-    def add_layer(self, layer: Layer):
+    def add(self, layer: Layer):
         self.sequential_layers.append(layer)
 
     def predict(self, input_):
@@ -88,22 +88,23 @@ class NeuralNetwork:
 
         return X
 
-    def train_model(self, X, t, batch_size, epochs):
-        print("Training the model")
+    def train_model(self, X, t, batch_size, epochs, verbose=False):
         n_batches = int(X.shape[0] // batch_size)
         Xt = np.concatenate((X, t), axis=1)
         
         for epoch in range(epochs):
-            print(f'Training epoch {epoch}/{epochs}')
+            if verbose:
+                print(f'Training epoch {epoch}/{epochs}')
             batches = np.take(Xt, np.random.permutation(Xt.shape[0]), axis=0)
             batches = np.array_split(batches, n_batches, axis=0)
             
             for i, batch in enumerate(batches):
-                print(f'Epoch={epoch} | {(i + 1) / len(batches) * 100:.2f}%')
+                if verbose:
+                    print(f'Epoch={epoch} | {(i + 1) / len(batches) * 100:.2f}%')
                 xi = batch[:, :-1]
                 yi = batch[:, -1].reshape(-1,1)
                 self.fit(xi, yi)
-            print()
+            
 
     def fit(self, X, t):  # fit using feed forward and backprop
         _ = self.predict(X)  # t_hat = output activation

@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from typing import Callable, Tuple
+from autograd import grad
 
 # Setting global variables
 INPUT_DATA = "../data/input_data/"  # Path for input data
@@ -17,7 +18,25 @@ REPORT_FIGURES = "../figures/"  # Path for figures ment for the report
 EX_A = "EX_A_"; EX_B = "EX_B_"; EX_C = "EX_C_"; EX_D = "EX_D_"; EX_E = "EX_E_"; EX_F = "EX_F_"
 
 
+def cost_MSE(X,y,theta, lmb=0):
+    return ((y - X @ theta)**2).sum() + lmb*(theta**2).sum()
 
+d_cost_MSE = grad(cost_MSE, 2)
+
+
+def cost_CE(X,y,theta, lmb=0):
+    pass
+
+d_cost_CE = grad(cost_CE, 2)
+
+
+def learning_rate_upper_limit(X_train):
+    XT_X = X_train.T @ X_train
+    H = (2./X_train.shape[0]) * XT_X # The Hessian is the second derivate
+    # Picking the largest eigenvalue of the Hessian matrix to use as a guide for determain upper limit for learning rate
+    lr_upper_limit = 2./np.max(np.linalg.eig(H)[0])
+    print(f"Upper limit learing rate: {lr_upper_limit}")
+    return lr_upper_limit
 
 
 # Methods below are reused from from project1
