@@ -92,18 +92,18 @@ class NeuralNetwork:
         print("Training the model")
         n_batches = int(X.shape[0] // batch_size)
         Xt = np.concatenate((X, t), axis=1)
-        
+
         for epoch in range(epochs):
-            print(f'Training epoch {epoch}/{epochs}')
+            #print(f'Training epoch {epoch}/{epochs}')
             batches = np.take(Xt, np.random.permutation(Xt.shape[0]), axis=0)
             batches = np.array_split(batches, n_batches, axis=0)
-            
+
             for i, batch in enumerate(batches):
-                print(f'Epoch={epoch} | {(i + 1) / len(batches) * 100:.2f}%')
+                #print(f'Epoch={epoch} | {(i + 1) / len(batches) * 100:.2f}%')
                 xi = batch[:, :-1]
-                yi = batch[:, -1].reshape(-1,1)
+                yi = batch[:, -1].reshape(-1, 1)
                 self.fit(xi, yi)
-            print()
+            # print()
 
     def fit(self, X, t):  # fit using feed forward and backprop
         _ = self.predict(X)  # t_hat = output activation
@@ -111,7 +111,8 @@ class NeuralNetwork:
         # Calculating the gradient of the error at the output
         output_layer = self.sequential_layers[-1]
         a_out = output_layer.a  # output activation
-        output_layer.deltas = output_layer.grad_activation(a_out) * (t.reshape(-1, 1) - a_out)
+        output_layer.deltas = output_layer.grad_activation(
+            a_out) * (t.reshape(-1, 1) - a_out)
         output_layer.deltas = np.mean(
             output_layer.deltas, axis=0, keepdims=True)
 
@@ -133,10 +134,10 @@ class NeuralNetwork:
         first_hidden = self.sequential_layers[0]
         first_hidden.weights -= self.eta * first_hidden.deltas
 
-        # clean deltas in layers 
+        # clean deltas in layers
         for i in range(len(self.sequential_layers)):
-            self.sequential_layers[i].deltas = 0 
-      
+            self.sequential_layers[i].deltas = 0
+
 
 class own_LinRegGD():
     def __init__(self):
