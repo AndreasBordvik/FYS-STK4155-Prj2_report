@@ -44,10 +44,10 @@ class Layer:
         self.name = name
         self.input = nbf_inputs
         self.output = nbf_outputs
-        #self.activation = lambda z: np.exp(z) / (np.exp(z) + 1)
-        self.activation = activation
-        self.grad_activation = elementwise_grad(self.activation)
-        # self.grad_activation = lambda a: a*(1-a)
+        self.activation = lambda z: np.exp(z) / (np.exp(z) + 1)
+        # self.activation = activation
+        # self.grad_activation = elementwise_grad(self.activation)
+        self.grad_activation = lambda a: a*(1-a)
         # TODO: include possible negative weight initialization
         self.weights = np.random.randn(
             nbf_inputs, nbf_outputs)  # TODO:Must be normal
