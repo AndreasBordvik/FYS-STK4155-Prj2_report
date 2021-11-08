@@ -1,6 +1,7 @@
-import numpy as np
+import autograd.numpy as np
 from common import MSE
 from sklearn.preprocessing import StandardScaler
+from autograd import elementwise_grad
 
 # Activation functions
 
@@ -43,8 +44,9 @@ class Layer:
         self.name = name
         self.input = nbf_inputs
         self.output = nbf_outputs
-        self.activation = lambda z: np.exp(z) / (np.exp(z) + 1)
-        self.grad_activation = grad(activation_function)
+        #self.activation = lambda z: np.exp(z) / (np.exp(z) + 1)
+        self.activation = activation_function
+        self.grad_activation = elementwise_grad(self.activation)
         # self.grad_activation = lambda a: a*(1-a)
         # TODO: include possible negative weight initialization
         self.weights = np.random.randn(
