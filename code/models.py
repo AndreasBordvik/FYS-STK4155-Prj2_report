@@ -31,20 +31,27 @@ def binary_classifier(x):
 
 
 class Fixed_layer:
-    def __init__(self, nbf_inputs: int, nbf_outputs: int, weights, bias, activation_function=lambda x: x):
+    def __init__(self, nbf_inputs: int, nbf_outputs: int, weights, bias, activation="sigmoid", name="name"):
+        pick_activation = {"sigmoid": [
+            sigmoid, grad_sigmoid], "relu": [relu, grad_relu]}
+
         self.input = nbf_inputs
         self.output = nbf_outputs
-        self.activation = activation_function
+
+        self.activation = pick_activation[activation][0]
+        self.grad_activation = pick_activation[activation][1]
+
         # np.random.rand(nbf_inputs, nbf_outputs) # TODO: include possible negative weight initialization
         self.weights = weights
         # np.random.rand(1, nbf_outputs) # TODO: include possible negative weight initialization
         self.bias = bias
         self.accumulated_gradient = np.zeros_like(self.weights)
+        self.deltas = 0
 
     def forward_prop(self, input_: np.ndarray) -> np.ndarray:
-        z = (input_ @ self.weights) + self.bias
-        a = self.activation(z)
-        return a, self.weights, self.bias
+        self.z = (input_ @ self.weights) + self.bias
+        self.a = self.activation(self.z)
+        return self.a, self.weights, self.bias
 
 
 class Layer:
@@ -72,11 +79,12 @@ class Layer:
         self.weights = np.random.randn(
             nbf_inputs, nbf_outputs)  # TODO:Must be normal
         # TODO: include possible negative weight initialization
-        self.bias = np.random.randn(1, nbf_outputs)
+        # self.bias = np.random.randn(1, nbf_outputs)
+        self.bias = np.zeros(nbf_outputs) + 0.01
         # self.accumulated_gradient = np.zeros_like(self.weights)
         self.z = None
         self.a = None
-        self.deltas = None
+        self.deltas = 0
         # self.grad_activation = grad(activation_function)
 
     def forward_prop(self, input_: np.ndarray) -> np.ndarray:
@@ -158,26 +166,39 @@ class NeuralNetwork:
             output_layer.deltas, axis=0, keepdims=True)
         output_layer.a = np.mean(output_layer.a, axis=0, keepdims=True)
         # output_layer.bias = np.mean(output_layer.bias, axis=0, keepdims=True)
-
+        print("error at output:", output_layer.deltas)
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
             z_cur = current.z
+            print("right.deltas.shape:", right.deltas.shape)
+            print("right.weights.T.shape:", right.weights.T.shape)
+            print("right.weights.T:", right.weights.T)
             current.deltas = current.grad_activation(
                 z_cur) * (right.deltas @ right.weights.T)
             current.deltas = np.mean(current.deltas, axis=0, keepdims=True)
             current.a = np.mean(current.a, axis=0, keepdims=True)
             # current.bias = np.mean(current.bias, axis=0, keepdims=True)
+            print("error at hidden:", current.deltas)
 
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
+            print("right.weights before update:", right.weights)
             right.weights -= self.eta * (current.a.T @ right.deltas)
+            print("right.weights after update:", right.weights)
             right.bias -= self.eta * np.sum(right.deltas, axis=0)
             # right.weights -= self.eta * right.deltas * current.a.T
 
         first_hidden = self.sequential_layers[0]
-        first_hidden.weights -= self.eta * (X.T @ first_hidden.deltas)
+        # print("X.T.shape", X.T.shape)
+        # print("first_hidden.deltas", first_hidden.deltas.shape)
+        print("first_hidden.weights before update:", first_hidden.weights)
+        print("first_hidden.deltas:", first_hidden.deltas)
+        first_hidden.weights -= self.eta * \
+            (np.mean(X.T, axis=1, keepdims=True) @ first_hidden.deltas)
+
+        print("first_hidden.weights after update:", first_hidden.weights)
         first_hidden.bias -= self.eta * np.sum(first_hidden.deltas, axis=0)
 
         # clean deltas in layers
@@ -185,6 +206,8 @@ class NeuralNetwork:
             self.sequential_layers[i].deltas = 0.0
 
 
+# Snakke med Morten om... mean... skal vi meane for å ta gjennomsnitt over alle samples?
+# har beregenet mauelt mellom forward og backprorp.
 class own_LinRegGD():
     def __init__(self):
         self.f = lambda X, W: X @ W
