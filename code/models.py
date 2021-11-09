@@ -10,12 +10,20 @@ def relu(x):
     return np.maximum(0, x)
 
 
+def grad_relu(x):
+    return 0 if x == 0 else 1
+
+
 def leaky_relu(x):
     return np.where(x > 0, x, 0.01*x)
 
 
 def sigmoid(x):
     return np.exp(x) / (1 + np.exp(x))
+
+
+def grad_sigmoid(x):
+    return x*(1-x)
 
 
 def binary_classifier(x):
@@ -40,14 +48,26 @@ class Fixed_layer:
 
 
 class Layer:
-    def __init__(self, nbf_inputs: int, nbf_outputs: int, activation=lambda x: x, name="name"):
+    def __init__(self, nbf_inputs: int, nbf_outputs: int, activation="relu", name="name"):
+        # def sigmoid(z): return np.exp(z) / (np.exp(z) + 1)
+        # def grad_sigmoid(a): return a*(1-a)
+        # def relu(z): return np.exp(z) / (np.exp(z) + 1)
+        # def grad_sigmoid(a): return a*(1-a)
+
+        pick_activation = {"sigmoid": [
+            sigmoid, grad_sigmoid], "relu": [relu, grad_relu]}
+
         self.name = name
         self.input = nbf_inputs
         self.output = nbf_outputs
-        self.activation = lambda z: np.exp(z) / (np.exp(z) + 1)
+
+        self.activation = pick_activation[activation][0]
+        self.grad_activation = pick_activation[activation][1]
+
+        # self.activation = lambda z: np.exp(z) / (np.exp(z) + 1)
         # self.activation = activation
         # self.grad_activation = elementwise_grad(self.activation)
-        self.grad_activation = lambda a: a*(1-a)
+        # self.grad_activation = lambda a: a*(1-a)
         # TODO: include possible negative weight initialization
         self.weights = np.random.randn(
             nbf_inputs, nbf_outputs)  # TODO:Must be normal
@@ -88,7 +108,7 @@ class NeuralNetwork:
 
         return X
 
-    def train_model(self, X, t, batch_size, epochs, verbose=False):
+    def train_model2(self, X, t, batch_size, epochs, verbose=False):
         n_batches = int(X.shape[0] // batch_size)
         Xt = np.concatenate((X, t), axis=1)
 
@@ -100,11 +120,28 @@ class NeuralNetwork:
 
             for i, batch in enumerate(batches):
                 if verbose:
-                    print(f'Epoch={epoch} | {(i + 1) / len(batches) * 100:.2f}%')
+                    print(
+                        f'Epoch={epoch} | {(i + 1) / len(batches) * 100:.2f}%')
                 xi = batch[:, :-1]
                 yi = batch[:, -1].reshape(-1, 1)
                 self.fit(xi, yi)
-            
+
+    def train_model(self, X, t, batch_size, epochs, verbose=False):
+        n_batches = int(X.shape[0] // batch_size)
+        Xt = np.concatenate((X, t), axis=1)
+
+        for epoch in range(epochs):
+            if verbose:
+                print(f'Training epoch {epoch}/{epochs}')
+
+            for i in range(n_batches):
+                if verbose:
+                    print(f'Epoch={epoch} | {(i + 1) / n_batches * 100:.2f}%')
+
+                random_idx = batch_size*np.random.randint(n_batches)
+                xi = X[random_idx:random_idx+batch_size]
+                yi = t[random_idx:random_idx+batch_size]
+                self.fit(xi, yi)
 
     def fit(self, X, t):  # fit using feed forward and backprop
         _ = self.predict(X)  # t_hat = output activation
