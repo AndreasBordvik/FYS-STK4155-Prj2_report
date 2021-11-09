@@ -23,7 +23,7 @@ def sigmoid(x):
 
 
 def grad_sigmoid(x):
-    return x*(1-x)
+    return sigmoid(x)*(1-sigmoid(x))
 
 
 def binary_classifier(x):
@@ -48,7 +48,7 @@ class Fixed_layer:
 
 
 class Layer:
-    def __init__(self, nbf_inputs: int, nbf_outputs: int, activation="relu", name="name"):
+    def __init__(self, nbf_inputs: int, nbf_outputs: int, activation="sigmoid", name="name"):
         # def sigmoid(z): return np.exp(z) / (np.exp(z) + 1)
         # def grad_sigmoid(a): return a*(1-a)
         # def relu(z): return np.exp(z) / (np.exp(z) + 1)
@@ -108,6 +108,7 @@ class NeuralNetwork:
 
         return X
 
+    """
     def train_model2(self, X, t, batch_size, epochs, verbose=False):
         n_batches = int(X.shape[0] // batch_size)
         Xt = np.concatenate((X, t), axis=1)
@@ -125,6 +126,7 @@ class NeuralNetwork:
                 xi = batch[:, :-1]
                 yi = batch[:, -1].reshape(-1, 1)
                 self.fit(xi, yi)
+    """
 
     def train_model(self, X, t, batch_size, epochs, verbose=False):
         n_batches = int(X.shape[0] // batch_size)
@@ -148,33 +150,39 @@ class NeuralNetwork:
         # Backprop
         # Calculating the gradient of the error at the output
         output_layer = self.sequential_layers[-1]
+        z_out = output_layer.z  # output
         a_out = output_layer.a  # output activation
-        output_layer.deltas = output_layer.grad_activation(
-            a_out) * (t.reshape(-1, 1) - a_out)
+        output_layer.deltas = t.reshape(-1, 1) - a_out
+        # output_layer.deltas = output_layer.grad_activation(z_out) * (t.reshape(-1, 1) - a_out)
         output_layer.deltas = np.mean(
             output_layer.deltas, axis=0, keepdims=True)
-
         output_layer.a = np.mean(output_layer.a, axis=0, keepdims=True)
+        # output_layer.bias = np.mean(output_layer.bias, axis=0, keepdims=True)
+
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
-            a_cur = current.a
+            z_cur = current.z
             current.deltas = current.grad_activation(
-                a_cur) * (right.deltas @ right.weights.T)
+                z_cur) * (right.deltas @ right.weights.T)
             current.deltas = np.mean(current.deltas, axis=0, keepdims=True)
             current.a = np.mean(current.a, axis=0, keepdims=True)
+            # current.bias = np.mean(current.bias, axis=0, keepdims=True)
 
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
-            right.weights -= self.eta * right.deltas * current.a.T
+            right.weights -= self.eta * (current.a.T @ right.deltas)
+            right.bias -= self.eta * np.sum(right.deltas, axis=0)
+            # right.weights -= self.eta * right.deltas * current.a.T
 
         first_hidden = self.sequential_layers[0]
-        first_hidden.weights -= self.eta * first_hidden.deltas
+        first_hidden.weights -= self.eta * (X.T @ first_hidden.deltas)
+        first_hidden.bias -= self.eta * np.sum(first_hidden.deltas, axis=0)
 
         # clean deltas in layers
         for i in range(len(self.sequential_layers)):
-            self.sequential_layers[i].deltas = 0
+            self.sequential_layers[i].deltas = 0.0
 
 
 class own_LinRegGD():
