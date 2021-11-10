@@ -83,19 +83,23 @@ class Layer:
         return f"Layer name: {self.name}"
 
 class NeuralNetwork:
-    def __init__(self, cost=MSE, learning_rate=0.001):
+    def __init__(self, cost=MSE, learning_rate=0.001, network_type="regression"):
         self.sequential_layers = []
         self.cost = cost
         self.grad_cost = None  # grad(cost)
         self.eta = learning_rate
+        self.network_type = network_type
 
     def add(self, layer: Layer):
         self.sequential_layers.append(layer)
 
-    def predict(self, input_):
+    def predict(self, input_, threshold=0.5):
         X = input_.copy()
         for layer in self.sequential_layers:
             X = layer.forward_prop(X)
+        
+        if self.network_type == "classification":
+            X = np.where(X > threshold, 1, 0)    
         return X
 
     def fit(self, X, t, batch_size, epochs, verbose=False):
@@ -116,13 +120,17 @@ class NeuralNetwork:
                 self.backpropagation(xi, yi)
 
     def backpropagation(self, X, t):  # fit using feed forward and backprop 
-        _ = self.predict(X)  # t_hat = output activation        
+        t_hat = self.predict(X)  # t_hat = output activation        
         output_layer = self.sequential_layers[-1]        
         n = X.shape[0]
         # calulating the error at the output
         # nb... 1/n er foreksjelelig fra mini batch og GD
         #target-output... 
-        output_layer.error = (1/n) * -2*(t.reshape(-1, 1) - output_layer.output)  # (2/n) = SGD.. GD =
+        
+        if self.network_type == "classification":
+            output_layer.error = -(t.reshape(-1, 1) - t_hat)
+        else:
+            output_layer.error = (1/n) * -2*(t.reshape(-1, 1) - t_hat)  # (2/n) = SGD.. GD =
         #output_layer.error = (2/n)*(output_layer.output - t.reshape(-1, 1))  # (2/n) = SGD.. GD =
         # deriverer mtp output.
 
@@ -144,12 +152,14 @@ class NeuralNetwork:
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
+
             # updating weights
             right.weights = right.weights - self.eta * (current.output.T @ right.deltas)    
+            
             # updating bias
             right.bias = right.bias - self.eta * np.sum(right.deltas, axis=0)
             
-        # updating for first hidden layer
+        # Updating weights and bias for first hidden layer
         first_hidden = self.sequential_layers[0]
         first_hidden.weights = first_hidden.weights - self.eta * (X.T @ first_hidden.deltas)
         first_hidden.bias = first_hidden.bias - self.eta * np.sum(first_hidden.deltas, axis=0)
