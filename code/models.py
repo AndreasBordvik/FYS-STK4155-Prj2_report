@@ -12,7 +12,8 @@ def relu(x):
 
 
 def grad_relu(x):
-    return 0 if x == 0 else 1
+    return np.greater(x,0).astype(int)
+    return np.where(x<=0, 0, 1).astype(int)
 
 
 def leaky_relu(x):
@@ -98,6 +99,7 @@ class NeuralNetwork:
         return X
 
     def fit(self, X, t, batch_size, epochs, verbose=False):
+        # TODO: mention that our implementation is SGD with replacement
         n_batches = int(X.shape[0] // batch_size)
         for epoch in range(epochs):
             if verbose:
@@ -107,6 +109,7 @@ class NeuralNetwork:
                 if verbose:
                     print(f'Epoch={epoch} | {(i + 1) / n_batches * 100:.2f}%')
 
+                
                 random_idx = batch_size*np.random.randint(n_batches)
                 xi = X[random_idx:random_idx+batch_size]
                 yi = t[random_idx:random_idx+batch_size]
@@ -119,13 +122,13 @@ class NeuralNetwork:
         # calulating the error at the output
         # nb... 1/n er foreksjelelig fra mini batch og GD
         #target-output... 
-        output_layer.error = (2/n) * -(t.reshape(-1, 1) - output_layer.output)  # (2/n) = SGD.. GD =
+        output_layer.error = (1/n) * -2*(t.reshape(-1, 1) - output_layer.output)  # (2/n) = SGD.. GD =
         #output_layer.error = (2/n)*(output_layer.output - t.reshape(-1, 1))  # (2/n) = SGD.. GD =
         # deriverer mtp output.
-        
+
         # Calculating the gradient of the error from the output error
         output_layer.deltas = output_layer.error * output_layer.grad_activation(output_layer.z)
-                
+               
         # All other layers
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
@@ -133,8 +136,7 @@ class NeuralNetwork:
             
             # calulating the error at the output
             current.error = right.deltas @ right.weights.T
-            # current.error = np.dot(right.weights, right.deltas)
-
+            
             # Calculating the gradient of the error from the output error
             current.deltas = current.error * current.grad_activation(current.z) 
              
@@ -142,7 +144,9 @@ class NeuralNetwork:
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
+            # updating weights
             right.weights = right.weights - self.eta * (current.output.T @ right.deltas)    
+            # updating bias
             right.bias = right.bias - self.eta * np.sum(right.deltas, axis=0)
             
         # updating for first hidden layer
