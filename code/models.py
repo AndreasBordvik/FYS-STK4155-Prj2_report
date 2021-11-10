@@ -57,18 +57,18 @@ class Fixed_layer:
 
 
 class Layer:
-    def __init__(self, nbf_inputs: int, nbf_outputs: int, activation="sigmoid", name="name"):
+    def __init__(self, nbf_inputs: int, nbf_neurons: int, activation="sigmoid", name="name"):
 
         pick_activation = {"sigmoid": [
             sigmoid, grad_sigmoid], "relu": [relu, grad_relu]}
 
         self.name = name
         self.input = nbf_inputs
-        self.output = nbf_outputs
+        self.neurons = nbf_neurons
         self.activation = pick_activation[activation][0]
         self.grad_activation = pick_activation[activation][1]
-        self.weights = np.random.randn(nbf_inputs, nbf_outputs)  # TODO: include possible negative weight initialization
-        self.bias = np.zeros(nbf_outputs) + 0.01 # TODO: include possible negative weight initialization
+        self.weights = np.random.randn(nbf_inputs, nbf_neurons)  # TODO: include possible negative weight initialization
+        self.bias = np.zeros(nbf_neurons) + 0.01 # TODO: include possible negative weight initialization
         self.z = None
         self.output = None
         self.error = None 
