@@ -1,4 +1,5 @@
-import autograd.numpy as np
+# import autograd.numpy as np
+import numpy as np
 from common import MSE
 from sklearn.preprocessing import StandardScaler
 from autograd import elementwise_grad
@@ -76,8 +77,7 @@ class Layer:
         # self.grad_activation = elementwise_grad(self.activation)
         # self.grad_activation = lambda a: a*(1-a)
         # TODO: include possible negative weight initialization
-        self.weights = np.random.randn(
-            nbf_inputs, nbf_outputs)  # TODO:Must be normal
+        self.weights = np.random.randn(nbf_inputs, nbf_outputs)  # TODO:Must be normal
         # TODO: include possible negative weight initialization
         # self.bias = np.random.randn(1, nbf_outputs)
         self.bias = np.zeros(nbf_outputs) + 0.01
@@ -151,9 +151,46 @@ class NeuralNetwork:
                 random_idx = batch_size*np.random.randint(n_batches)
                 xi = X[random_idx:random_idx+batch_size]
                 yi = t[random_idx:random_idx+batch_size]
-                self.fit(xi, yi)
+                self.backpropagation(xi, yi)
 
-    def fit(self, X, t):  # fit using feed forward and backprop
+    def backpropagation(self, X, t):  # fit using feed forward and backprop
+        _ = self.predict(X)  # t_hat = output activation
+        n = X.shape[0]
+        # Handling output layer
+        output_layer = self.sequential_layers[-1]
+        z_out = output_layer.z  # output
+        a_out = output_layer.a  # output activation
+        output_layer.deltas = (1/n) * 2*(t.reshape(-1, 1) - a_out)  # 1/n * 
+        output_layer.deltas = output_layer.deltas
+        output_layer.a = output_layer.a
+        
+        # All other layers
+        for i in range(len(self.sequential_layers)-1, 0, -1):
+            current = self.sequential_layers[i-1]
+            right = self.sequential_layers[i]
+            z_cur = current.z
+            current.deltas = current.grad_activation(z_cur) * (right.deltas @ right.weights.T)
+            current.deltas = current.deltas
+            current.a = current.a
+             
+        # updating weights
+        for i in range(len(self.sequential_layers)-1, 0, -1):
+            current = self.sequential_layers[i-1]
+            right = self.sequential_layers[i]
+            right.weights -= self.eta * (current.a.T @ right.deltas)    
+            right.bias -= self.eta * np.sum(right.deltas, axis=0)
+            
+        # updating for first hidden layer
+        first_hidden = self.sequential_layers[0]
+        first_hidden.weights -= self.eta * (X.T @ first_hidden.deltas)
+        first_hidden.bias -= self.eta * np.sum(first_hidden.deltas, axis=0)
+
+        # clean deltas in layers
+        for i in range(len(self.sequential_layers)):
+            self.sequential_layers[i].deltas = 0.0
+
+
+    def fit_debug(self, X, t):  # fit using feed forward and backprop
         _ = self.predict(X)  # t_hat = output activation
         # Backprop
         # Calculating the gradient of the error at the output
@@ -204,8 +241,6 @@ class NeuralNetwork:
         # clean deltas in layers
         for i in range(len(self.sequential_layers)):
             self.sequential_layers[i].deltas = 0.0
-
-
 # Snakke med Morten om... mean... skal vi meane for å ta gjennomsnitt over alle samples?
 # har beregenet mauelt mellom forward og backprorp.
 class own_LinRegGD():
