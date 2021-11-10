@@ -160,7 +160,7 @@ class NeuralNetwork:
         output_layer = self.sequential_layers[-1]
         z_out = output_layer.z  # output
         a_out = output_layer.a  # output activation
-        output_layer.deltas = t.reshape(-1, 1) - a_out
+        output_layer.deltas = output_layer.grad_activation(z_out)*(t.reshape(-1, 1) - a_out)
         # output_layer.deltas = output_layer.grad_activation(z_out) * (t.reshape(-1, 1) - a_out)
         output_layer.deltas = np.mean(
             output_layer.deltas, axis=0, keepdims=True)
@@ -171,9 +171,9 @@ class NeuralNetwork:
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
             z_cur = current.z
-            print("right.deltas.shape:", right.deltas.shape)
-            print("right.weights.T.shape:", right.weights.T.shape)
-            print("right.weights.T:", right.weights.T)
+            #print("right.deltas.shape:", right.deltas.shape)
+            #print("right.weights.T.shape:", right.weights.T.shape)
+            #print("right.weights.T:", right.weights.T)
             current.deltas = current.grad_activation(
                 z_cur) * (right.deltas @ right.weights.T)
             current.deltas = np.mean(current.deltas, axis=0, keepdims=True)
