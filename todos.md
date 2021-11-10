@@ -1,5 +1,7 @@
 # Project 2 todos
 
+## General
+1. Clean all notebooks 
 ## Part a) - Write your own Stochastic Gradient Descent code, first step
 1. ```DONE:``` Implement SGD for OLS <br>
 2. ```DONE:``` Implement SGD for Ridge <br>
@@ -14,8 +16,8 @@
 
 ## Part b) - Writing your own Neural Network code
 1. Discuss again your choice of cost function.
-2. ```Code is running - work in progress:``` Write an FFNN code for regression with a flexible number of hidden layers and nodes using the Sigmoid function as activation function for the hidden layers. 
-3. ```Check initialization using sigma and mu``` Initialize the weights using a normal distribution. 
+2. ```Done:``` Write an FFNN code for regression with a flexible number of hidden layers and nodes using the Sigmoid function as activation function for the hidden layers. 
+3. ```Done:``` Initialize the weights using a normal distribution. 
 4. ```Missing analysis on choice:``` How would you initialize the biases? 
 5. ```Missing analysis on choice:``` And which activation function would you select for the final output layer?
 6. Train your network and compare the results with those from your OLS and Ridge Regression codes from project 1.
@@ -24,8 +26,10 @@
 9. Comment your results and give a critical discussion of the results obtained with the your own Neural Network code.
 10. Compare the results with those from project 1. 
 11. Make an analysis of the regularization parameters and the learning rates employed to find the optimal MSE and R2 scores.
-12. Do manual backprop calculation on the XOR problem to validate neural network. 
-13. Use terrain data for testing
+12. ```Done:```Do manual backprop calculation on the XOR problem to validate neural network. 
+13. ```Done:``` Use terrain data for testing
+14. Implement working autograd.
+15. Leaky relu
 
 
 ## Part c) - Testing different activation functions

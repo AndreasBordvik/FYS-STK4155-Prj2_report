@@ -67,7 +67,7 @@ class Layer:
         self.neurons = nbf_neurons
         self.activation = pick_activation[activation][0]
         self.grad_activation = pick_activation[activation][1]
-        self.weights = np.random.randn(nbf_inputs, nbf_neurons)  # TODO: include possible negative weight initialization
+        self.weights = np.random.randn(nbf_inputs, nbf_neurons)  
         self.bias = np.zeros(nbf_neurons) + 0.01 # TODO: include possible negative weight initialization
         self.z = None
         self.output = None
@@ -83,11 +83,12 @@ class Layer:
         return f"Layer name: {self.name}"
 
 class NeuralNetwork:
-    def __init__(self, cost=MSE, learning_rate=0.001, network_type="regression"):
+    def __init__(self, cost=MSE, learning_rate=0.001, lmb=0, network_type="regression"):
         self.sequential_layers = []
         self.cost = cost
         self.grad_cost = None  # grad(cost)
         self.eta = learning_rate
+        self.lmb = lmb
         self.network_type = network_type
 
     def add(self, layer: Layer):
@@ -130,7 +131,10 @@ class NeuralNetwork:
         if self.network_type == "classification":
             output_layer.error = -(t.reshape(-1, 1) - t_hat)
         else:
-            output_layer.error = (1/n) * -2*(t.reshape(-1, 1) - t_hat)  # (2/n) = SGD.. GD =
+            output_layer.error = (1/n) * -2*(t.reshape(-1, 1) - output_layer.output)  # (2/n) = SGD.. GD =    
+        
+        output_layer.error = output_layer.error + 2*self.lmb *output_layer.output
+            
         #output_layer.error = (2/n)*(output_layer.output - t.reshape(-1, 1))  # (2/n) = SGD.. GD =
         # deriverer mtp output.
 
