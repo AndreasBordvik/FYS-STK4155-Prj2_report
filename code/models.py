@@ -3,17 +3,18 @@ import numpy as np
 from common import MSE
 from sklearn.preprocessing import StandardScaler
 from autograd import elementwise_grad
+import tensorflow as tf
+from sklearn.neural_network import MLPRegressor
+
 
 # Activation functions
-
-
 def relu(x):
     return np.maximum(0, x)
 
 
 def grad_relu(x):
-    return np.greater(x,0).astype(int)
-    return np.where(x<=0, 0, 1).astype(int)
+    return np.greater(x, 0).astype(int)
+    return np.where(x <= 0, 0, 1).astype(int)
 
 
 def leaky_relu(x):
@@ -67,12 +68,13 @@ class Layer:
         self.neurons = nbf_neurons
         self.activation = pick_activation[activation][0]
         self.grad_activation = pick_activation[activation][1]
-        self.weights = np.random.randn(nbf_inputs, nbf_neurons)  
-        self.bias = np.zeros(nbf_neurons) + 0.01 # TODO: include possible negative weight initialization
+        self.weights = np.random.randn(nbf_inputs, nbf_neurons)
+        # TODO: include possible negative weight initialization
+        self.bias = np.zeros(nbf_neurons) + 0.01
         self.z = None
         self.output = None
-        self.error = None 
-        self.deltas = 0 # The gradient of the error
+        self.error = None
+        self.deltas = 0  # The gradient of the error
 
     def forward_prop(self, input_: np.ndarray) -> np.ndarray:
         self.z = (input_ @ self.weights) + self.bias
@@ -81,6 +83,7 @@ class Layer:
 
     def __str__(self):
         return f"Layer name: {self.name}"
+
 
 class NeuralNetwork:
     def __init__(self, cost=MSE, learning_rate=0.001, lmb=0, network_type="regression"):
@@ -98,9 +101,9 @@ class NeuralNetwork:
         X = input_.copy()
         for layer in self.sequential_layers:
             X = layer.forward_prop(X)
-        
+
         if self.network_type == "classification":
-            X = np.where(X > threshold, 1, 0)    
+            X = np.where(X > threshold, 1, 0)
         return X
 
     def fit(self, X, t, batch_size, epochs, verbose=False):
@@ -114,64 +117,95 @@ class NeuralNetwork:
                 if verbose:
                     print(f'Epoch={epoch} | {(i + 1) / n_batches * 100:.2f}%')
 
-                
                 random_idx = batch_size*np.random.randint(n_batches)
                 xi = X[random_idx:random_idx+batch_size]
                 yi = t[random_idx:random_idx+batch_size]
                 self.backpropagation(xi, yi)
 
-    def backpropagation(self, X, t):  # fit using feed forward and backprop 
-        t_hat = self.predict(X)  # t_hat = output activation        
-        output_layer = self.sequential_layers[-1]        
+    def backpropagation(self, X, t):  # fit using feed forward and backprop
+        t_hat = self.predict(X)  # t_hat = output activation
+        output_layer = self.sequential_layers[-1]
         n = X.shape[0]
         # calulating the error at the output
         # nb... 1/n er foreksjelelig fra mini batch og GD
-        #target-output... 
-        
+        # target-output...
+
         if self.network_type == "classification":
             output_layer.error = -(t.reshape(-1, 1) - t_hat)
         else:
-            output_layer.error = (1/n) * -2*(t.reshape(-1, 1) - output_layer.output)  # (2/n) = SGD.. GD =    
-        
-        output_layer.error = output_layer.error + 2*self.lmb *output_layer.output
-            
-        #output_layer.error = (2/n)*(output_layer.output - t.reshape(-1, 1))  # (2/n) = SGD.. GD =
+            # (2/n) = SGD.. GD =
+            output_layer.error = (1/n) * -2 * \
+                (t.reshape(-1, 1) - output_layer.output)
+
+        output_layer.error = output_layer.error + 2*self.lmb * output_layer.output
+
+        # output_layer.error = (2/n)*(output_layer.output - t.reshape(-1, 1))  # (2/n) = SGD.. GD =
         # deriverer mtp output.
 
         # Calculating the gradient of the error from the output error
-        output_layer.deltas = output_layer.error * output_layer.grad_activation(output_layer.z)
-               
+        output_layer.deltas = output_layer.error * \
+            output_layer.grad_activation(output_layer.z)
+
         # All other layers
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
-            
+
             # calulating the error at the output
             current.error = right.deltas @ right.weights.T
-            
+
             # Calculating the gradient of the error from the output error
-            current.deltas = current.error * current.grad_activation(current.z) 
-             
+            current.deltas = current.error * current.grad_activation(current.z)
+
         # updating weights
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
 
             # updating weights
-            right.weights = right.weights - self.eta * (current.output.T @ right.deltas)    
-            
+            right.weights = right.weights - self.eta * \
+                (current.output.T @ right.deltas)
+
             # updating bias
             right.bias = right.bias - self.eta * np.sum(right.deltas, axis=0)
-            
+
         # Updating weights and bias for first hidden layer
         first_hidden = self.sequential_layers[0]
-        first_hidden.weights = first_hidden.weights - self.eta * (X.T @ first_hidden.deltas)
-        first_hidden.bias = first_hidden.bias - self.eta * np.sum(first_hidden.deltas, axis=0)
+        first_hidden.weights = first_hidden.weights - \
+            self.eta * (X.T @ first_hidden.deltas)
+        first_hidden.bias = first_hidden.bias - \
+            self.eta * np.sum(first_hidden.deltas, axis=0)
 
         # clean deltas in layers
         for i in range(len(self.sequential_layers)):
             self.sequential_layers[i].deltas = 0.0
             self.sequential_layers[i].error = 0.0
+
+
+def NN_regression_comparison(eta, nbf_features, batch_size, epochs, lmb=0,  hidden_size=50,  act_func="relu"):
+    loss = "mse"
+    # Tensorflow model
+    tf_model = tf.keras.Sequential()
+    tf_model.add(tf.keras.layers.Input(shape=(nbf_features,), name="input"))
+    tf_model.add(tf.keras.layers.Dense(hidden_size, activation=act_func,
+                 kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden1"))
+    tf_model.add(tf.keras.layers.Dense(1, name="output"))
+    tf_model.compile(loss=loss, optimizer=tf.optimizers.SGD(learning_rate=eta))
+
+    # SKlearn model
+
+    sk_model = MLPRegressor(hidden_layer_sizes=(hidden_size, ), solver='sgd', max_iter=epochs,
+                            alpha=lmb, activation="logistic" if act_func is "sigmoid" else act_func,
+                            learning_rate_init=eta, batch_size=batch_size)
+
+    # Own implemented NN model
+    NN_model = NeuralNetwork(cost=MSE, learning_rate=eta,
+                             lmb=lmb, network_type="regression")
+    NN_model.add(Layer(nbf_features, hidden_size,
+                 activation=act_func, name="hidden1"))
+    NN_model.add(Layer(hidden_size, 1, name="output", activation=act_func))
+
+    return NN_model, sk_model, tf_model
 
 
 class own_LinRegGD():
