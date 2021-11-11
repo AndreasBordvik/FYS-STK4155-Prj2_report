@@ -1,11 +1,15 @@
-# import autograd.numpy as np
-import numpy as np
+import autograd.numpy as np
+from autograd import grad # Replacing numpy with autograd might break something, beware!
+# import numpy as np
 from common import MSE
 from sklearn.preprocessing import StandardScaler
 from autograd import elementwise_grad
 from scipy.special import expit
+from tqdm import tqdm
 # Activation functions
 
+def cost_MSE(X,y,theta, lmb=0):
+    return ((y - X @ theta)**2).sum() + lmb*(theta**2).sum()
 
 def relu(x):
     return np.maximum(0, x)
@@ -13,12 +17,13 @@ def relu(x):
 
 def grad_relu(x):
     return np.greater(x, 0).astype(int)
-    return np.where(x <= 0, 0, 1).astype(int)
 
 
 def leaky_relu(x):
     return np.where(x > 0, x, 0.01*x)
 
+def grad_leaky_relu(x):
+    return np.where(x > 0, 1., 0.01)
 
 def sigmoid(x):
     return np.exp(x) / (1 + np.exp(x))
@@ -31,7 +36,107 @@ def grad_sigmoid(x):
 def binary_classifier(x):
     return np.where(x >= 0, 1, 0)
 
+def lr_invscaling(eta, t, power_t=0.25):
+    return eta / np.power(t,power_t)
 
+def sgd(X_train, t_train, theta, n_epoch, batch_size, eta, lr_scheduler=False, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
+    n_batches = int(X_train.shape[0] / batch_size)
+
+    if lr_scheduler:
+        eta0 = eta
+
+    for epoch in tqdm(range(n_epoch), f"Training {n_epoch} epochs"):
+        for i in range(n_batches):
+            random_idx = batch_size*np.random.randint(n_batches)
+            xi = X_train[random_idx:random_idx+batch_size]
+            yi = t_train[random_idx:random_idx+batch_size]
+
+            gradient = (2./batch_size)*d_cost_MSE(xi, yi, theta, lmb)
+
+            if lr_scheduler:
+                eta = lr_invscaling(eta0, epoch*batch_size+(i+1))
+                
+            theta = theta - eta*gradient
+            
+    return theta.ravel()
+
+def momentum_sgd(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, lr_scheduler=False, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
+    n_batches = int(X_train.shape[0] / batch_size)
+    
+    if lr_scheduler:
+        eta0 = eta
+
+    for epoch in tqdm(range(n_epoch), f"Training {n_epoch} epochs"):
+        momentum = 0
+        
+        for i in range(n_batches):
+            random_idx = batch_size*np.random.randint(n_batches)
+            xi = X_train[random_idx:random_idx+batch_size]
+            yi = t_train[random_idx:random_idx+batch_size]
+            
+            gradient = (2./batch_size)*d_cost_MSE(xi, yi, theta, lmb)
+
+            if lr_scheduler:
+                eta = lr_invscaling(eta0, epoch*batch_size+(i+1))
+
+            momentum = momentum*beta - eta*gradient
+            theta = theta + momentum
+            
+    return theta.ravel()
+
+def rmsprop(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, eps=10**(-8), lr_scheduler=False, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
+    n_batches = int(X_train.shape[0] // batch_size)
+    
+    if lr_scheduler:
+        eta0 = eta
+
+    for epoch in tqdm(range(n_epoch), f"Training {n_epoch} epochs"):      
+        s = np.zeros((X_train.shape[-1],1))
+        
+        for i in range(n_batches):
+            random_idx = batch_size*np.random.randint(n_batches)
+            xi = X_train[random_idx:random_idx+batch_size]
+            yi = t_train[random_idx:random_idx+batch_size]
+            
+            gradient = (2./batch_size)*d_cost_MSE(xi, yi, theta, lmb)
+
+            if lr_scheduler:
+                eta = lr_invscaling(eta0, epoch*batch_size+(i+1))
+
+            s = s*beta + (1 - beta)*np.power(gradient, 2)
+            theta = theta - eta*(gradient/np.sqrt(s + eps))
+            
+    return theta.ravel()
+
+def adam(X_train, t_train, theta, n_epoch, batch_size, eta, beta1=0.9, beta2=0.99, eps=10**(-8), lr_scheduler=False, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
+    n_batches = int(X_train.shape[0] // batch_size)
+    
+    if lr_scheduler:
+        eta0 = eta
+
+    for epoch in tqdm(range(n_epoch), f"Training {n_epoch} epochs"):      
+        s = np.zeros((X_train.shape[-1],1))
+        m = np.zeros_like(s)
+        
+        for i in range(n_batches):
+            random_idx = batch_size*np.random.randint(n_batches)
+            xi = X_train[random_idx:random_idx+batch_size]
+            yi = t_train[random_idx:random_idx+batch_size]
+            
+            gradient = (2./batch_size)*d_cost_MSE(xi, yi, theta, lmb)
+
+            m = beta1*m + (1 - beta1)*gradient # First moment
+            s = beta2*s + (1 - beta2)*np.power(gradient, 2) # Second moment
+
+            m = m / (1 - np.power(beta1, i+1))
+            s = s / (1 - np.power(beta2, i+1))
+
+            if lr_scheduler:
+                eta = lr_invscaling(eta0, epoch*batch_size+(i+1))
+
+            theta = theta - eta * (m / (np.sqrt(s) + eps))
+            
+    return theta.ravel() 
 class Fixed_layer:
     def __init__(self, nbf_inputs: int, nbf_outputs: int, weights, bias, activation="sigmoid", name="name"):
         pick_activation = {"sigmoid": [
