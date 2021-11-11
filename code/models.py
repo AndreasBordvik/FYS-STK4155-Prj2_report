@@ -4,13 +4,14 @@ from autograd import grad # Replacing numpy with autograd might break something,
 from common import MSE
 from sklearn.preprocessing import StandardScaler
 from autograd import elementwise_grad
-from scipy.special import expit
 from tqdm import tqdm
-# Activation functions
+import tensorflow as tf
+from sklearn.neural_network import MLPRegressor
 
 def cost_MSE(X,y,theta, lmb=0):
     return ((y - X @ theta)**2).sum() + lmb*(theta**2).sum()
 
+# Activation functions
 def relu(x):
     return np.maximum(0, x)
 
@@ -28,16 +29,18 @@ def grad_leaky_relu(x):
 def sigmoid(x):
     return np.exp(x) / (1 + np.exp(x))
 
-
 def grad_sigmoid(x):
     return sigmoid(x)*(1-sigmoid(x))
-
 
 def binary_classifier(x):
     return np.where(x >= 0, 1, 0)
 
+# Learning rate schedulers
+
 def lr_invscaling(eta, t, power_t=0.25):
     return eta / np.power(t,power_t)
+
+# Different SGD implementations
 
 def sgd(X_train, t_train, theta, n_epoch, batch_size, eta, lr_scheduler=False, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
     n_batches = int(X_train.shape[0] / batch_size)
@@ -137,6 +140,8 @@ def adam(X_train, t_train, theta, n_epoch, batch_size, eta, beta1=0.9, beta2=0.9
             theta = theta - eta * (m / (np.sqrt(s) + eps))
             
     return theta.ravel() 
+
+# Neural Network Code
 class Fixed_layer:
     def __init__(self, nbf_inputs: int, nbf_outputs: int, weights, bias, activation="sigmoid", name="name"):
         pick_activation = {"sigmoid": [
@@ -286,6 +291,32 @@ class NeuralNetwork:
             self.sequential_layers[i].error = 0.0
 
 
+def NN_regression_comparison(eta, nbf_features, batch_size, epochs, lmb=0,  hidden_size=50,  act_func="relu"):
+    loss = "mse"
+    # Tensorflow model
+    tf_model = tf.keras.Sequential()
+    tf_model.add(tf.keras.layers.Input(shape=(nbf_features,), name="input"))
+    tf_model.add(tf.keras.layers.Dense(hidden_size, activation=act_func,
+                 kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden1"))
+    tf_model.add(tf.keras.layers.Dense(1, name="output"))
+    tf_model.compile(loss=loss, optimizer=tf.optimizers.SGD(learning_rate=eta))
+
+    # SKlearn model
+
+    sk_model = MLPRegressor(hidden_layer_sizes=(hidden_size, ), solver='sgd', max_iter=epochs,
+                            alpha=lmb, activation="logistic" if act_func is "sigmoid" else act_func,
+                            learning_rate_init=eta, batch_size=batch_size)
+
+    # Own implemented NN model
+    NN_model = NeuralNetwork(cost=MSE, learning_rate=eta,
+                             lmb=lmb, network_type="regression")
+    NN_model.add(Layer(nbf_features, hidden_size,
+                 activation=act_func, name="hidden1"))
+    NN_model.add(Layer(hidden_size, 1, name="output", activation=act_func))
+
+    return NN_model, sk_model, tf_model
+
+# Linear Regression code
 class own_LinRegGD():
     def __init__(self):
         self.f = lambda X, W: X @ W
