@@ -148,26 +148,49 @@ Another benefit of Stochastic Gradient Descent (SGD) compared to its non-stochas
 
 \section{Methodology}
 \subsection{Implementing Stochastic Gradient Descent}
-By introducing the concept of mini-batches to Gradient Descent, we have to split randomly split our data into mini-batches such that the resulting design matrix is 
+By introducing the concept of mini-batches to Gradient Descent, we have to split our data randomly into mini-batches such that the resulting design matrix is 
 $$
 X_{\text{perm}} = \left\{X_0, X_1, \ldots, X_M\right\}^T
 $$
-where $M$ represents the number of mini-batches. Moreover, $X_i$ contains randomly drawn rows from $X$ without replacement. Consequently, the target vector $t$ is shuffled in such a way that the rows in $X_{\text{perm}}$ still adheres to the same target $t_i$.
+where $M$ represents the number of mini-batches. Moreover, $X_i$ contains randomly drawn rows from $X$. The random draw can be both with and without replacement. In the case of the prior, some minibatches can be reused while others are skipped in their entirety. Whereas in the latter case, all minibatches have to be used to constitute one epoch. The difference between these implementations of Stochastic Gradient Descent is that the prior version with replacement tends to converge somewhat faster than the version without replacement \cite{Geron2019}. Furthermore, the target vector $t$ is shuffled in such a way that the rows in $X_{\text{perm}}$ still adheres to the same target $t_i$.
 
-With the construction of $X_\text{perm}$, the algorithm moves forward by computing the gradient and moving along its direction one mini-batch at a time. Traversing through all mini-batches constitutes to one epoch. The algorithm just described is then rerun for a specified number of epochs.
+With the construction of $X_\text{perm}$, the algorithm moves forward by computing the gradient and moving along its direction one mini-batch at a time. Traversing through all mini-batches or a set number of them constitutes to one epoch. The algorithm just described is then rerun for a specified number of epochs.
 
-Stochastic Gradient Descent is implemented as pseudocode in Listing (NOT YET IMPLEMENTED)
+Stochastic Gradient Descent is implemented as pseudocode in Algorithm (\ref{alg:sgd})
 
-INCLUDE PSEUDOCODE FOR SGD HERE
+\begin{algorithm}
+  \KwData{Design Matrix (X), target array (t) and initial guess at predictors $\theta$}
+  \KwResult{Estimated value of the predictors $\theta$}
+  \For{epoch in number of epochs}{
+    \For{batch in number of batches}{
+      $x_i$ = X[batch]\;
+      $t_i$ = t[batch]\;
+      Compute $\nabla_\theta{}C(\theta)$ with respect to $x_i$ and $t_i$\;
+      $\eta \leftarrow learning_schedule(\eta, \ldots)$\;
+      $\theta \leftarrow \theta - \eta*\nabla_\theta{}C(\theta)$\;
+    }
+  }
+  \Return{$\theta$}
+  \caption{\label{alg:sgd}Stochastic Gradient Descent with minibatches and learning rate scheduler}
+\end{algorithm}
 
 
 
 \section{Results}
+When creating the results, we note that all are generated from the Source Code in the appendix. For a further explanation on how to reproduce these results, we refer to the GitHub repository which contains a README explaining how to run the supplied source code. 
 
+\subsection{Our Stochastic Gradient Descent}
+Our Stochastic Gradient Descent is implemented akin to Algorithm (\ref{alg:sgd}). Figure (\ref{fig:a_mse_epoch}) plots the MSE computed from our SGD implementation against the number of epochs used. 
 
+\begin{figure}
+  \centering
+  \includegraphics[width=\columnwidth]{figures/EX_A_mse_with_varying_epoch.pdf}
+  \caption{\label{fig:a_mse_epoch}MSE calculated from Stochastic Gradient Descent optimization of the predictors $\theta$ as function of number of epochs}
+\end{figure}
 
 \section{Discussion}
 
+\subsection{Analyzing our Stochastic Gradient Descent}
 
 
 \section{Conclusions}
@@ -176,7 +199,7 @@ INCLUDE PSEUDOCODE FOR SGD HERE
 
 \section{Source Code}
 \label{sec:sc} 
-Link to github repository containing all developed code for this project: \href{https://github.com/AndreasBordvik/FYS-STK4155-Prj2_report}{GitHub}
+Link to github repository containing all developed code for this project: \url{https://github.com/AndreasBordvik/FYS-STK4155-Prj2_report}
 
 % Create the reference section using BibTeX:
 
