@@ -3,7 +3,7 @@ import numpy as np
 from common import MSE
 from sklearn.preprocessing import StandardScaler
 from autograd import elementwise_grad
-
+from scipy.special import expit
 # Activation functions
 
 
@@ -12,8 +12,8 @@ def relu(x):
 
 
 def grad_relu(x):
-    return np.greater(x,0).astype(int)
-    return np.where(x<=0, 0, 1).astype(int)
+    return np.greater(x, 0).astype(int)
+    return np.where(x <= 0, 0, 1).astype(int)
 
 
 def leaky_relu(x):
@@ -67,12 +67,13 @@ class Layer:
         self.neurons = nbf_neurons
         self.activation = pick_activation[activation][0]
         self.grad_activation = pick_activation[activation][1]
-        self.weights = np.random.randn(nbf_inputs, nbf_neurons)  
-        self.bias = np.zeros(nbf_neurons) + 0.01 # TODO: include possible negative weight initialization
+        self.weights = np.random.randn(nbf_inputs, nbf_neurons)
+        # TODO: include possible negative weight initialization
+        self.bias = np.zeros(nbf_neurons) + 0.01
         self.z = None
         self.output = None
-        self.error = None 
-        self.deltas = 0 # The gradient of the error
+        self.error = None
+        self.deltas = 0  # The gradient of the error
 
     def forward_prop(self, input_: np.ndarray) -> np.ndarray:
         self.z = (input_ @ self.weights) + self.bias
@@ -81,6 +82,7 @@ class Layer:
 
     def __str__(self):
         return f"Layer name: {self.name}"
+
 
 class NeuralNetwork:
     def __init__(self, cost=MSE, learning_rate=0.001, lmb=0, network_type="regression"):
@@ -98,9 +100,9 @@ class NeuralNetwork:
         X = input_.copy()
         for layer in self.sequential_layers:
             X = layer.forward_prop(X)
-        
+
         if self.network_type == "classification":
-            X = np.where(X > threshold, 1, 0)    
+            X = np.where(X > threshold, 1, 0)
         return X
 
     def fit(self, X, t, batch_size, epochs, verbose=False):
@@ -114,59 +116,64 @@ class NeuralNetwork:
                 if verbose:
                     print(f'Epoch={epoch} | {(i + 1) / n_batches * 100:.2f}%')
 
-                
                 random_idx = batch_size*np.random.randint(n_batches)
                 xi = X[random_idx:random_idx+batch_size]
                 yi = t[random_idx:random_idx+batch_size]
                 self.backpropagation(xi, yi)
 
-    def backpropagation(self, X, t):  # fit using feed forward and backprop 
-        t_hat = self.predict(X)  # t_hat = output activation        
-        output_layer = self.sequential_layers[-1]        
+    def backpropagation(self, X, t):  # fit using feed forward and backprop
+        t_hat = self.predict(X)  # t_hat = output activation
+        output_layer = self.sequential_layers[-1]
         n = X.shape[0]
         # calulating the error at the output
         # nb... 1/n er foreksjelelig fra mini batch og GD
-        #target-output... 
-        
+        # target-output...
+
         if self.network_type == "classification":
             output_layer.error = -(t.reshape(-1, 1) - t_hat)
         else:
-            output_layer.error = (1/n) * -2*(t.reshape(-1, 1) - output_layer.output)  # (2/n) = SGD.. GD =    
-        
-        output_layer.error = output_layer.error + 2*self.lmb *output_layer.output
-            
-        #output_layer.error = (2/n)*(output_layer.output - t.reshape(-1, 1))  # (2/n) = SGD.. GD =
+            # (2/n) = SGD.. GD =
+            output_layer.error = (1/n) * -2 * \
+                (t.reshape(-1, 1) - output_layer.output)
+
+        output_layer.error = output_layer.error + 2*self.lmb * output_layer.output
+
+        # output_layer.error = (2/n)*(output_layer.output - t.reshape(-1, 1))  # (2/n) = SGD.. GD =
         # deriverer mtp output.
 
         # Calculating the gradient of the error from the output error
-        output_layer.deltas = output_layer.error * output_layer.grad_activation(output_layer.z)
-               
+        output_layer.deltas = output_layer.error * \
+            output_layer.grad_activation(output_layer.z)
+
         # All other layers
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
-            
+
             # calulating the error at the output
             current.error = right.deltas @ right.weights.T
-            
+
             # Calculating the gradient of the error from the output error
-            current.deltas = current.error * current.grad_activation(current.z) 
-             
+            current.deltas = current.error * current.grad_activation(current.z)
+
         # updating weights
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
 
             # updating weights
-            right.weights = right.weights - self.eta * (current.output.T @ right.deltas)    
-            
+            right.weights = right.weights - self.eta * \
+                (current.output.T @ right.deltas)
+
             # updating bias
             right.bias = right.bias - self.eta * np.sum(right.deltas, axis=0)
-            
+
         # Updating weights and bias for first hidden layer
         first_hidden = self.sequential_layers[0]
-        first_hidden.weights = first_hidden.weights - self.eta * (X.T @ first_hidden.deltas)
-        first_hidden.bias = first_hidden.bias - self.eta * np.sum(first_hidden.deltas, axis=0)
+        first_hidden.weights = first_hidden.weights - \
+            self.eta * (X.T @ first_hidden.deltas)
+        first_hidden.bias = first_hidden.bias - \
+            self.eta * np.sum(first_hidden.deltas, axis=0)
 
         # clean deltas in layers
         for i in range(len(self.sequential_layers)):
@@ -207,3 +214,73 @@ class own_LinRegGD():
 
 if __name__ == '__main__':
     print("Import this file as a package please!")
+
+
+class NumpyLogReg():
+    def __init__(self, eta=None, lmb=None) -> None:
+        super().__init__()
+        self.eta = eta
+        self.lmb = lmb
+
+    def fit(self, X_train, t_train, batch_size, epochs, solver="SGD"):
+        """X_train is a Nxm matrix, N data points, m features
+        t_train are the targets values for training data"""
+        m = X_train.shape[1]
+        n_batches = np.ceil(X_train.shape[0] / batch_size)
+
+        self.beta = np.zeros(m)
+
+        indicies = np.arange(X_train.shape[0])
+        if solver == "SGD":
+            # Stochastic Gradient Descent:
+
+            for epoch in range(epochs):
+                np.random.shuffle(indicies)
+                minibatch_list = np.array_split(indicies, n_batches)
+
+                for minibatch in (minibatch_list):
+                    xi = np.take(X_train, minibatch, axis=0)
+                    yi = np.take(t_train, minibatch, axis=0)
+                    p = self.forward(xi)
+                    gradient = -xi.T @ (yi-p)
+
+                    # beta punishing
+                    self.beta += self.beta*self.lmb**2
+                    # updating betas:
+                    self.beta = self.beta - self.eta*gradient
+
+        elif solver == "NRM":
+            # Newton Raphson´s Method:
+            for epoch in range(epochs):
+                self.newton_raphson(X_train, t_train)
+
+        else:
+            print("Choose SGM og NRM as solver")
+
+    def accuracy(self, X_test, y_test, **kwargs):
+        pred = self.predict(X_test, **kwargs)
+        if len(pred.shape) > 1:
+            pred = pred[:, 0]
+        return sum(pred == y_test) / len(pred)
+
+    def forward(self, X):
+        return 1/(1+np.exp(-X @ self.beta))
+
+    def newton_raphson(self, X, y):
+        p = self.forward(X)
+        p_1 = 1-p
+        score = -X.T @ (y-p)
+
+        W = np.zeros(shape=(len(y), len(y)))
+        np.fill_diagonal(W, (p*p_1))
+
+        hessian = X.T@W@X
+        update = np.linalg.pinv(hessian) @ score
+
+        self.beta -= update
+
+    def predict(self, x, threshold=0.5):
+        #z = self.add_bias(x)
+        score = self.forward(x)
+        # score = z @ self.theta
+        return (score > threshold).astype('int')
