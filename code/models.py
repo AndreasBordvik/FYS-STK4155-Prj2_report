@@ -241,3 +241,73 @@ class own_LinRegGD():
 
 if __name__ == '__main__':
     print("Import this file as a package please!")
+
+
+class NumpyLogReg():
+    def __init__(self, eta=None, lmb=None) -> None:
+        super().__init__()
+        self.eta = eta
+        self.lmb = lmb
+
+    def fit(self, X_train, t_train, batch_size, epochs, solver="SGD"):
+        """X_train is a Nxm matrix, N data points, m features
+        t_train are the targets values for training data"""
+        m = X_train.shape[1]
+        n_batches = np.ceil(X_train.shape[0] / batch_size)
+
+        self.beta = np.zeros(m)
+
+        indicies = np.arange(X_train.shape[0])
+        if solver == "SGD":
+            # Stochastic Gradient Descent:
+
+            for epoch in range(epochs):
+                np.random.shuffle(indicies)
+                minibatch_list = np.array_split(indicies, n_batches)
+
+                for minibatch in (minibatch_list):
+                    xi = np.take(X_train, minibatch, axis=0)
+                    yi = np.take(t_train, minibatch, axis=0)
+                    p = self.forward(xi)
+                    gradient = -xi.T @ (yi-p)
+
+                    # beta punishing
+                    self.beta += self.beta*self.lmb**2
+                    # updating betas:
+                    self.beta = self.beta - self.eta*gradient
+
+        elif solver == "NRM":
+            # Newton Raphson´s Method:
+            for epoch in range(epochs):
+                self.newton_raphson(X_train, t_train)
+
+        else:
+            print("Choose SGM og NRM as solver")
+
+    def accuracy(self, X_test, y_test, **kwargs):
+        pred = self.predict(X_test, **kwargs)
+        if len(pred.shape) > 1:
+            pred = pred[:, 0]
+        return sum(pred == y_test) / len(pred)
+
+    def forward(self, X):
+        return 1/(1+np.exp(-X @ self.beta))
+
+    def newton_raphson(self, X, y):
+        p = self.forward(X)
+        p_1 = 1-p
+        score = -X.T @ (y-p)
+
+        W = np.zeros(shape=(len(y), len(y)))
+        np.fill_diagonal(W, (p*p_1))
+
+        hessian = X.T@W@X
+        update = np.linalg.pinv(hessian) @ score
+
+        self.beta -= update
+
+    def predict(self, x, threshold=0.5):
+        #z = self.add_bias(x)
+        score = self.forward(x)
+        # score = z @ self.theta
+        return (score > threshold).astype('int')
