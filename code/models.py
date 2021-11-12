@@ -180,6 +180,7 @@ class Layer:
         self.weights = np.random.randn(nbf_inputs, nbf_neurons)
         # TODO: include possible negative weight initialization
         self.bias = np.zeros(nbf_neurons) + 0.01
+        self.nbf_parameters = self.weights.size + self.bias.size
         self.z = None
         self.output = None
         self.error = None
@@ -206,9 +207,11 @@ class NeuralNetwork:
         self.test_losses = []
         self.X_test = X_test
         self.t_test = t_test
+        self.nbf_parameters = 0
 
     def add(self, layer: Layer):
         self.sequential_layers.append(layer)
+        self.nbf_parameters += layer.nbf_parameters
 
     def predict(self, input_, threshold=0.5):
         X = input_.copy()
@@ -219,7 +222,7 @@ class NeuralNetwork:
             X = np.where(X > threshold, 1, 0)
         return X
 
-    def fit(self, X, t, batch_size, epochs, verbose=False):
+    def fit(self, X, t, batch_size, epochs, lr_scheduler=False, verbose=False):
         # TODO: mention that our implementation is SGD with replacement
         n_batches = int(X.shape[0] // batch_size)
         self.train_losses = []
@@ -237,12 +240,17 @@ class NeuralNetwork:
                 xi = X[random_idx:random_idx+batch_size]
                 yi = t[random_idx:random_idx+batch_size]
                 self.backpropagation(xi, yi)
+                
+                if lr_scheduler:
+                    self.eta = lr_invscaling(self.eta, epoch*batch_size+(i+1))
 
             t_hat_train = self.predict(X.copy())
             self.train_losses.append(MSE(t.copy(), t_hat_train))
             
             t_hat_test = self.predict(self.X_test)
             self.test_losses.append(MSE(self.t_test, t_hat_test))
+
+            
         return np.array(self.train_losses), np.array(self.test_losses)
 
     def backpropagation(self, X, t):  # fit using feed forward and backprop
@@ -268,6 +276,8 @@ class NeuralNetwork:
         # Calculating the gradient of the error from the output error
         output_layer.deltas = output_layer.error * \
             output_layer.grad_activation(output_layer.z)
+        
+
 
         # All other layers
         for i in range(len(self.sequential_layers)-1, 0, -1):
@@ -284,13 +294,13 @@ class NeuralNetwork:
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
-
+            
             # updating weights
-            right.weights = right.weights - self.eta * \
-                (current.output.T @ right.deltas)
-
+            right.weights = right.weights - self.eta * (current.output.T @ right.deltas)
+            
             # updating bias
             right.bias = right.bias - self.eta * np.sum(right.deltas, axis=0)
+
 
         # Updating weights and bias for first hidden layer
         first_hidden = self.sequential_layers[0]
@@ -303,7 +313,9 @@ class NeuralNetwork:
         for i in range(len(self.sequential_layers)):
             self.sequential_layers[i].deltas = 0.0
             self.sequential_layers[i].error = 0.0
-
+    
+    def __str__(self):
+        return f"Number of network parameters: {self.nbf_parameters}"
 
 def NN_regression_comparison(eta, nbf_features, batch_size, epochs, X_test, t_test, lmb=0,  hidden_size=50,  act_func="relu"):
     # Tensorflow model
@@ -343,10 +355,8 @@ def NN_simple_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_
     tf_model.compile(loss=loss, optimizer=tf.optimizers.SGD(learning_rate=eta))
 
     # Own implemented NN model
-    NN_model = NeuralNetwork(cost=MSE, learning_rate=eta,
-                             lmb=lmb, network_type=problem_type, X_test=X_test, t_test=t_test)
-    NN_model.add(Layer(nbf_features, hidden_size,
-                 activation=act_func, name="hidden1"))
+    NN_model = NeuralNetwork(cost=MSE, learning_rate=eta, lmb=lmb, network_type=problem_type, X_test=X_test, t_test=t_test)
+    NN_model.add(Layer(nbf_features, hidden_size,activation=act_func, name="hidden1"))
     NN_model.add(Layer(hidden_size, nbf_outputs, name="output", activation=act_func))
 
     return NN_model, tf_model
@@ -392,7 +402,7 @@ def plot_save_NN_results(hidden_size: int, model_size : str, eta_list:np.ndarray
     plt.figure(figsize=(12,10))
     eta_list = np.around(eta_list, decimals=5)
     lmb_list = np.around(lmb_list, decimals=5)
-    gridsearch = sns.heatmap(heatmap_mtrx, annot=True, xticklabels= eta_list, yticklabels= lmb_list, cmap="RdYlGn_r")
+    gridsearch = sns.heatmap(heatmap_mtrx, annot=True, fmt=".4f",xticklabels= eta_list, yticklabels= lmb_list, cmap="RdYlGn_r")
     gridsearch.invert_xaxis()
     gridsearch.invert_yaxis()
     gridsearch.set_xticklabels(gridsearch.get_xticklabels(),rotation = 80)
