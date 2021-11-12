@@ -1,15 +1,9 @@
 import time
-import numpy as np
-import pandas as pd
-from tqdm import tqdm
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error as MSE
-from sklearn.metrics import r2_score as R2
+import autograd.numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import matplotlib.pyplot as plt
-from matplotlib import cm
-from typing import Callable, Tuple
-from autograd import grad
+from typing import Tuple
+
 
 # Setting global variables
 INPUT_DATA = "../data/input_data/"  # Path for input data
@@ -17,18 +11,7 @@ REPORT_DATA = "../data/report_data/"  # Path for data ment for the report
 REPORT_FIGURES = "../figures/"  # Path for figures ment for the report
 EX_A = "EX_A_"; EX_B = "EX_B_"; EX_C = "EX_C_"; EX_D = "EX_D_"; EX_E = "EX_E_"; EX_F = "EX_F_"
 
-
-def cost_MSE(X,y,theta, lmb=0):
-    return ((y - X @ theta)**2).sum() + lmb*(theta**2).sum()
-
-d_cost_MSE = grad(cost_MSE, 2)
-
-
-def cost_CE(X,y,theta, lmb=0):
-    pass
-
-d_cost_CE = grad(cost_CE, 2)
-
+# Common methods
 
 def learning_rate_upper_limit(X_train):
     XT_X = X_train.T @ X_train

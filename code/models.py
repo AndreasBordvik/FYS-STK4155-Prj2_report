@@ -1,9 +1,7 @@
 import autograd.numpy as np
 from autograd import grad # Replacing numpy with autograd might break something, beware!
 # import numpy as np
-from common import MSE
-from sklearn.preprocessing import StandardScaler
-from autograd import elementwise_grad
+from sklearn.metrics import mean_squared_error as MSE
 from tqdm import tqdm
 import tensorflow as tf
 from sklearn.neural_network import MLPRegressor
@@ -18,10 +16,8 @@ def cost_MSE(X,y,theta, lmb=0):
 def relu(x):
     return np.maximum(0, x)
 
-
 def grad_relu(x):
     return np.greater(x, 0).astype(int)
-
 
 def leaky_relu(x):
     return np.where(x > 0, x, 0.01*x)
@@ -319,7 +315,7 @@ def NN_regression_comparison(eta, nbf_features, batch_size, epochs, X_test, t_te
 
     # SKlearn model
     sk_model = MLPRegressor(hidden_layer_sizes=(hidden_size, ), solver='sgd', max_iter=epochs,
-                            alpha=lmb, activation="logistic" if act_func is "sigmoid" else act_func,
+                            alpha=lmb, activation="logistic" if act_func == "sigmoid" else act_func,
                             learning_rate_init=eta, batch_size=batch_size)
 
     # Own implemented NN model
