@@ -397,20 +397,20 @@ def NN_large_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_o
     NN_model.add(out)
     return NN_model, tf_model
 
-def plot_save_NN_results(hidden_size: int, model_size : str, eta_list:np.ndarray, lmb_list:np.ndarray, heatmap_mtrx:np.ndarray, heatmap_mtrx_tf:np.ndarray):
+def plot_save_NN_results(parameters: int, model_size : str, eta_list:np.ndarray, lmb_list:np.ndarray, heatmap_mtrx:np.ndarray, heatmap_mtrx_tf:np.ndarray):
     # Own NN heatmap
     plt.figure(figsize=(12,10))
-    eta_list = np.around(eta_list, decimals=5)
-    lmb_list = np.around(lmb_list, decimals=5)
+    eta_list = np.around(eta_list, decimals=6)
+    lmb_list = np.around(lmb_list, decimals=6)
     gridsearch = sns.heatmap(heatmap_mtrx, annot=True, fmt=".4f",xticklabels= eta_list, yticklabels= lmb_list, cmap="RdYlGn_r")
     gridsearch.invert_xaxis()
     gridsearch.invert_yaxis()
     gridsearch.set_xticklabels(gridsearch.get_xticklabels(),rotation = 80)
 
-    plt.title(f"Own NN implementation - {model_size} architecture\nEta, Lambda gridsearch using {hidden_size} neurons in first hidden layer")
+    plt.title(f"Own NN implementation - {model_size} architecture\nEta and Lambda gridsearch on model having {parameters} parameters")
     plt.xlabel("Eta")
     plt.ylabel("Lambda")
-    plt.savefig(f"{REPORT_FIGURES}{EX_B}heatmap_own_NN_{model_size}_hidden_size_{hidden_size}.pdf")
+    plt.savefig(f"{REPORT_FIGURES}{EX_B}heatmap_own_NN_{model_size}_parameters_{parameters}.pdf")
 
     # Tensorflow heatmap
     plt.figure(figsize=(12,10))
@@ -419,10 +419,10 @@ def plot_save_NN_results(hidden_size: int, model_size : str, eta_list:np.ndarray
     gridsearch_tf.invert_yaxis()
     gridsearch_tf.set_xticklabels(gridsearch_tf.get_xticklabels(),rotation = 80)
 
-    plt.title(f"Tensorflow NN implementation - {model_size} architecture\nEta, Lambda gridsearch using {hidden_size} neurons in first hidden layer")
+    plt.title(f"Tensorflow NN implementation - {model_size} architecture\nEta and Lambda gridsearch on model having {parameters} parameters")
     plt.xlabel("Eta")
     plt.ylabel("Lambda")
-    plt.savefig(f"{REPORT_FIGURES}{EX_B}heatmap_tf_{model_size}_hidden_size_{hidden_size}.pdf")
+    plt.savefig(f"{REPORT_FIGURES}{EX_B}heatmap_tf_{model_size}_parameters_{parameters}.pdf")
 
 # Linear Regression code
 class own_LinRegGD():
