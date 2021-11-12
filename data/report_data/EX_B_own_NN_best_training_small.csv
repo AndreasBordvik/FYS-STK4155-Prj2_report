@@ -1,7 +1,0 @@
-,0
-best_MSE,0.7033
-R2_at_best_MSE,0.3111
-parameters,1025.0
-neurons_first_hidden,256.0
-learning_rate,0.5
-lambda,0.0
