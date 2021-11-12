@@ -146,7 +146,7 @@ By utilizing the entire gradient of the cost function to compute the next step a
 
 Another benefit of Stochastic Gradient Descent (SGD) compared to its non-stochastic variant is its ability to exit local minima. As the SGD never reaches a true minimum, a local minima might not be able to contain the algorithm when recomputing the gradient based on a different subset of data. On the other hand, as a consequence of never achieving true minimum, SGD will never return optimal values when compared to non-stochastic gradient descent. 
 
-\section{Methodology}
+\section{Methods}
 \subsection{Implementing Stochastic Gradient Descent}
 By introducing the concept of mini-batches to Gradient Descent, we have to split our data randomly into mini-batches such that the resulting design matrix is 
 $$
@@ -156,6 +156,10 @@ where $M$ represents the number of mini-batches. Moreover, $X_i$ contains rando
 
 With the construction of $X_\text{perm}$, the algorithm moves forward by computing the gradient and moving along its direction one mini-batch at a time. Traversing through all mini-batches or a set number of them constitutes to one epoch. The algorithm just described is then rerun for a specified number of epochs.
 
+The gradient step can be described mathematically as follows in Equation (\ref{eq:grad_step})
+\begin{equation}\label{eq:grad_step}
+  \beta_{j+1} = \beta_j - \eta_j\sum_{i \in B_k}^n\nabla_\beta c_i(\bm{x}_i,\beta_j)
+\end{equation}
 Stochastic Gradient Descent is implemented as pseudocode in Algorithm (\ref{alg:sgd})
 
 \begin{algorithm}
@@ -167,14 +171,42 @@ Stochastic Gradient Descent is implemented as pseudocode in Algorithm (\ref{alg:
       $t_i$ = t[batch]\;
       Compute $\nabla_\theta{}C(\theta)$ with respect to $x_i$ and $t_i$\;
       $\eta \leftarrow learning_schedule(\eta, \ldots)$\;
-      $\theta \leftarrow \theta - \eta*\nabla_\theta{}C(\theta)$\;
+      $\theta \leftarrow \theta - \eta*\nabla_\theta C(\theta)$\;
     }
   }
   \Return{$\theta$}
   \caption{\label{alg:sgd}Stochastic Gradient Descent with minibatches and learning rate scheduler}
 \end{algorithm}
 
+\subsection{Adding momentum to SGD}
+Equation (\ref{eq:grad_step}) can be generalized with a momentum term as follows 
 
+\begin{equation}
+  \label{eq:momentum_grad}
+  \begin{aligned}
+    \bm{v}_t = \gamma\bm{v}_{t-1} + \eta_y\nabla_\theta E(\bm{\theta}_t) \\
+    \bm{\theta}_{t+1} = \bm{\theta}_t - \bm{v}_t
+  \end{aligned}
+\end{equation}
+
+Where the momentum parameter $\gamma \in \left[0,1\right]$. The intuition behind the introduction of the momentum parameter is the drag coefficient used in mechanics to describe friction. It's usage is similar when introduced in Stochastic Gradient Descent, as the momentum parameter enables the possibility for the gradient to attain momentum when traversing along a slope. Eventually if the gradient is ascending a gradient, due to the momentum, it might stop and return back down towards the minima. Thus Stochastic Gradient Descent with momentum enables the gradient to traverse through some local minima, while eventually stopping at the global minima. The algorithmic implementation of Momentum Stochastic Gradient Descent can be seen in Algorithm (\ref{alg:msgd}).
+
+\begin{algorithm}
+  \KwData{Design Matrix (X), target array (t) and initial guess at predictors $\theta$}
+  \KwResult{Estimated value of the predictors $\theta$}
+  \For{epoch in number of epochs}{
+    \For{batch in number of batches}{
+      $x_i$ = X[batch]\;
+      $t_i$ = t[batch]\;
+      Compute $\nabla_\theta{}C(\theta)$ with respect to $x_i$ and $t_i$\;
+      $\eta \leftarrow learning\_schedule(\eta, \ldots)$\;
+      $v \leftarrow \gamma v + \eta*\nabla_\theta C(\theta)$\;
+      $\theta = \theta - v$\;
+    }
+  }
+  \Return{$\theta$}
+  \caption{\label{alg:msgd}Stochastic Gradient Descent with momentum, minibatches and learning rate scheduler}
+\end{algorithm}
 
 \section{Results}
 When creating the results, we note that all are generated from the Source Code in the appendix. For a further explanation on how to reproduce these results, we refer to the GitHub repository which contains a README explaining how to run the supplied source code. 
@@ -185,8 +217,28 @@ Our Stochastic Gradient Descent is implemented akin to Algorithm (\ref{alg:sgd})
 \begin{figure}
   \centering
   \includegraphics[width=\columnwidth]{figures/EX_A_mse_with_varying_epoch.pdf}
-  \caption{\label{fig:a_mse_epoch}MSE calculated from Stochastic Gradient Descent optimization of the predictors $\theta$ as function of number of epochs}
+  \caption{\label{fig:a_mse_epoch}MSE calculated from Stochastic Gradient Descent optimization of the predictors $\theta$ as function of the number of epochs with all other hyperparameters kept fixed}
 \end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\columnwidth]{figures/EX_A_mse_with_varying_batch_size.pdf}
+  \caption{\label{fig:a_bs}MSE calculated from Stochastic Gradient Descent as function of the batch size with all other hyperparameters kept fixed}
+\end{figure}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\textwidth]{figures/EX_A__gridsearch.pdf}
+  \caption{\label{fig:a_gs}MSE calculated for varying $\eta$ and $\lambda$ values in a grid search with learning rate scheduler turned off}
+\end{figure*}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\textwidth]{figures/EX_A__gridsearch_withlr.pdf}
+  \caption{\label{fig:a_gs}MSE calculated for varying $\eta$ and $\lambda$ values in a grid search with learning rate scheduler turned off}
+\end{figure*}
+
+
 
 \section{Discussion}
 

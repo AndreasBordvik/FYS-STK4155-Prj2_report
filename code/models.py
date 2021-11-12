@@ -40,9 +40,12 @@ def binary_classifier(x):
 def lr_invscaling(eta, t, power_t=0.25):
     return eta / np.power(t,power_t)
 
+def lr_expdecay(eta, t):
+    return eta * np.exp(-0.1*t)
+
 # Different SGD implementations
 
-def sgd(X_train, t_train, theta, n_epoch, batch_size, eta, lr_scheduler=False, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
+def sgd(X_train, t_train, theta, n_epoch, batch_size, eta, lr_scheduler=False, scheduler=lr_invscaling, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
     n_batches = int(X_train.shape[0] / batch_size)
 
     if lr_scheduler:
@@ -57,7 +60,8 @@ def sgd(X_train, t_train, theta, n_epoch, batch_size, eta, lr_scheduler=False, l
             gradient = (2./batch_size)*d_cost_MSE(xi, yi, theta, lmb)
 
             if lr_scheduler:
-                eta = lr_invscaling(eta0, epoch*batch_size+(i+1))
+                if epoch >= 10: # Keep the initial learningrate for the first 10 samples
+                    eta = scheduler(eta0, epoch*batch_size+(i+1))
                 
             theta = theta - eta*gradient
             
