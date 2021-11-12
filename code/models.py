@@ -2,6 +2,7 @@ import autograd.numpy as np
 from autograd import grad # Replacing numpy with autograd might break something, beware!
 # import numpy as np
 from sklearn.metrics import mean_squared_error as MSE
+from sklearn.metrics import r2_score as R2
 from tqdm import tqdm
 import tensorflow as tf
 from sklearn.neural_network import MLPRegressor
