@@ -123,13 +123,15 @@ The \textbf{Universal approximation theorem} states that a Neural Network can ap
 
 When studying regression using our developed Feed-Forward Neural Network code, we will return to the terrain data used in Project 1 when studying polynomial fitting with different variants of Least Squares Regression. Moreover, we will compare our findings in this project with the result of our previous project to further study the differences polynomial fitting and gradient based approximations. 
 
-Furthermore, we will study classification using the \href{https://www.kaggle.com/uciml/breast-cancer-wisconsin-data}{Wisconsin Breast Cancer Data}. When studying the accuracy of the Neural Net in the context of classification, we will also develop code for Logistic Regression for comparison.
+Furthermore, we will study classification using the \href{https://www.kaggle.com/uciml/breast-cancer-wisconsin-data}{Wisconsin Breast Cancer Data} provided by SciKit-learn \cite{scikit-learn}. When studying the accuracy of the Neural Net in the context of classification, we will also develop code for Logistic Regression for comparison.
 
 The following sections will include background theory and proposals to algorithms which will be needed to construct our Feed-Forward Neural Network. All algorithms developed will be discussed in detail, however for the concrete implementation we refer to the GitHub repository linked in the Appendix under the section Source Code.
 
-For clarity, all source code developed has been written using the Python programming language. Results obtained from our own developed code will also be compared to functions from the Machine Learning libraries SciKit-Learn \cite{scikit-learn} and PyTorch \cite{paszke2019}.
+For clarity, all source code developed has been written using the Python programming language. Results obtained from our own developed code will also be compared to functions from the Machine Learning libraries SciKit-Learn \cite{scikit-learn}, PyTorch \cite{paszke2019} and TensorFlow \cite{tensorflow2015-whitepaper}.
 
-\section{Theory}
+In the following section, we will derive the theory and develop an algorithm for Stochastic Gradient Descent. Using that algorithm as a basis, we will further derive theory and develop code for our own Neural Network and Logistic Regression. With the developed algorithms, we will study their behavior and skill when used with both the Terrain data from Project 1 as well as the Breast Cancer data provided by SciKit-learn \cite{scikit-learn}. The results obtained from our own developed code, as well as the benchmarks with the previously stated Machine Learning software will be presented in the \textbf{Results} section. A discussion of our results will be confined to the \textbf{Discussion} section. Finally, the project will be concluded with our final thoughts for the results as well as this project as a whole in the \textbf{Conclusions} section.  
+
+\section{Theory and Methods}
 \subsection{Moving along the gradient}
 Gradient Descent is an iterative algorithm that minimizes a given function by following its gradient down towards the global minimum. For a given cost-function $C(\beta)$ with predictors $\beta$ and a hyperparameter $\eta$ (which will be described in the following paragraph), the process of Gradient Descent can be expressed mathematically as follows
 \begin{equation}
@@ -144,9 +146,8 @@ Another pitfall for gradient based convergence methods is the existence of local
 \subsection{Introducing stochasticity to gradient descent}
 By utilizing the entire gradient of the cost function to compute the next step along the gradient, a lot of computational resources are utilized. Especially if one are to consider a large data-set consisting of several data-points and features. A method to alleviate some of the computational demand of the algorithm is to only compute the gradient for a smaller subset of the data. With Stochastic Gradient Descent, this idea is implemented with a stochastic element, that is, which subset of the data is used is selected at random. The resulting gradient algorithm converges towards the same global minimum as regular gradient descent over the entire data-set, though at a higher pace following an uneven gradient path \cite{Geron2019}.
 
-Another benefit of Stochastic Gradient Descent (SGD) compared to its non-stochastic variant is its ability to exit local minima. As the SGD never reaches a true minimum, a local minima might not be able to contain the algorithm when recomputing the gradient based on a different subset of data. On the other hand, as a consequence of never achieving true minimum, SGD will never return optimal values when compared to non-stochastic gradient descent. 
+Another benefit of Stochastic Gradient Descent (SGD) compared to its non-stochastic variant is its ability to exit local minima. As the SGD never reaches a true minimum, a local minima might not be able to contain the algorithm when recomputing the gradient based on a different subset of data. On the other hand, as a consequence of never achieving true minimum, SGD will never return optimal values when compared to non-stochastic gradient descent.
 
-\section{Methods}
 \subsection{Implementing Stochastic Gradient Descent}
 By introducing the concept of mini-batches to Gradient Descent, we have to split our data randomly into mini-batches such that the resulting design matrix is 
 $$
@@ -167,8 +168,8 @@ Stochastic Gradient Descent is implemented as pseudocode in Algorithm (\ref{alg:
   \KwResult{Estimated value of the predictors $\theta$}
   \For{epoch in number of epochs}{
     \For{batch in number of batches}{
-      $x_i$ = X[batch]\;
-      $t_i$ = t[batch]\;
+      $x_i \leftarrow$ X[batch]\;
+      $t_i \leftarrow$ t[batch]\;
       Compute $\nabla_\theta{}C(\theta)$ with respect to $x_i$ and $t_i$\;
       $\eta \leftarrow learning_schedule(\eta, \ldots)$\;
       $\theta \leftarrow \theta - \eta*\nabla_\theta C(\theta)$\;
@@ -196,8 +197,8 @@ Where the momentum parameter $\gamma \in \left[0,1\right]$. The intuition behind
   \KwResult{Estimated value of the predictors $\theta$}
   \For{epoch in number of epochs}{
     \For{batch in number of batches}{
-      $x_i$ = X[batch]\;
-      $t_i$ = t[batch]\;
+      $x_i \leftarrow$ X[batch]\;
+      $t_i \leftarrow$ t[batch]\;
       Compute $\nabla_\theta{}C(\theta)$ with respect to $x_i$ and $t_i$\;
       $\eta \leftarrow learning\_schedule(\eta, \ldots)$\;
       $v \leftarrow \gamma v + \eta*\nabla_\theta C(\theta)$\;
@@ -211,38 +212,52 @@ Where the momentum parameter $\gamma \in \left[0,1\right]$. The intuition behind
 \section{Results}
 When creating the results, we note that all are generated from the Source Code in the appendix. For a further explanation on how to reproduce these results, we refer to the GitHub repository which contains a README explaining how to run the supplied source code. 
 
-\subsection{Our Stochastic Gradient Descent}
+\subsection{Stochastic Gradient Descent}
 Our Stochastic Gradient Descent is implemented akin to Algorithm (\ref{alg:sgd}). Figure (\ref{fig:a_mse_epoch}) plots the MSE computed from our SGD implementation against the number of epochs used. 
 
 \begin{figure}
-  \centering
   \includegraphics[width=\columnwidth]{figures/EX_A_mse_with_varying_epoch.pdf}
   \caption{\label{fig:a_mse_epoch}MSE calculated from Stochastic Gradient Descent optimization of the predictors $\theta$ as function of the number of epochs with all other hyperparameters kept fixed}
 \end{figure}
 
+The following Figure (\ref{fig:a_gs}) plots the MSE as a function of batch\_size using the SGD algorithm in \ref{alg:sgd}. 
+
 \begin{figure}
-  \centering
   \includegraphics[width=\columnwidth]{figures/EX_A_mse_with_varying_batch_size.pdf}
   \caption{\label{fig:a_bs}MSE calculated from Stochastic Gradient Descent as function of the batch size with all other hyperparameters kept fixed}
 \end{figure}
 
+Both Figures (\ref{fig:a_gs}, \ref{fig:a_gslr}) are created using a grid search algorithm over different values of $\eta$ and $\lambda$, presented as a heatmap. 
+
 \begin{figure*}
-  \centering
   \includegraphics[width=\textwidth]{figures/EX_A__gridsearch.pdf}
   \caption{\label{fig:a_gs}MSE calculated for varying $\eta$ and $\lambda$ values in a grid search with learning rate scheduler turned off}
 \end{figure*}
 
 \begin{figure*}
-  \centering
   \includegraphics[width=\textwidth]{figures/EX_A__gridsearch_withlr.pdf}
-  \caption{\label{fig:a_gs}MSE calculated for varying $\eta$ and $\lambda$ values in a grid search with learning rate scheduler turned off}
+  \caption{\label{fig:a_gslr}MSE calculated for varying $\eta$ and $\lambda$ values in a grid search with learning rate scheduler turned on}
 \end{figure*}
+
+Table (\ref{tab:a_mse}) displays MSE results computed from different configurations of the developed SGD algorithm as well as the MSE computed from the Momentum Stochastic Gradient Descent algorithm explained in Algorithm (\ref{alg:msgd}). 
+
+\begin{table*}
+  \caption{\label{tab:a_mse}MSE values from different SGD configurations based on the optimal hyperparameters as found in the grid search}
+  \begin{ruledtabular}
+    \begin{tabular}{lllll}
+      SGD with lr scheduler & Momentum SGD with lr scheduler & SGD w.o. lr scheduler & SciKit-learn & Ridge\\
+      \hline
+      0.4783 & 0.4377 & 0.4203 & 1.0764 & 0.3256\\
+    \end{tabular}
+  \end{ruledtabular}
+\end{table*}
 
 
 
 \section{Discussion}
+\subsection{Analyzing our Stochastic Gradient Descent implementation}
 
-\subsection{Analyzing our Stochastic Gradient Descent}
+
 
 
 \section{Conclusions}
