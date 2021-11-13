@@ -19,6 +19,14 @@ def cost_MSE(X, y, theta, lmb=0):
 # Activation functions
 
 
+def return_self(x):
+    return x
+
+
+def grad_return_self(x):
+    return 1
+
+
 def relu(x):
     return np.maximum(0, x)
 
@@ -190,11 +198,12 @@ class Fixed_layer:
 
 
 class Layer:
-    def __init__(self, nbf_inputs: int, nbf_neurons: int, activation="sigmoid", name="name"):
+    def __init__(self, nbf_inputs: int, nbf_neurons: int, activation="none", name="name"):
 
         pick_activation = {"sigmoid": [sigmoid, grad_sigmoid],
                            "relu": [relu, grad_relu],
-                           "leaky_relu": [leaky_relu, grad_leaky_relu]}
+                           "leaky_relu": [leaky_relu, grad_leaky_relu],
+                           "none": [return_self, grad_return_self]}
 
         self.name = name
         self.input = nbf_inputs
