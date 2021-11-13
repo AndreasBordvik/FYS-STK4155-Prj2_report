@@ -164,6 +164,7 @@ The gradient step can be described mathematically as follows in Equation (\ref{e
 Stochastic Gradient Descent is implemented as pseudocode in Algorithm (\ref{alg:sgd})
 
 \begin{algorithm}
+  \SetAlgoLined
   \KwData{Design Matrix (X), target array (t) and initial guess at predictors $\theta$}
   \KwResult{Estimated value of the predictors $\theta$}
   \For{epoch in number of epochs}{
@@ -213,12 +214,34 @@ Where the momentum parameter $\gamma \in \left[0,1\right]$. The intuition behind
 When creating the results, we note that all are generated from the Source Code in the appendix. For a further explanation on how to reproduce these results, we refer to the GitHub repository which contains a README explaining how to run the supplied source code. 
 
 \subsection{Stochastic Gradient Descent}
-Our Stochastic Gradient Descent is implemented akin to Algorithm (\ref{alg:sgd}). Figure (\ref{fig:a_mse_epoch}) plots the MSE computed from our SGD implementation against the number of epochs used. 
+Our Stochastic Gradient Descent is implemented akin to Algorithm (\ref{alg:sgd}). For all results concerning Stochastic Gradient Descent, a complexity of degree 6 is used in the setup of the Design Matrix. This results in 27 individual predictors after scaling and removal of the Intercept, which is in line with the preprocessing performed in Project 1. Moreover for clarity, unless specified the results are generated without a learning rate scheduler. 
+Figure (\ref{fig:a_mse_epoch}) plots the MSE computed from our SGD implementation against the number of epochs used. 
 
 \begin{figure}
   \includegraphics[width=\columnwidth]{figures/EX_A_mse_with_varying_epoch.pdf}
   \caption{\label{fig:a_mse_epoch}MSE calculated from Stochastic Gradient Descent optimization of the predictors $\theta$ as function of the number of epochs with all other hyperparameters kept fixed}
 \end{figure}
+
+\begin{table}
+  \caption{\label{tab:a_epoch_run}Runtime in seconds computed for SGD over an increasing number of epochs}
+  \begin{tabular}{|c|c|}
+      \hline
+      \#epochs & Runtime [s] \\ \hline
+      25               & 8           \\ 
+      50               & 17          \\ 
+      75               & 27          \\ 
+      100              & 38          \\ 
+      125              & 45          \\ 
+      150              & 57          \\ 
+      175              & 65          \\ 
+      200              & 80          \\ 
+      225              & 78          \\ 
+      250              & 79          \\ 
+      275              & 88          \\ 
+      300              & 95          \\
+      \hline
+  \end{tabular}
+\end{table}
 
 The following Figure (\ref{fig:a_gs}) plots the MSE as a function of batch\_size using the SGD algorithm in \ref{alg:sgd}. 
 
@@ -256,9 +279,10 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 
 \section{Discussion}
 \subsection{Analyzing our Stochastic Gradient Descent implementation}
+As described in the introduction, all results above are generated using the Terrain data from Project 1 with the same data preprocessing and a fixed degree of 6. The degree was chosen as a compromise between complexity to the data and complexity to the computations.
+Figure (\ref{fig:a_mse_epoch}) shows the epoch dependance of the SGD algorithm measured in MSE. As can be seen in the figure, as the number of epochs are increased, the MSE is reduced. In this specific case, the reduction of MSE tend to closely follow a parabola, though for 100 epochs the MSE is reduced somewhat more than average. As such, the MSE seem to converge somewhere 0.48, which is the approximate value at 300 epochs. However, though it can clearly be seen that a higher amount of epochs results in a more precise estimation of the predictors, the computational time for each run increases with epochs as seen in Table (\ref{tab:a_epoch_run}). Hence, as a consequence of running some of the computations on an Intel(R) Core(TM) i5-3230M CPU @ 2.60GHz, the number of epochs are constrained to 100 for further computations. Though we acknowledge that 100 epochs are not necessarily the optimal number of epochs if just concerning the MSE.  
 
-
-
+Inspecting Figure (\ref{fig:a_bs}), it can be clearly seen that the lowest MSE values are attained for a batch size around 3 to 6 samples per batch. For batch sizes 8 and larger, the MSE tend to continuously increase following a weak slope. On the other hand, reducing the batch size to 2 samples per batch severely increases the MSE. Furthermore, for a batch size of 1 sample per batch, the MSE is not returned to due computational overflow (not shown). By combining the results of Figure (\ref{fig:a_mse_epoch}) and (\ref{fig:a_bs}), we can conclude that Stochastic Gradient Descent on the Terrain data performs optimal if given a descent number of epochs and a batch size of approximately 4. However, as previously discussed concerning computational resources, we have considered 100 epochs with a batch size of 4 the optimal when generating the coming results. 
 
 \section{Conclusions}
 
