@@ -1,5 +1,6 @@
 import autograd.numpy as np
-from autograd import grad # Replacing numpy with autograd might break something, beware!
+# Replacing numpy with autograd might break something, beware!
+from autograd import grad
 # import numpy as np
 from sklearn.metrics import mean_squared_error as MSE
 from sklearn.metrics import r2_score as R2
@@ -8,44 +9,57 @@ import tensorflow as tf
 from sklearn.neural_network import MLPRegressor
 import seaborn as sns
 import matplotlib.pyplot as plt
-from common import INPUT_DATA, REPORT_DATA, REPORT_FIGURES, EX_A , EX_B , EX_C, EX_D , EX_E, EX_F
+from common import INPUT_DATA, REPORT_DATA, REPORT_FIGURES, EX_A, EX_B, EX_C, EX_D, EX_E, EX_F
+from cmcrameri import cm
 
-def cost_MSE(X,y,theta, lmb=0):
+
+def cost_MSE(X, y, theta, lmb=0):
     return ((y - X @ theta)**2).sum() + lmb*(theta**2).sum()
 
 # Activation functions
+
+
 def relu(x):
     return np.maximum(0, x)
+
 
 def grad_relu(x):
     return np.greater(x, 0).astype(int)
 
+
 def leaky_relu(x):
     return np.where(x > 0, x, 0.01*x)
+
 
 def grad_leaky_relu(x):
     return np.where(x > 0, 1., 0.01)
 
+
 def sigmoid(x):
     return np.exp(x) / (1 + np.exp(x))
 
+
 def grad_sigmoid(x):
     return sigmoid(x)*(1-sigmoid(x))
+
 
 def binary_classifier(x):
     return np.where(x >= 0, 1, 0)
 
 # Learning rate schedulers
 
+
 def lr_invscaling(eta, t, power_t=0.25):
-    return eta / np.power(t,power_t)
+    return eta / np.power(t, power_t)
+
 
 def lr_expdecay(eta, t):
     return eta * np.exp(-0.1*t)
 
 # Different SGD implementations
 
-def sgd(X_train, t_train, theta, n_epoch, batch_size, eta, lr_scheduler=False, scheduler=lr_invscaling, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
+
+def sgd(X_train, t_train, theta, n_epoch, batch_size, eta, lr_scheduler=False, scheduler=lr_invscaling, lmb=0, d_cost_MSE=grad(cost_MSE, 2)):
     n_batches = int(X_train.shape[0] / batch_size)
 
     if lr_scheduler:
@@ -60,27 +74,28 @@ def sgd(X_train, t_train, theta, n_epoch, batch_size, eta, lr_scheduler=False, s
             gradient = (2./batch_size)*d_cost_MSE(xi, yi, theta, lmb)
 
             if lr_scheduler:
-                if epoch >= 10: # Keep the initial learningrate for the first 10 samples
+                if epoch >= 10:  # Keep the initial learningrate for the first 10 samples
                     eta = scheduler(eta0, epoch*batch_size+(i+1))
-                
+
             theta = theta - eta*gradient
-            
+
     return theta.ravel()
 
-def momentum_sgd(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, lr_scheduler=False, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
+
+def momentum_sgd(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, lr_scheduler=False, lmb=0, d_cost_MSE=grad(cost_MSE, 2)):
     n_batches = int(X_train.shape[0] / batch_size)
-    
+
     if lr_scheduler:
         eta0 = eta
 
     for epoch in tqdm(range(n_epoch), f"Training {n_epoch} epochs"):
         momentum = 0
-        
+
         for i in range(n_batches):
             random_idx = batch_size*np.random.randint(n_batches)
             xi = X_train[random_idx:random_idx+batch_size]
             yi = t_train[random_idx:random_idx+batch_size]
-            
+
             gradient = (2./batch_size)*d_cost_MSE(xi, yi, theta, lmb)
 
             if lr_scheduler:
@@ -88,23 +103,24 @@ def momentum_sgd(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, lr
 
             momentum = momentum*beta - eta*gradient
             theta = theta + momentum
-            
+
     return theta.ravel()
 
-def rmsprop(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, eps=10**(-8), lr_scheduler=False, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
+
+def rmsprop(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, eps=10**(-8), lr_scheduler=False, lmb=0, d_cost_MSE=grad(cost_MSE, 2)):
     n_batches = int(X_train.shape[0] // batch_size)
-    
+
     if lr_scheduler:
         eta0 = eta
 
-    for epoch in tqdm(range(n_epoch), f"Training {n_epoch} epochs"):      
-        s = np.zeros((X_train.shape[-1],1))
-        
+    for epoch in tqdm(range(n_epoch), f"Training {n_epoch} epochs"):
+        s = np.zeros((X_train.shape[-1], 1))
+
         for i in range(n_batches):
             random_idx = batch_size*np.random.randint(n_batches)
             xi = X_train[random_idx:random_idx+batch_size]
             yi = t_train[random_idx:random_idx+batch_size]
-            
+
             gradient = (2./batch_size)*d_cost_MSE(xi, yi, theta, lmb)
 
             if lr_scheduler:
@@ -112,28 +128,29 @@ def rmsprop(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, eps=10*
 
             s = s*beta + (1 - beta)*np.power(gradient, 2)
             theta = theta - eta*(gradient/np.sqrt(s + eps))
-            
+
     return theta.ravel()
 
-def adam(X_train, t_train, theta, n_epoch, batch_size, eta, beta1=0.9, beta2=0.99, eps=10**(-8), lr_scheduler=False, lmb=0, d_cost_MSE = grad(cost_MSE,2)):
+
+def adam(X_train, t_train, theta, n_epoch, batch_size, eta, beta1=0.9, beta2=0.99, eps=10**(-8), lr_scheduler=False, lmb=0, d_cost_MSE=grad(cost_MSE, 2)):
     n_batches = int(X_train.shape[0] // batch_size)
-    
+
     if lr_scheduler:
         eta0 = eta
 
-    for epoch in tqdm(range(n_epoch), f"Training {n_epoch} epochs"):      
-        s = np.zeros((X_train.shape[-1],1))
+    for epoch in tqdm(range(n_epoch), f"Training {n_epoch} epochs"):
+        s = np.zeros((X_train.shape[-1], 1))
         m = np.zeros_like(s)
-        
+
         for i in range(n_batches):
             random_idx = batch_size*np.random.randint(n_batches)
             xi = X_train[random_idx:random_idx+batch_size]
             yi = t_train[random_idx:random_idx+batch_size]
-            
+
             gradient = (2./batch_size)*d_cost_MSE(xi, yi, theta, lmb)
 
-            m = beta1*m + (1 - beta1)*gradient # First moment
-            s = beta2*s + (1 - beta2)*np.power(gradient, 2) # Second moment
+            m = beta1*m + (1 - beta1)*gradient  # First moment
+            s = beta2*s + (1 - beta2)*np.power(gradient, 2)  # Second moment
 
             m = m / (1 - np.power(beta1, i+1))
             s = s / (1 - np.power(beta2, i+1))
@@ -142,14 +159,16 @@ def adam(X_train, t_train, theta, n_epoch, batch_size, eta, beta1=0.9, beta2=0.9
                 eta = lr_invscaling(eta0, epoch*batch_size+(i+1))
 
             theta = theta - eta * (m / (np.sqrt(s) + eps))
-            
-    return theta.ravel() 
+
+    return theta.ravel()
 
 # Neural Network Code
+
+
 class Fixed_layer:
     def __init__(self, nbf_inputs: int, nbf_outputs: int, weights, bias, activation="sigmoid", name="name"):
         pick_activation = {"sigmoid": [
-            sigmoid, grad_sigmoid], "relu": [relu, grad_relu]}
+            sigmoid, grad_sigmoid], "relu": [leaky_relu, grad_relu]}
 
         self.input = nbf_inputs
         self.output = nbf_outputs
@@ -173,8 +192,9 @@ class Fixed_layer:
 class Layer:
     def __init__(self, nbf_inputs: int, nbf_neurons: int, activation="sigmoid", name="name"):
 
-        pick_activation = {"sigmoid": [
-            sigmoid, grad_sigmoid], "relu": [relu, grad_relu]}
+        pick_activation = {"sigmoid": [sigmoid, grad_sigmoid],
+                           "relu": [relu, grad_relu],
+                           "leaky_relu": [leaky_relu, grad_leaky_relu]}
 
         self.name = name
         self.input = nbf_inputs
@@ -244,17 +264,16 @@ class NeuralNetwork:
                 xi = X[random_idx:random_idx+batch_size]
                 yi = t[random_idx:random_idx+batch_size]
                 self.backpropagation(xi, yi)
-                
+
                 if lr_scheduler:
                     self.eta = lr_invscaling(self.eta, epoch*batch_size+(i+1))
 
             t_hat_train = self.predict(X.copy())
             self.train_losses.append(MSE(t.copy(), t_hat_train))
-            
+
             t_hat_test = self.predict(self.X_test)
             self.test_losses.append(MSE(self.t_test, t_hat_test))
 
-            
         return np.array(self.train_losses), np.array(self.test_losses)
 
     def backpropagation(self, X, t):  # fit using feed forward and backprop
@@ -280,8 +299,6 @@ class NeuralNetwork:
         # Calculating the gradient of the error from the output error
         output_layer.deltas = output_layer.error * \
             output_layer.grad_activation(output_layer.z)
-        
-
 
         # All other layers
         for i in range(len(self.sequential_layers)-1, 0, -1):
@@ -298,13 +315,13 @@ class NeuralNetwork:
         for i in range(len(self.sequential_layers)-1, 0, -1):
             current = self.sequential_layers[i-1]
             right = self.sequential_layers[i]
-            
+
             # updating weights
-            right.weights = right.weights - self.eta * (current.output.T @ right.deltas)
-            
+            right.weights = right.weights - self.eta * \
+                (current.output.T @ right.deltas)
+
             # updating bias
             right.bias = right.bias - self.eta * np.sum(right.deltas, axis=0)
-
 
         # Updating weights and bias for first hidden layer
         first_hidden = self.sequential_layers[0]
@@ -317,9 +334,10 @@ class NeuralNetwork:
         for i in range(len(self.sequential_layers)):
             self.sequential_layers[i].deltas = 0.0
             self.sequential_layers[i].error = 0.0
-    
+
     def __str__(self):
         return f"Number of network parameters: {self.nbf_parameters}"
+
 
 def NN_regression_comparison(eta, nbf_features, batch_size, epochs, X_test, t_test, lmb=0,  hidden_size=50,  act_func="relu"):
     # Tensorflow model
@@ -328,7 +346,8 @@ def NN_regression_comparison(eta, nbf_features, batch_size, epochs, X_test, t_te
     tf_model.add(tf.keras.layers.Dense(hidden_size, activation=act_func,
                  kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden1"))
     tf_model.add(tf.keras.layers.Dense(1, name="output"))
-    tf_model.compile(loss="mse", optimizer=tf.optimizers.SGD(learning_rate=eta))
+    tf_model.compile(
+        loss="mse", optimizer=tf.optimizers.SGD(learning_rate=eta))
 
     # SKlearn model
     sk_model = MLPRegressor(hidden_layer_sizes=(hidden_size, ), solver='sgd', max_iter=epochs,
@@ -337,46 +356,77 @@ def NN_regression_comparison(eta, nbf_features, batch_size, epochs, X_test, t_te
 
     # Own implemented NN model
     NN_model = NeuralNetwork(cost=MSE, learning_rate=eta,
-                             lmb=lmb, network_type="regression", X_test=X_test,t_test=t_test)
+                             lmb=lmb, network_type="regression", X_test=X_test, t_test=t_test)
     NN_model.add(Layer(nbf_features, hidden_size,
                  activation=act_func, name="hidden1"))
     NN_model.add(Layer(hidden_size, 1, name="output", activation=act_func))
 
     return NN_model, sk_model, tf_model
 
+
 def NN_simple_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
+    # Own implemented NN model
+    NN_model = NeuralNetwork(cost=MSE, learning_rate=eta, lmb=lmb,
+                             network_type=problem_type, X_test=X_test, t_test=t_test)
+    NN_model.add(Layer(nbf_features, hidden_size,
+                 activation=act_func, name="hidden1"))
+    NN_model.add(Layer(hidden_size, nbf_outputs,
+                 name="output", activation=act_func))
+
     # Tensorflow model
+    act_func = tf.keras.layers.LeakyReLU(
+        alpha=0.01) if act_func == "leaky_relu" else act_func
     tf_model = tf.keras.Sequential()
     tf_model.add(tf.keras.layers.Input(shape=(nbf_features,), name="input"))
     tf_model.add(tf.keras.layers.Dense(hidden_size, activation=act_func,
                  kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden1"))
     tf_model.add(tf.keras.layers.Dense(nbf_outputs, name="output"))
-    
+
     if problem_type == "classification":
         loss = tf.keras.losses.BinaryCrossentropy()
     else:
         loss = tf.keras.losses.MeanSquaredError()
-    tf_model.compile(loss=loss, optimizer=tf.optimizers.SGD(learning_rate=eta))
-
-    # Own implemented NN model
-    NN_model = NeuralNetwork(cost=MSE, learning_rate=eta, lmb=lmb, network_type=problem_type, X_test=X_test, t_test=t_test)
-    NN_model.add(Layer(nbf_features, hidden_size,activation=act_func, name="hidden1"))
-    NN_model.add(Layer(hidden_size, nbf_outputs, name="output", activation=act_func))
+    tf_model.compile(
+        loss=loss, optimizer=tf.optimizers.SGD(learning_rate=eta))
 
     return NN_model, tf_model
 
+
 def NN_large_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
+    # Own implemented NN model
+    NN_model = NeuralNetwork(cost=MSE, learning_rate=eta, lmb=lmb,
+                             network_type=problem_type, X_test=X_test, t_test=t_test)
+    h1 = Layer(nbf_features, hidden_size,
+               activation=act_func, name="hidden1")
+    NN_model.add(h1)
+    h2 = Layer(h1.neurons, hidden_size*2,
+               activation=act_func, name="hidden2")
+    NN_model.add(h2)
+    h3 = Layer(h2.neurons, hidden_size, activation=act_func, name="hidden3")
+    NN_model.add(h3)
+    h4 = Layer(h3.neurons, np.ceil(hidden_size//3).astype(int),
+               activation=act_func, name="hidden4")
+    NN_model.add(h4)
+    out = Layer(h4.neurons, nbf_outputs, name="output")
+    NN_model.add(out)
+
     # Tensorflow model
+    act_func = tf.keras.layers.LeakyReLU(
+        alpha=0.01) if act_func == "leaky_relu" else act_func
     tf_model = tf.keras.Sequential()
     input_tf = tf.keras.layers.Input(shape=(nbf_features,), name="input")
     tf_model.add(input_tf)
-    h1_tf = tf.keras.layers.Dense(hidden_size, activation=act_func, kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden1")
+    h1_tf = tf.keras.layers.Dense(hidden_size, activation=act_func,
+                                  kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden1")
     tf_model.add(h1_tf)
-    h2_tf = tf.keras.layers.Dense(hidden_size*2, activation=act_func, kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden2")
+    h2_tf = tf.keras.layers.Dense(hidden_size*2, activation=act_func,
+                                  kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden2")
     tf_model.add(h2_tf)
-    h3_tf = tf.keras.layers.Dense(hidden_size, activation=act_func, kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden3")
+    h3_tf = tf.keras.layers.Dense(hidden_size, activation=act_func,
+                                  kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden3")
     tf_model.add(h3_tf)
-    h4_tf = tf.keras.layers.Dense(np.ceil(hidden_size//3).astype(int), activation=act_func, kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden4")
+    h4_tf = tf.keras.layers.Dense(np.ceil(hidden_size//3).astype(int), activation=act_func,
+                                  kernel_regularizer=tf.keras.regularizers.L2(lmb), name="hidden4")
     tf_model.add(h4_tf)
     out_tf = tf.keras.layers.Dense(nbf_outputs, name="output")
     tf_model.add(out_tf)
@@ -387,55 +437,59 @@ def NN_large_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_o
         loss = tf.keras.losses.MeanSquaredError()
     tf_model.compile(loss=loss, optimizer=tf.optimizers.SGD(learning_rate=eta))
 
-    # Own implemented NN model
-    NN_model = NeuralNetwork(cost=MSE, learning_rate=eta, lmb=lmb, network_type=problem_type, X_test=X_test, t_test=t_test)
-    h1 = Layer(nbf_features, hidden_size, activation=act_func, name="hidden1")
-    NN_model.add(h1)
-    h2 = Layer(h1.neurons, hidden_size*2, activation=act_func, name="hidden2")
-    NN_model.add(h2)
-    h3 = Layer(h2.neurons, hidden_size, activation=act_func, name="hidden3")
-    NN_model.add(h3)
-    h4 = Layer(h3.neurons, np.ceil(hidden_size//3).astype(int), activation=act_func, name="hidden4")
-    NN_model.add(h4)
-    out = Layer(h4.neurons, nbf_outputs, name="output")
-    NN_model.add(out)
     return NN_model, tf_model
 
-def plot_save_NN_results(parameters: int, model_size : str, eta_list:np.ndarray, lmb_list:np.ndarray, heatmap_mtrx:np.ndarray, heatmap_mtrx_tf:np.ndarray):
+# cmap=cm.lajolla
+# cmap="RdYlGn_r"
+
+
+def plot_save_NN_results(parameters: int, model_size: str,
+                         eta_list: np.ndarray, lmb_list: np.ndarray,
+                         heatmap_mtrx: np.ndarray, heatmap_mtrx_tf: np.ndarray,
+                         path: str,
+                         activation_type: str):
     # Own NN heatmap
-    plt.figure(figsize=(12,10))
+    plt.figure(figsize=(12, 10))
     eta_list = np.around(eta_list, decimals=6)
     lmb_list = np.around(lmb_list, decimals=6)
-    gridsearch = sns.heatmap(heatmap_mtrx, annot=True, fmt=".4f",xticklabels= eta_list, yticklabels= lmb_list, cmap="RdYlGn_r")
+    gridsearch = sns.heatmap(heatmap_mtrx, annot=True, fmt=".4f",
+                             xticklabels=eta_list, yticklabels=lmb_list, cmap=cm.lajolla)
     gridsearch.invert_xaxis()
     gridsearch.invert_yaxis()
-    gridsearch.set_xticklabels(gridsearch.get_xticklabels(),rotation = 80)
+    gridsearch.set_xticklabels(gridsearch.get_xticklabels(), rotation=80)
 
-    plt.title(f"Own NN implementation - {model_size} architecture\nEta and Lambda gridsearch on model having {parameters} parameters")
+    plt.title(
+        f"Own NN implementation - {model_size} architecture\nEta and Lambda gridsearch on model having {parameters} parameters")
     plt.xlabel("Eta")
     plt.ylabel("Lambda")
-    plt.savefig(f"{REPORT_FIGURES}{EX_B}heatmap_own_NN_{model_size}_parameters_{parameters}.pdf")
-
+    plt.savefig(
+        f"{path}heatmap_own_NN_{model_size}_parameters_{parameters}_{activation_type}.pdf")
+    # {REPORT_FIGURES}{EX_B}
     # Tensorflow heatmap
-    plt.figure(figsize=(12,10))
-    gridsearch_tf = sns.heatmap(heatmap_mtrx_tf, annot=True, xticklabels= eta_list, yticklabels= lmb_list, cmap="RdYlGn_r")
+    plt.figure(figsize=(12, 10))
+    gridsearch_tf = sns.heatmap(heatmap_mtrx_tf, annot=True,
+                                xticklabels=eta_list, yticklabels=lmb_list, cmap=cm.lajolla)
     gridsearch_tf.invert_xaxis()
     gridsearch_tf.invert_yaxis()
-    gridsearch_tf.set_xticklabels(gridsearch_tf.get_xticklabels(),rotation = 80)
+    gridsearch_tf.set_xticklabels(gridsearch_tf.get_xticklabels(), rotation=80)
 
-    plt.title(f"Tensorflow NN implementation - {model_size} architecture\nEta and Lambda gridsearch on model having {parameters} parameters")
+    plt.title(
+        f"Tensorflow NN implementation - {model_size} architecture\nEta and Lambda gridsearch on model having {parameters} parameters")
     plt.xlabel("Eta")
     plt.ylabel("Lambda")
-    plt.savefig(f"{REPORT_FIGURES}{EX_B}heatmap_tf_{model_size}_parameters_{parameters}.pdf")
+    plt.savefig(
+        f"{path}heatmap_tf_{model_size}_parameters_{parameters}_{activation_type}.pdf")
 
 # Linear Regression code
+
+
 class own_LinRegGD():
     def __init__(self):
         self.f = lambda X, W: X @ W
 
     def fit(self, X_train, t_train, gamma=0.1, epochs=10, diff=0.001):
         k, m = X_train.shape
-        #X_train = self.add_bias(X_train)
+        # X_train = self.add_bias(X_train)
         self.theta = np.zeros((m, 1))
         trained_epochs = 0
 
@@ -451,7 +505,7 @@ class own_LinRegGD():
         return trained_epochs
 
     def predict(self, X):
-        #z = self.add_bias(X)
+        # z = self.add_bias(X)
         t_pred = X @ self.theta
         return t_pred
 
@@ -528,7 +582,7 @@ class LogReg():
         self.beta -= update
 
     def predict(self, x, threshold=0.5):
-        #z = self.add_bias(x)
+        # z = self.add_bias(x)
         score = self.forward(x)
         # score = z @ self.theta
         return (score > threshold).astype('int')
