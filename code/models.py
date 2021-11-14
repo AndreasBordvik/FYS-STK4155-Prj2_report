@@ -257,14 +257,19 @@ class NeuralNetwork:
         self.sequential_layers.append(layer)
         self.nbf_parameters += layer.nbf_parameters
 
-    def predict(self, input_, threshold=0.5):
+    def predict(self, input_):
         X = input_.copy()
         for layer in self.sequential_layers:
             X = layer.forward_prop(X)
 
-        if self.network_type == "classification":
-            X = np.where(X > threshold, 1, 0)
         return X
+
+    def logistic_predict(self, input_, threshold=0.5):
+        X = input_.copy()
+        for layer in self.sequential_layers:
+            X = layer.forward_prop(X)
+
+        return np.where(X > threshold, 1, 0)
 
     def fit(self, X, t, batch_size, epochs, lr_scheduler=False, verbose=False):
         # TODO: mention that our implementation is SGD with replacement
