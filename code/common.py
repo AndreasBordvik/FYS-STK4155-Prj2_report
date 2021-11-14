@@ -3,19 +3,26 @@ import autograd.numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import matplotlib.pyplot as plt
 from typing import Tuple
+import pickle
 
 
 # Setting global variables
 INPUT_DATA = "../data/input_data/"  # Path for input data
 REPORT_DATA = "../data/report_data/"  # Path for data ment for the report
 REPORT_FIGURES = "../figures/"  # Path for figures ment for the report
-EX_A = "EX_A_"; EX_B = "EX_B_"; EX_C = "EX_C_"; EX_D = "EX_D_"; EX_E = "EX_E_"; EX_F = "EX_F_"
+EX_A = "EX_A_"
+EX_B = "EX_B_"
+EX_C = "EX_C_"
+EX_D = "EX_D_"
+EX_E = "EX_E_"
+EX_F = "EX_F_"
 
 # Common methods
 
+
 def learning_rate_upper_limit(X_train):
     XT_X = X_train.T @ X_train
-    H = (2./X_train.shape[0]) * XT_X # The Hessian is the second derivate
+    H = (2./X_train.shape[0]) * XT_X  # The Hessian is the second derivate
     # Picking the largest eigenvalue of the Hessian matrix to use as a guide for determain upper limit for learning rate
     lr_upper_limit = 2./np.max(np.linalg.eig(H)[0])
     print(f"Upper limit learing rate: {lr_upper_limit}")
@@ -141,61 +148,76 @@ def timer(func) -> float:
 
 def create_img_patches(img, ySteps, xSteps):
     patches = []
-    for y in range(0,img.shape[0], ySteps):
-        for x in range(0,img.shape[1], xSteps):
-            y_from = y; 
-            y_to = y+ySteps; 
-            x_from = x; 
-            x_to = x+xSteps; 
-            img_patch = img[y_from:y_to, x_from:x_to]        
+    for y in range(0, img.shape[0], ySteps):
+        for x in range(0, img.shape[1], xSteps):
+            y_from = y
+            y_to = y+ySteps
+            x_from = x
+            x_to = x+xSteps
+            img_patch = img[y_from:y_to, x_from:x_to]
             patches.append(img_patch)
 
     return patches
 
+
 def patches_to_img(patches, ySteps, xSteps, nYpatches, nXpatches, plotImage=False):
     img = np.zeros((ySteps*nYpatches, xSteps*nXpatches))
     i = 0
-    for y in range(0,img.shape[0], ySteps):
-        for x in range(0,img.shape[1], xSteps):
-            y_from = y; 
-            y_to = y+ySteps; 
-            x_from = x; 
-            x_to = x+xSteps; 
-            img[y_from:y_to, x_from:x_to] = patches[i]         
+    for y in range(0, img.shape[0], ySteps):
+        for x in range(0, img.shape[1], xSteps):
+            y_from = y
+            y_to = y+ySteps
+            x_from = x
+            x_to = x+xSteps
+            img[y_from:y_to, x_from:x_to] = patches[i]
             i += 1
-    
+
     if plotImage:
         plt.imshow(img, cmap='gray')
         plt.title("Reconstructed img")
         plt.show()
     return img
 
+
 def plotTerrainPatches(patches, nYpatches, nXpatches, plotTitle="Terrain patches"):
     # Plotting terrain patches)
-    fig, ax = plt.subplots(nYpatches, nXpatches,figsize=(4,10))
-    i=0
+    fig, ax = plt.subplots(nYpatches, nXpatches, figsize=(4, 10))
+    i = 0
     for y in range(nYpatches):
         for x in range(nXpatches):
-            ax[y,x].title.set_text(f"Patch{i}")
-            ax[y,x].set_xlabel("X"); ax[y,x].set_ylabel("Y")
-            ax[y,x].imshow(patches[i], cmap='gray')
-            i+=1
-    
-    fig.suptitle(f"{plotTitle}") # or plt.suptitle('Main title')
+            ax[y, x].title.set_text(f"Patch{i}")
+            ax[y, x].set_xlabel("X")
+            ax[y, x].set_ylabel("Y")
+            ax[y, x].imshow(patches[i], cmap='gray')
+            i += 1
+
+    fig.suptitle(f"{plotTitle}")  # or plt.suptitle('Main title')
     plt.tight_layout()
-    
+
     return fig
     plt.show()
 
+
 def createTerrainData(terrain, includeMeshgrid=True):
-    z = np.array(terrain) 
+    z = np.array(terrain)
     x = np.arange(0, z.shape[1])
     y = np.arange(0, z.shape[0])
     if includeMeshgrid:
-        x, y = np.meshgrid(x,y)
-    return x,y,z
+        x, y = np.meshgrid(x, y)
+    return x, y, z
 
 
+def save_model(model, path_filename):
+    "saving the medel as .pkl filetype"
+    with open(path_filename, 'wb') as outp:  # Overwriting existing file.
+        pickle.dump(model, outp, pickle.HIGHEST_PROTOCOL)
+
+
+def load_model(path_filename):
+    "Loading a .pkl filetype"
+    with open(path_filename, 'rb') as inp:
+        model = pickle.load(inp)
+    return model
 
 
 if __name__ == '__main__':

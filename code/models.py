@@ -210,8 +210,19 @@ class Layer:
         self.neurons = nbf_neurons
         self.activation = pick_activation[activation][0]
         self.grad_activation = pick_activation[activation][1]
-        self.weights = np.random.randn(nbf_inputs, nbf_neurons)
-        # TODO: include possible negative weight initialization
+
+        # Weight init strategies
+        if activation == "sigmoid":
+            # Xavier initializations (http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf)
+            # self.weights = np.random.randn(nbf_inputs, nbf_neurons)
+            span = np.sqrt(6.0 / (nbf_inputs + nbf_neurons))
+            self.weights = np.random.uniform(-span,
+                                             span, size=(nbf_inputs, nbf_neurons))
+        else:
+            # He initializations (https://arxiv.org/pdf/1502.01852.pdf).
+            self.weights = np.random.normal(
+                size=(nbf_inputs, nbf_neurons)) * np.sqrt(2.0 / nbf_inputs)
+
         self.bias = np.zeros(nbf_neurons) + 0.01
         self.nbf_parameters = self.weights.size + self.bias.size
         self.z = None
