@@ -13,6 +13,7 @@ amssymb
 ]{revtex4-2}
 
 \usepackage{relsize,makeidx,color,setspace,amsfonts}
+\usepackage{mathtools}
 
 \usepackage{listings}
 \lstset{
@@ -62,14 +63,17 @@ amssymb
 
 \usepackage{lmodern}         % Latin Modern fonts derived from Computer Modern
 
+\usepackage{tikz}
+
 % Hyperlinks in PDF:
 \definecolor{linkcolor}{rgb}{0,0,0}
+\definecolor{urlcolor}{rgb}{0,0,1}
 \usepackage{hyperref}
 \hypersetup{
 breaklinks=true,
 colorlinks=true,
 linkcolor=linkcolor,
-urlcolor=linkcolor,
+urlcolor=urlcolor,
 citecolor=black,
 filecolor=black,
 %filecolor=blue,
@@ -111,7 +115,13 @@ bookmarksdepth=3   % Uncomment (and tweak) for PDF bookmarks with more levels th
 \date{\today}
 
 \begin{abstract}
-  This will be our wonderfully conclusive abstract
+  \begin{description}
+    \item[Background] The context needed to understand our paper
+    \item[Purpose] What is the purpose of our paper?
+    \item[Method] The methods used
+    \item[Results] Summarize our results
+    \item[Conclusions] Describe our conclusions    
+  \end{description}
 \end{abstract}
 
 \maketitle
@@ -153,7 +163,7 @@ As pointed out, the Stochastic Gradient Descent algorithm never achieves a minim
 The effect of reducing the learning rate over time is that the step length taken along the gradient after several epochs is smaller. Furthermore, Stochastic Gradient Descent might benefit from such a dynamic learning rate, as it can  be assumed that the algorithm have already closed in on convergence before reaching maximum number of epochs. The scheduler in turn will then be able to dampen all future steps taken, to minimize the effect of the random walk behaviour of the algorithm around the minima.
 For our SGD algorithm, the learning rate scheduler we have implemented is an inverse scaling similarly to the \textit{invscaling} parameter passed on to SciKit-learn's \textbf{SGDRegressor} class. That is, the scheduler updates the learning rate following the equation $\eta = \eta_0/t^{t_0}$ \cite{scikit-learn}. However, in an attempt to reduce the immediate impact of the learning rate scheduler, the first 10 epochs will be completed without scheduling.
 
-\subsection{Implementing Stochastic Gradient Descent}
+\subsection{Implementing Stochastic Gradient Descent with minibatches}
 By introducing the concept of mini-batches to Gradient Descent, we have to split our data randomly into mini-batches such that the resulting design matrix is 
 $$
 X_{\text{perm}} = \left\{X_0, X_1, \ldots, X_M\right\}^T
@@ -185,14 +195,17 @@ Stochastic Gradient Descent is implemented as pseudocode in Algorithm (\ref{alg:
   \caption{\label{alg:sgd}Stochastic Gradient Descent with minibatches and learning rate scheduler}
 \end{algorithm}
 
+For clarity, Algorithm (\ref{alg:sgd}) can easily be extended with a regularization term, such as the l2 regularizer making it comparable to Ridge Regression. In the case of regularization, the computation of the Cost-function gradient have to be updated with the regularization term accordingly. For our Stochastic Gradient Descent implementation, we have used the automatic differentiation library \href{https://github.com/HIPS/autograd}{Autograd}, with regularization included in the MSE cost function. 
+
 \subsection{Adding momentum to SGD}
 Equation (\ref{eq:grad_step}) can be generalized with a momentum term as follows 
 
 \begin{equation}
   \label{eq:momentum_grad}
   \begin{aligned}
-    \bm{v}_t = \gamma\bm{v}_{t-1} + \eta_y\nabla_\theta E(\bm{\theta}_t) \\
-    \bm{\theta}_{t+1} = \bm{\theta}_t - \bm{v}_t
+    \nonumber
+    \bm{v}_t &= \gamma\bm{v}_{t-1} + \eta_y\nabla_\theta E(\bm{\theta}_t) \\
+    \bm{\theta}_{t+1} &= \bm{\theta}_t - \bm{v}_t
   \end{aligned}
 \end{equation}
 
@@ -214,6 +227,218 @@ Where the momentum parameter $\gamma \in \left[0,1\right]$. The intuition behind
   \Return{$\theta$}
   \caption{\label{alg:msgd}Stochastic Gradient Descent with momentum, minibatches and learning rate scheduler}
 \end{algorithm}
+
+\subsection{Writing our own Feed Forward Neural Network}
+As alluded to to in the introduction, we will develop code for our own Feed Forward Neural Network utilizing minibatches extending our implementation of Stochastic Gradient Descent. Our Feed Forward Neural Network will be implemented as an Multilayer Perceptron with fully connected layers. The Multilayer Perceptron is defined such that it consists of one input layer, an unspecified amount of one or more hidden layers, and finally a output layer \cite{Geron2019}. Our implementation of a Feed Forward Neural Network is inspired by the popular Machine Learning libraries TensorFlow \cite{tensorflow2015-whitepaper} and PyTorch \cite{paszke2019}, with its syntax and usage closely mimicking the aforementioned libraries.
+
+The training of a single minibatch can be summarized as follows.
+Firstly, one minibatch will be passed forward through the network, computing an output value at each neuron layer by layer. This constitutes the feed forward pass algorithm. Then, as a minibatch has reached the final output layer, an attempt to predict the error with a chosen cost-function is made. Finally, we traverse backwards through the network, calculating the contribution each node made to the output error. This process is known as the Backpropagation algorithm \cite{Rumelhart1986}.
+
+\subsection{Feed Forward pass}
+With out Feed Forward pass, information is sent in one direction through the layers of the model. More specifically, in each layer the output from the previous layer is given as input, Moreover, the weights associated with the connection strength between each neuron and a bias term is inputted for each node in the layer. Then, for every node in the hidden layer, an activation function associated with the given layer computes the specified layer's output value. As we are implementing a fully connected layer, this computation can be performed simultaneously for all nodes in a single layer, mathematically written as
+\begin{equation}
+  \nonumber
+  \bm{a}^l = f(\bm{XW}^l + \bm{b}^l)
+\end{equation}
+where the matrices $\bm{X}$ is the input data, $\bm{W}$ is the strength of connection weights between neurons and $\bm{b}$ is a bias vector. The function $f$ is an activation function, which will be described in greater detail in a coming section.
+
+This process is then repeated for each layer constituting the model, until finally the output node is reached. At the output node, depending on whether the Neural Network is to be used for regression or classification, an activation of the input values might be performed. Moreover, if the model is fully trained and ready to make predictions, the Feed Forward pass is what would map an unseen observation $x_i$ to some output value $y_i$. In other words, this algorithm is both used during training, and for assigning a given input correct output values when in operation.
+
+Our implementation of the Feed Forward pass, is given in Algorithm (\ref{alg:ff}) below
+
+\begin{algorithm}
+  \KwData{Input matrix $\bm{x}$}
+  \KwResult{Estimated value of the true output $\bm{y}$}
+  $\bm{a}^0 = x$\;
+  \For{layer $l = 1, \ldots, L$}{
+    $\bm{z}^l = \bm{W}^l\bm{a} + \bm{b}^l$\;
+    $\bm{a}^l = f(\bm{z}^l)$\;
+  }
+  \Return{$\bm{a}^L$}
+  \caption{\label{alg:ff}Feed Forward pass for a Neural Network consisting of Fully Connected Layers}
+\end{algorithm}
+
+\subsection{Backpropagation}
+After the Feed Forward pass has been performed, the output which is returned by the attempt to map some input using with the network is used with the cost function to compute an error \cite{Goodfellow2016}. This error is then propagated backwards throughout the model to calculate the error gradient. In terms of a regression problem, the Cost function in terms of the weights can be written as 
+\begin{equation}
+  \nonumber
+  C\left(\hat{W}\right) = \frac{1}{2}\sum_{u=1}^n\left(y_i - t_i\right)^2
+\end{equation}
+where $t_i$ is the target value and $y_i$ is the output of the model. Furthermore, we want to understand how sensitive our cost function is to changes to the weights. As such, we want to define the derivative of the cost function with respect to the weights. More specifically, with note that the superscript determines that we are in the output layer and the subscript which two nodes are connected, we want to compute 
+\begin{equation}
+  \label{eq:backprop}
+  \frac{\partial{C}}{\partial{w_{jk}^L}} = \frac{\partial{C}}{\partial{a_j^L}}\frac{\partial{a_j^L}}{\partial{z_j^L}}\frac{\partial{z_j^L}}{\partial{w_{jk}^L}}
+\end{equation}
+
+Equation (\ref{eq:backprop}) uses the chain rule to compute how a change in the weights first influences the un-activated node value, which again influences the activated node value which finally influences the Cost error itself.
+
+Moreover, the two last terms of the chain rule can be written as 
+\begin{equation}
+  \nonumber
+  \frac{\partial{a_j^L}}{\partial{z_j^L}}\frac{\partial{z_j^L}}{\partial{w_{jk}^L}} = f'(z_j^L)a_k^{L-1}
+\end{equation}
+Where $f'$ is the derivative of the activation function defined previously. Moreover, by combining these two equation, we can define the error of the layer as 
+\begin{equation}
+  \nonumber
+  \bm{\delta}^L = f'(\bm{z}) \circ \frac{\partial{C}}{\partial{\bm{a}^L}}
+\end{equation}
+which leads us to the final expression of the derivative of the cost function with respect to the weights as
+\begin{equation}
+  \nonumber
+  \frac{\partial{C}}{\partial{w_{jk}^L}} = \delta_j^La_k^{L-1}
+\end{equation}
+With the equations needed to start the algorithm, we want to use the computed error in the current layer to express the error in the previous layer. For a general layer $l$, the error is defined as 
+\begin{equation}
+  \nonumber
+  \delta_j^l = \frac{\partial{C}}{\partial{z_j^l}}
+\end{equation}
+Which can be expressed in terms of the chain rule as the sum
+\begin{equation}
+  \nonumber
+  \delta_j^l = \sum_k\frac{\partial{C}}{\partial{z_k^{l+1}}}\frac{\partial{z_k^{l+1}}}{\partial{z_j^l}}
+\end{equation}
+Where we point out that 
+\begin{equation}
+  \nonumber
+  \delta_k^{l+1} = \frac{\partial{C}}{\partial{z_k^{l+1}}}
+\end{equation}
+and
+\begin{equation}
+  \nonumber
+  z_j^{l+1} = \sum_{i=1}^{M_l}w_{ij}^{l+1}a_i^l+b_j^{l+1}
+\end{equation}
+with $M_l$ being the number of nodes in the current layer $l$. This leads us to the equation for the error in the current layer $l$
+\begin{equation}
+  \label{eq:layer_error}
+  \delta_j^l = \sum_k\delta_k^{l+1}w_{kj}^{l+1}f'(z_k^l)
+\end{equation}
+Equation (\ref{eq:layer_error}) explains the concept of the error propagating backwards through the layers of the model. The final step of the algorithm is to update the weights and biases of the model, which we have implemented using Stochastic Gradient Descent as follows
+\begin{equation}
+  \begin{aligned}
+    w_{jk}^l &= w_{jk}^l - \eta\delta_j^la_k^{l+1}\\
+    b_j^l &= b_j^l - \eta\delta_j^l
+  \end{aligned}
+\end{equation}
+where we specify that the layers are sequenced increasingly ($l-1 \rightarrow l \rightarrow l+1$) and that this is not an algebraically correct equation.
+
+%% WRITE ABOUT DYING RELU AS MOTIVATION FOR LEAKY RELU PART C)
+
+\subsection{The Wisconsin Breast Cancer Dataset}
+As briefly mentioned in the introduction, our implemented neural network will also be used in a classification context on the Wisconsin breast cancer data set that comes included with SciKit-Learn \cite{scikit-learn}. The dataset consists of 30 features computed from a sample of a breast mass taken from 569 individuals. The dataset also consists of a diagnosis attribute describing whether the current individual has a benign or malignant tumor; in other words if the tumor is cancerous or not. The spread of the current dataset with regards to the diagnosis attribute is a distribution where 357 tumors are benign, and 212 are malignant.
+
+The overall goal for the classification will be to predict a diagnosis with accuracy above a certain threshold on unseen data. For this, we will in the coming sections first rewrite our Neural Network code such that it can be used for classification, as well as regression. Second, we will develop our own Logistic Regression model based on the previously developed Stochastic Gradient Descent algorithm. With both our updated Neural Network and Logistic Regression model, we will test the models against each other to see which model gives the most accurate diagnosis. 
+
+\subsection{Introducing Logistic Regression}
+To further validate the fitness of our implemented neural network, we also implemented a logistic regression model.  These models are exceptionally well suited for cases where the goal is to assign observations to discrete classes. At the core of this regression model is the output of the probability of  the observed data belonging to the class in question.
+
+For a binary classification problem, as the Wisconsin breast cancer data, and 2 arbitrary parameters, the probabilities can be formulated as the sigmoid function, mathematically defined as
+
+\begin{equation}
+  \begin{aligned}
+    \nonumber
+    p(y_i=1|x_i,\bm{\beta}) &= \frac{\exp{(\beta_0+\beta_1x_i)}}{1+\exp{(\beta_0+\beta_1x_i)}}\\
+    p(y_i=0|x_i,\bm{\beta}) &= 1 - p(y_i=1|x_i,\bm{\beta})
+  \end{aligned}
+\end{equation}
+
+where $y_i$ is defined as the binary target data. For this specific case, we use a dataset with 30 features. The computation of probabilities can therefore be formulated as 
+
+\begin{equation}
+  \begin{aligned}
+    \nonumber
+    p(y_i=1|x_i,\bm{\beta}) &= \frac{\exp{(\beta_0+\beta_1x_i + \beta_2x_i + \ldots +\beta_{29}x_i)}}{1+\exp{(\beta_0+\beta_1x_i + \beta_2x_i + \ldots +\beta_{29}x_i)}}\\
+    p(y_i=0|x_i,\bm{\beta}) &= 1 - p(y_i=1|x_i,\bm{\beta})
+  \end{aligned}
+\end{equation}
+
+Furthermore, we want to establish a cost function which will produce a convex plot. This is crucial, as a non-convex plot  will create problems when trying to optimize the parameters using stochastic gradient descent. We need to ensure that any local minimizer is also a global minimizer[ref week38.ipynb]. To achieve this, we will opt for using cross-entropy, defined as
+
+\begin{widetext}
+  \begin{equation}
+  \mathcal{C}(\boldsymbol{\beta})=-\sum_{i=1}^n  \left(y_i(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i) -\log{(1+\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)})}\right)
+  \end{equation}
+\end{widetext}
+
+Our aim is to minimize this cost functions with respect to all parameters \(\beta\) for all $n$ observations
+
+\begin{equation}
+  \begin{aligned}
+    \nonumber
+    \frac{\partial \mathcal{C}(\boldsymbol{\beta})}{\partial \beta_0} &= -\sum_{i=1}^n  \left(y_i -\frac{\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}{1+\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}\right) \\
+    &\vdotswithin{=} \\
+    \frac{\partial \mathcal{C}(\boldsymbol{\beta})}{\partial \beta_{29}} &= -\sum_{i=1}^n  \left(y_i -\frac{\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}{1+\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}\right)
+  \end{aligned}
+\end{equation}
+
+For the Wisconsin breast cancer data set, we will define a target vector $y$, consisting of the binary diagnostic data, a design matrix $\bm{X}$, and a vector $p$ consisting of the probabilities of each observations, produced by the above mentioned sigmoid function.
+
+The first derivative of the cost function can then be formulated as
+
+\begin{equation}
+  \nonumber
+  \frac{\partial \mathcal{C}(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} = -\boldsymbol{X}^T\left(\boldsymbol{y}-\boldsymbol{p}\right)
+\end{equation}
+
+We have chosen to implement Logistic Regression with both stochastic gradient descent and Newton Raphson´s method. Algorithm (\ref{alg:lsgd}) describes how SGD was implemented. Here we have introduced a learning rate $\eta$ and a regularization parameter $\lambda$. In this algorithm, all $\beta$ parameters will be updated after each iteration through a mini-batch.
+
+\begin{algorithm}
+  \KwData{Design Matrix (X), target array (t) and initial guess at predictors $\theta$}
+  \KwResult{Estimated value of the true predictors $\beta$}
+  \For{epoch in number of epochs}{
+    \For{batch in number of batches}{
+      $x_i \leftarrow$ X[batch]\;
+      
+      $t_i \leftarrow$ t[batch]\;
+      
+      $p \leftarrow$ probabilites($x_i$, $\theta$)\;    
+      Compute $\frac{\partial \mathcal{C}(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}$\;
+      
+      $\theta \leftarrow \theta-\eta*(\frac{\partial \mathcal{C}(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} + 2*\lambda*\theta)$\;
+    }
+  }
+  \Return{$\theta$}
+  \caption{\label{alg:lsgd}Logistic Regression with Stochastic Gradient Descent and l2 regularization}
+\end{algorithm}
+
+Another approach for logistic regression is to solve using Newton Raphson´s method. This approach forces us to introduce a term with second derivatives
+
+\begin{equation}
+  \nonumber
+  \frac{\partial^2 \mathcal{C}(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}\partial \boldsymbol{\beta}^T} = \boldsymbol{X}^T\boldsymbol{W}\boldsymbol{X}
+\end{equation}
+
+Here, matrix $\boldsymbol{W}$ = $p(y_i\vert x_i,\boldsymbol{\beta})(1-p(y_i\vert x_i,\boldsymbol{\beta})$, is computed with the p values computed in same manner as in the algorithm for stochastic gradient descent. 
+
+\begin{algorithm}
+  \KwData{Design Matrix (X), target array (t) and initial guess at predictors $\theta$}
+  \KwResult{Estimated value of the true predictors $\beta$}
+  \For{epoch in number of epochs}{
+      $p \leftarrow $probabilites($x_i$, $\theta$)\;
+      ${W} \leftarrow p(y_i\vert x_i,\bm{\theta})(1-p(y_i\vert x_i,\bm{\theta})$\; 
+      
+      $hessian \leftarrow \boldsymbol{X^T W X}$\;
+      
+      $\theta \leftarrow \theta - {(X^T W X)}^{-1} \times  \frac{\partial \mathcal{C}(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}$\;
+  }
+  \Return{$\theta$}
+  \caption{\label{alg:newtonraphson}Logistic Regression with Newton Raphson´s method}
+\end{algorithm}
+
+\subsection{Computing the accuracy of a logistic model}
+Common for both algorithms is the approach in how we compute the accuracy. With all the epochs done, $\beta$ has reached its final estimation, based on the training data. We compute the probabilities of the observed data in the test set $X_{test}$ with
+
+\begin{equation}
+  \nonumber
+  p(y_{test}|\bm{X_{test}},\bm{\beta}) = \frac{1}{1+\exp{-(\beta \boldsymbol{X_{test}})}}
+\end{equation}
+
+The values are then tresholded, assigning all probabilities $>$ 0.5 to class 1 and all $<$ 0.5 to 0. The accuracy for n samples is then simply calculated by 
+
+\begin{equation}
+  \text{Accuracy} = \frac{\sum_{i=1}^n I(t_i = y_i)}{n}
+\end{equation}
+
+Where $I$ is the indicator function, which is 1 if $t_i = y_i$ and 0 otherwise. 
 
 \section{Results}
 When creating the results, we note that all are generated from the Source Code in the appendix. For a further explanation on how to reproduce these results, we refer to the GitHub repository which contains a README explaining how to run the supplied source code. 
@@ -291,6 +516,10 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
   \end{ruledtabular}
 \end{table*}
 
+%% RESULTS NEURAL NETS HERE
+
+\subsection{Logistic Regression}
+
 
 \section{Discussion}
 \subsection{Analyzing our Stochastic Gradient Descent implementation}
@@ -310,8 +539,10 @@ the MSE values computed with our SGD algorithm gets close to the Ridge regressio
 
 Another note when discussing Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) is the inclusion of Momentum SGD as described in Algorithm (\ref{alg:msgd}). With the added momentum parameter, lower MSE values are attained as all the hyperparameters are kept the same. Though the values are not as good as normal SGD without the learning rate scheduler.
 
+%% NEURAL NET DISCUSSION HERE
 
-
+\subsection{Comparing Stochastic Gradient Descent and Newton Raphson for Logistic Regression}
+As demonstrated by Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}), there are several distinct differences between the two implementations. While Newton Raphson´s method only iterates through the epochs, the stochastic gradient descent will have additional iterations through the batches. This might lead to the impression that the latter is computationally more complex than the first. This is however not the case, as the inversion of a $k \times k$ matrix has a complexity of $O(k^3)$, which has to be carried out for each iteration as the parameters change with every update \cite{Goodfellow2016}. For cases with a large number of parameters, the exponentially increasing computational burden imposed often makes SGD the preferred solver.
 
 
 
