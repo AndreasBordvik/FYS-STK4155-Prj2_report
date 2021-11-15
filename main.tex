@@ -316,11 +316,60 @@ with $M_l$ being the number of nodes in the current layer $l$. This leads us to 
 Equation (\ref{eq:layer_error}) explains the concept of the error propagating backwards through the layers of the model. The final step of the algorithm is to update the weights and biases of the model, which we have implemented using Stochastic Gradient Descent as follows
 \begin{equation}
   \begin{aligned}
-    w_{jk}^l & = w_{jk}^l - \eta\delta_j^la_k^{l+1} \\
+    \label{eq:weight_update}
+    w_{jk}^l & = w_{jk}^l - \eta\delta_j^la_k^{l-1} \\
     b_j^l    & = b_j^l - \eta\delta_j^l
   \end{aligned}
 \end{equation}
-where we specify that the layers are sequenced increasingly ($l-1 \rightarrow l \rightarrow l+1$) and that this is not an algebraically correct equation.
+where we specify that the layers are sequenced increasingly ($l-1 \rightarrow l \rightarrow l+1$) and that the Equation (\ref{eq:weight_update}) is not an algebraically correct equation. As a quick note, the error is not propagated to the input. As such, to compute the final weight update between the input and first hidden layer, we perform a similar calculation as in Equation (\ref{eq:weight_update}) but with the value in the input nodes instead of the activated node value. 
+
+The equations derived and explained in this section forms the basis for the backpropagation algorithm which we will implement for our Neural Network. The algorithm is stated in Algorithm (\ref{alg:bp}). Note for correctness that though backpropagation is just the backpropagation of the error, not the weight and bias update, we include the latter in this algorithm for simplicity.
+
+\begin{algorithm}
+  \KwData{Input matrix $\bm{x}$, targets $\bm{t}$}
+  \KwResult{Updated weights $\bm{W}$ which constitutes a fully trained network}
+  Compute $\frac{\partial{C}}{\partial{\bm{a}^L}}$\;
+  $\bm{\delta}^L \leftarrow \frac{\partial{C}}{\partial{\bm{a}^L}} \circ f'(\bm{z}^L)$\;
+  // Backpropagation\;
+  \For{Layer $l$ in $L-1,L-2,\ldots,2$}{
+    $\bm{\delta}^l \leftarrow \bm{\delta}^{l+1}\bm{w}^{l+1} \circ f'(\bm{z}^l)$\;
+  }
+  // Update weights and biases\;
+  \For{Layer $l$ in $L, L-1 \ldots, 3$}{
+    $\bm{w}^l \leftarrow \bm{w}^l - \eta * {\bm{a}^{l-1}}^T\bm{\delta}^l$\;
+    $\bm{b}^l \leftarrow \bm{b}^l - \eta * \sum{\bm{\delta}^l}$\;
+  }
+  $\bm{w}^2 \leftarrow \bm{w}^2 - \eta * \bm{x}^T\bm{\delta}^2$\;
+  $\bm{b}^2 \leftarrow \bm{b}^2 - \eta * \sum{\bm{\delta}^2}$\;
+  \Return{A trained model}
+  \caption{\label{alg:bp}Backpropagation of the error computed at the output layer of a Neural Network, with subsequent weight and bias update computed using Stochastic Gradient Descent. Note that the superscript indicate layer position, and the usage of 1-indexing.}
+\end{algorithm}
+
+\subsubsection{Defining our activation functions}
+When defining the mathematical framework for Algorithm (\ref{alg:ff}) and (\ref{alg:bp}), we stated the ambiguous activation function $f$. The activation function of a node takes as input the prior layer's output multiplied by the weights connecting both layers as well as adding a bias term, and returns as output an activated value which is then sent forward to the next layer of the model. As such, the activated value of a node is by large defined by what activation function is associated with its layer. Moreover, for an activation function to be compliant with the universal approximation theorem stated in the Introduction, the function have to obey to the following restrictions:
+\begin{itemize}
+  \item[1.] Non-constant
+  \item[2.] Bounded
+  \item[3.] Monotonically-increasing
+  \item[4.] Continuous
+\end{itemize}
+Moreover, as the output of our Neural Network will be a linear function of the inputs, the above restrictions allow for the Network to fit non-linear functions by themselves introducing non-linearity. 
+
+For this project, we will implemented three different activation functions, these are:
+\begin{itemize}
+  \item Sigmoid 
+  \item ReLU 
+  \item Leaky ReLU
+\end{itemize}
+
+The \textbf{Sigmoid} function can be seen in Equation (\ref{eq:sigmoid}).
+\begin{equation}
+  \label{eq:sigmoid}
+  \sigma(x) = \frac{1}{1 + \text{exp}(-x)}
+\end{equation}
+The function produces values in the range of $(0,1)$. 
+
+%% WRITE ABOUT 
 
 %% WRITE ABOUT DYING RELU AS MOTIVATION FOR LEAKY RELU PART C)
 
@@ -400,6 +449,8 @@ We have chosen to implement Logistic Regression with both stochastic gradient de
   \Return{$\theta$}
   \caption{\label{alg:lsgd}Logistic Regression with Stochastic Gradient Descent and l2 regularization}
 \end{algorithm}
+
+\subsubsection{Newton Rapshon's method}
 
 Another approach for logistic regression is to solve using Newton Raphson´s method. This approach forces us to introduce a term with second derivatives
 
