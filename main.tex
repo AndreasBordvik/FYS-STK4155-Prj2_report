@@ -120,7 +120,7 @@ bookmarksdepth=3   % Uncomment (and tweak) for PDF bookmarks with more levels th
     \item[Purpose] What is the purpose of our paper?
     \item[Method] The methods used
     \item[Results] Summarize our results
-    \item[Conclusions] Describe our conclusions    
+    \item[Conclusions] Describe our conclusions
   \end{description}
 \end{abstract}
 
@@ -131,7 +131,7 @@ Feed-Forward Neural Networks takes the idea of connecting artificial neurons in 
 
 The \textbf{Universal approximation theorem} states that a Neural Network can approximate any function with as few as a single hidden layer to any precision \cite{Hornik1989, Cybenko1989}. Hence, any feedforward network with a single hidden layer is in theory ample to represent any function, due to their underlying universality \cite{Nielsen2015}. For this project, we will use the \textbf{Universal approximation theorem} as motivation to develop our own Feed-Forward Neural Network code to study both classification and regression.
 
-When studying regression using our developed Feed-Forward Neural Network code, we will return to the terrain data used in Project 1 when studying polynomial fitting with different variants of Least Squares Regression. Moreover, we will compare our findings in this project with the result of our previous project to further study the differences polynomial fitting and gradient based approximations. 
+When studying regression using our developed Feed-Forward Neural Network code, we will return to the terrain data used in Project 1 when studying polynomial fitting with different variants of Least Squares Regression. Moreover, we will compare our findings in this project with the result of our previous project to further study the differences polynomial fitting and gradient based approximations.
 
 Furthermore, we will study classification using the \href{https://www.kaggle.com/uciml/breast-cancer-wisconsin-data}{Wisconsin Breast Cancer Data} provided by SciKit-learn \cite{scikit-learn}. When studying the accuracy of the Neural Net in the context of classification, we will also develop code for Logistic Regression for comparison.
 
@@ -139,7 +139,7 @@ The following sections will include background theory and proposals to algorithm
 
 For clarity, all source code developed has been written using the Python programming language. Results obtained from our own developed code will also be compared to functions from the Machine Learning libraries SciKit-Learn \cite{scikit-learn}, PyTorch \cite{paszke2019} and TensorFlow \cite{tensorflow2015-whitepaper}.
 
-In the following section, we will derive the theory and develop an algorithm for Stochastic Gradient Descent. Using that algorithm as a basis, we will further derive theory and develop code for our own Neural Network and Logistic Regression. With the developed algorithms, we will study their behavior and skill when used with both the Terrain data from Project 1 as well as the Breast Cancer data provided by SciKit-learn \cite{scikit-learn}. The results obtained from our own developed code, as well as the benchmarks with the previously stated Machine Learning software will be presented in the \textbf{Results} section. A discussion of our results will be confined to the \textbf{Discussion} section. Finally, the project will be concluded with our final thoughts for the results as well as this project as a whole in the \textbf{Conclusions} section.  
+In the following section, we will derive the theory and develop an algorithm for Stochastic Gradient Descent. Using that algorithm as a basis, we will further derive theory and develop code for our own Neural Network and Logistic Regression. With the developed algorithms, we will study their behavior and skill when used with both the Terrain data from Project 1 as well as the Breast Cancer data provided by SciKit-learn \cite{scikit-learn}. The results obtained from our own developed code, as well as the benchmarks with the previously stated Machine Learning software will be presented in the \textbf{Results} section. A discussion of our results will be confined to the \textbf{Discussion} section. Finally, the project will be concluded with our final thoughts for the results as well as this project as a whole in the \textbf{Conclusions} section.
 
 \section{Theory and Methods}
 \subsection{Moving along the gradient}
@@ -149,7 +149,7 @@ Gradient Descent is an iterative algorithm that minimizes a given function by fo
   \beta_{k+1} = \beta_k - \eta\nabla_\beta\left(C(\beta_k)\right)
 \end{equation}
 
-By inspecting Equation (\ref{eq:gd}), it can be seen that given some random initialization of $\beta_0$, each step $\beta_k$ will be closer to the optimal $\hat{\beta}$ than the previous step. This is done by repeatedly calculating the cost function and taking a step in the direction of its gradient. Moreover, the length of the step taken is decided by the newly introduced hyperparameter $\eta$. Where consecutively large values of $\eta$ results in a large step along the gradient, and a small value of $\eta$ a small step along the gradient. The learning rate is an essential parameter to ensure that the gradient descent converges, as small values might end up slow convergence and large values result in divergence \cite{Geron2019}. 
+By inspecting Equation (\ref{eq:gd}), it can be seen that given some random initialization of $\beta_0$, each step $\beta_k$ will be closer to the optimal $\hat{\beta}$ than the previous step. This is done by repeatedly calculating the cost function and taking a step in the direction of its gradient. Moreover, the length of the step taken is decided by the newly introduced hyperparameter $\eta$. Where consecutively large values of $\eta$ results in a large step along the gradient, and a small value of $\eta$ a small step along the gradient. The learning rate is an essential parameter to ensure that the gradient descent converges, as small values might end up slow convergence and large values result in divergence \cite{Geron2019}.
 
 Another pitfall for gradient based convergence methods is the existence of local minimums. As not all functions are created equal, some functions might feature some unevenness that the gradient descent will mistake as a global minimum. As such, gradient descent on the form as in Equation (\ref{eq:gd}) will get stuck in any local minima that it encounters. However, given the case of regression, the MSE cost function is a convex function. As such, there is only one minimum of the function which is the global minimum \cite{Geron2019}. Thus, when considering regression, there is no risk of the algorithm getting stuck in a local minima.
 
@@ -164,9 +164,9 @@ The effect of reducing the learning rate over time is that the step length taken
 For our SGD algorithm, the learning rate scheduler we have implemented is an inverse scaling similarly to the \textit{invscaling} parameter passed on to SciKit-learn's \textbf{SGDRegressor} class. That is, the scheduler updates the learning rate following the equation $\eta = \eta_0/t^{t_0}$ \cite{scikit-learn}. However, in an attempt to reduce the immediate impact of the learning rate scheduler, the first 10 epochs will be completed without scheduling.
 
 \subsection{Implementing Stochastic Gradient Descent with minibatches}
-By introducing the concept of mini-batches to Gradient Descent, we have to split our data randomly into mini-batches such that the resulting design matrix is 
+By introducing the concept of mini-batches to Gradient Descent, we have to split our data randomly into mini-batches such that the resulting design matrix is
 $$
-X_{\text{perm}} = \left\{X_0, X_1, \ldots, X_M\right\}^T
+  X_{\text{perm}} = \left\{X_0, X_1, \ldots, X_M\right\}^T
 $$
 where $M$ represents the number of mini-batches. Moreover, $X_i$ contains randomly drawn rows from $X$. The random draw can be both with and without replacement. In the case of the prior, some minibatches can be reused while others are skipped in their entirety. Whereas in the latter case, all minibatches have to be used to constitute one epoch. The difference between these implementations of Stochastic Gradient Descent is that the prior version with replacement tends to converge somewhat faster than the version without replacement \cite{Geron2019}. Furthermore, the target vector $t$ is shuffled in such a way that the rows in $X_{\text{perm}}$ still adheres to the same target $t_i$.
 
@@ -195,17 +195,17 @@ Stochastic Gradient Descent is implemented as pseudocode in Algorithm (\ref{alg:
   \caption{\label{alg:sgd}Stochastic Gradient Descent with minibatches and learning rate scheduler}
 \end{algorithm}
 
-For clarity, Algorithm (\ref{alg:sgd}) can easily be extended with a regularization term, such as the l2 regularizer making it comparable to Ridge Regression. In the case of regularization, the computation of the Cost-function gradient have to be updated with the regularization term accordingly. For our Stochastic Gradient Descent implementation, we have used the automatic differentiation library \href{https://github.com/HIPS/autograd}{Autograd}, with regularization included in the MSE cost function. 
+For clarity, Algorithm (\ref{alg:sgd}) can easily be extended with a regularization term, such as the l2 regularizer making it comparable to Ridge Regression. In the case of regularization, the computation of the Cost-function gradient have to be updated with the regularization term accordingly. For our Stochastic Gradient Descent implementation, we have used the automatic differentiation library \href{https://github.com/HIPS/autograd}{Autograd}, with regularization included in the MSE cost function.
 
 \subsection{Adding momentum to SGD}
-Equation (\ref{eq:grad_step}) can be generalized with a momentum term as follows 
+Equation (\ref{eq:grad_step}) can be generalized with a momentum term as follows
 
 \begin{equation}
   \label{eq:momentum_grad}
   \begin{aligned}
     \nonumber
-    \bm{v}_t &= \gamma\bm{v}_{t-1} + \eta_y\nabla_\theta E(\bm{\theta}_t) \\
-    \bm{\theta}_{t+1} &= \bm{\theta}_t - \bm{v}_t
+    \bm{v}_t          & = \gamma\bm{v}_{t-1} + \eta_y\nabla_\theta E(\bm{\theta}_t) \\
+    \bm{\theta}_{t+1} & = \bm{\theta}_t - \bm{v}_t
   \end{aligned}
 \end{equation}
 
@@ -228,13 +228,14 @@ Where the momentum parameter $\gamma \in \left[0,1\right]$. The intuition behind
   \caption{\label{alg:msgd}Stochastic Gradient Descent with momentum, minibatches and learning rate scheduler}
 \end{algorithm}
 
-\subsection{Writing our own Feed Forward Neural Network}
+\subsection{Artificial Neural Network}
+\subsubsection{Writing our own Feed Forward Neural Network}
 As alluded to to in the introduction, we will develop code for our own Feed Forward Neural Network utilizing minibatches extending our implementation of Stochastic Gradient Descent. Our Feed Forward Neural Network will be implemented as an Multilayer Perceptron with fully connected layers. The Multilayer Perceptron is defined such that it consists of one input layer, an unspecified amount of one or more hidden layers, and finally a output layer \cite{Geron2019}. Our implementation of a Feed Forward Neural Network is inspired by the popular Machine Learning libraries TensorFlow \cite{tensorflow2015-whitepaper} and PyTorch \cite{paszke2019}, with its syntax and usage closely mimicking the aforementioned libraries.
 
 The training of a single minibatch can be summarized as follows.
 Firstly, one minibatch will be passed forward through the network, computing an output value at each neuron layer by layer. This constitutes the feed forward pass algorithm. Then, as a minibatch has reached the final output layer, an attempt to predict the error with a chosen cost-function is made. Finally, we traverse backwards through the network, calculating the contribution each node made to the output error. This process is known as the Backpropagation algorithm \cite{Rumelhart1986}.
 
-\subsection{Feed Forward pass}
+\subsubsection{Feed Forward pass}
 With out Feed Forward pass, information is sent in one direction through the layers of the model. More specifically, in each layer the output from the previous layer is given as input, Moreover, the weights associated with the connection strength between each neuron and a bias term is inputted for each node in the layer. Then, for every node in the hidden layer, an activation function associated with the given layer computes the specified layer's output value. As we are implementing a fully connected layer, this computation can be performed simultaneously for all nodes in a single layer, mathematically written as
 \begin{equation}
   \nonumber
@@ -258,13 +259,13 @@ Our implementation of the Feed Forward pass, is given in Algorithm (\ref{alg:ff}
   \caption{\label{alg:ff}Feed Forward pass for a Neural Network consisting of Fully Connected Layers}
 \end{algorithm}
 
-\subsection{Backpropagation}
-After the Feed Forward pass has been performed, the output which is returned by the attempt to map some input using with the network is used with the cost function to compute an error \cite{Goodfellow2016}. This error is then propagated backwards throughout the model to calculate the error gradient. In terms of a regression problem, the Cost function in terms of the weights can be written as 
+\subsubsection{Backpropagation}
+After the Feed Forward pass has been performed, the output which is returned by the attempt to map some input using with the network is used with the cost function to compute an error \cite{Goodfellow2016}. This error is then propagated backwards throughout the model to calculate the error gradient. In terms of a regression problem, the Cost function in terms of the weights can be written as
 \begin{equation}
   \nonumber
   C\left(\hat{W}\right) = \frac{1}{2}\sum_{u=1}^n\left(y_i - t_i\right)^2
 \end{equation}
-where $t_i$ is the target value and $y_i$ is the output of the model. Furthermore, we want to understand how sensitive our cost function is to changes to the weights. As such, we want to define the derivative of the cost function with respect to the weights. More specifically, with note that the superscript determines that we are in the output layer and the subscript which two nodes are connected, we want to compute 
+where $t_i$ is the target value and $y_i$ is the output of the model. Furthermore, we want to understand how sensitive our cost function is to changes to the weights. As such, we want to define the derivative of the cost function with respect to the weights. More specifically, with note that the superscript determines that we are in the output layer and the subscript which two nodes are connected, we want to compute
 \begin{equation}
   \label{eq:backprop}
   \frac{\partial{C}}{\partial{w_{jk}^L}} = \frac{\partial{C}}{\partial{a_j^L}}\frac{\partial{a_j^L}}{\partial{z_j^L}}\frac{\partial{z_j^L}}{\partial{w_{jk}^L}}
@@ -272,12 +273,12 @@ where $t_i$ is the target value and $y_i$ is the output of the model. Furthermo
 
 Equation (\ref{eq:backprop}) uses the chain rule to compute how a change in the weights first influences the un-activated node value, which again influences the activated node value which finally influences the Cost error itself.
 
-Moreover, the two last terms of the chain rule can be written as 
+Moreover, the two last terms of the chain rule can be written as
 \begin{equation}
   \nonumber
   \frac{\partial{a_j^L}}{\partial{z_j^L}}\frac{\partial{z_j^L}}{\partial{w_{jk}^L}} = f'(z_j^L)a_k^{L-1}
 \end{equation}
-Where $f'$ is the derivative of the activation function defined previously. Moreover, by combining these two equation, we can define the error of the layer as 
+Where $f'$ is the derivative of the activation function defined previously. Moreover, by combining these two equation, we can define the error of the layer as
 \begin{equation}
   \nonumber
   \bm{\delta}^L = f'(\bm{z}) \circ \frac{\partial{C}}{\partial{\bm{a}^L}}
@@ -287,7 +288,7 @@ which leads us to the final expression of the derivative of the cost function wi
   \nonumber
   \frac{\partial{C}}{\partial{w_{jk}^L}} = \delta_j^La_k^{L-1}
 \end{equation}
-With the equations needed to start the algorithm, we want to use the computed error in the current layer to express the error in the previous layer. For a general layer $l$, the error is defined as 
+With the equations needed to start the algorithm, we want to use the computed error in the current layer to express the error in the previous layer. For a general layer $l$, the error is defined as
 \begin{equation}
   \nonumber
   \delta_j^l = \frac{\partial{C}}{\partial{z_j^l}}
@@ -297,7 +298,7 @@ Which can be expressed in terms of the chain rule as the sum
   \nonumber
   \delta_j^l = \sum_k\frac{\partial{C}}{\partial{z_k^{l+1}}}\frac{\partial{z_k^{l+1}}}{\partial{z_j^l}}
 \end{equation}
-Where we point out that 
+Where we point out that
 \begin{equation}
   \nonumber
   \delta_k^{l+1} = \frac{\partial{C}}{\partial{z_k^{l+1}}}
@@ -315,8 +316,8 @@ with $M_l$ being the number of nodes in the current layer $l$. This leads us to 
 Equation (\ref{eq:layer_error}) explains the concept of the error propagating backwards through the layers of the model. The final step of the algorithm is to update the weights and biases of the model, which we have implemented using Stochastic Gradient Descent as follows
 \begin{equation}
   \begin{aligned}
-    w_{jk}^l &= w_{jk}^l - \eta\delta_j^la_k^{l+1}\\
-    b_j^l &= b_j^l - \eta\delta_j^l
+    w_{jk}^l & = w_{jk}^l - \eta\delta_j^la_k^{l+1} \\
+    b_j^l    & = b_j^l - \eta\delta_j^l
   \end{aligned}
 \end{equation}
 where we specify that the layers are sequenced increasingly ($l-1 \rightarrow l \rightarrow l+1$) and that this is not an algebraically correct equation.
@@ -326,7 +327,7 @@ where we specify that the layers are sequenced increasingly ($l-1 \rightarrow l 
 \subsection{The Wisconsin Breast Cancer Dataset}
 As briefly mentioned in the introduction, our implemented neural network will also be used in a classification context on the Wisconsin breast cancer data set that comes included with SciKit-Learn \cite{scikit-learn}. The dataset consists of 30 features computed from a sample of a breast mass taken from 569 individuals. The dataset also consists of a diagnosis attribute describing whether the current individual has a benign or malignant tumor; in other words if the tumor is cancerous or not. The spread of the current dataset with regards to the diagnosis attribute is a distribution where 357 tumors are benign, and 212 are malignant.
 
-The overall goal for the classification will be to predict a diagnosis with accuracy above a certain threshold on unseen data. For this, we will in the coming sections first rewrite our Neural Network code such that it can be used for classification, as well as regression. Second, we will develop our own Logistic Regression model based on the previously developed Stochastic Gradient Descent algorithm. With both our updated Neural Network and Logistic Regression model, we will test the models against each other to see which model gives the most accurate diagnosis. 
+The overall goal for the classification will be to predict a diagnosis with accuracy above a certain threshold on unseen data. For this, we will in the coming sections first rewrite our Neural Network code such that it can be used for classification, as well as regression. Second, we will develop our own Logistic Regression model based on the previously developed Stochastic Gradient Descent algorithm. With both our updated Neural Network and Logistic Regression model, we will test the models against each other to see which model gives the most accurate diagnosis.
 
 \subsection{Introducing Logistic Regression}
 To further validate the fitness of our implemented neural network, we also implemented a logistic regression model.  These models are exceptionally well suited for cases where the goal is to assign observations to discrete classes. At the core of this regression model is the output of the probability of  the observed data belonging to the class in question.
@@ -336,18 +337,18 @@ For a binary classification problem, as the Wisconsin breast cancer data, and 2 
 \begin{equation}
   \begin{aligned}
     \nonumber
-    p(y_i=1|x_i,\bm{\beta}) &= \frac{\exp{(\beta_0+\beta_1x_i)}}{1+\exp{(\beta_0+\beta_1x_i)}}\\
-    p(y_i=0|x_i,\bm{\beta}) &= 1 - p(y_i=1|x_i,\bm{\beta})
+    p(y_i=1|x_i,\bm{\beta}) & = \frac{\exp{(\beta_0+\beta_1x_i)}}{1+\exp{(\beta_0+\beta_1x_i)}} \\
+    p(y_i=0|x_i,\bm{\beta}) & = 1 - p(y_i=1|x_i,\bm{\beta})
   \end{aligned}
 \end{equation}
 
-where $y_i$ is defined as the binary target data. For this specific case, we use a dataset with 30 features. The computation of probabilities can therefore be formulated as 
+where $y_i$ is defined as the binary target data. For this specific case, we use a dataset with 30 features. The computation of probabilities can therefore be formulated as
 
 \begin{equation}
   \begin{aligned}
     \nonumber
-    p(y_i=1|x_i,\bm{\beta}) &= \frac{\exp{(\beta_0+\beta_1x_i + \beta_2x_i + \ldots +\beta_{29}x_i)}}{1+\exp{(\beta_0+\beta_1x_i + \beta_2x_i + \ldots +\beta_{29}x_i)}}\\
-    p(y_i=0|x_i,\bm{\beta}) &= 1 - p(y_i=1|x_i,\bm{\beta})
+    p(y_i=1|x_i,\bm{\beta}) & = \frac{\exp{(\beta_0+\beta_1x_i + \beta_2x_i + \ldots +\beta_{29}x_i)}}{1+\exp{(\beta_0+\beta_1x_i + \beta_2x_i + \ldots +\beta_{29}x_i)}} \\
+    p(y_i=0|x_i,\bm{\beta}) & = 1 - p(y_i=1|x_i,\bm{\beta})
   \end{aligned}
 \end{equation}
 
@@ -355,7 +356,7 @@ Furthermore, we want to establish a cost function which will produce a convex pl
 
 \begin{widetext}
   \begin{equation}
-  \mathcal{C}(\boldsymbol{\beta})=-\sum_{i=1}^n  \left(y_i(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i) -\log{(1+\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)})}\right)
+    \mathcal{C}(\boldsymbol{\beta})=-\sum_{i=1}^n  \left(y_i(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i) -\log{(1+\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)})}\right)
   \end{equation}
 \end{widetext}
 
@@ -364,9 +365,9 @@ Our aim is to minimize this cost functions with respect to all parameters \(\bet
 \begin{equation}
   \begin{aligned}
     \nonumber
-    \frac{\partial \mathcal{C}(\boldsymbol{\beta})}{\partial \beta_0} &= -\sum_{i=1}^n  \left(y_i -\frac{\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}{1+\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}\right) \\
-    &\vdotswithin{=} \\
-    \frac{\partial \mathcal{C}(\boldsymbol{\beta})}{\partial \beta_{29}} &= -\sum_{i=1}^n  \left(y_i -\frac{\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}{1+\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}\right)
+    \frac{\partial \mathcal{C}(\boldsymbol{\beta})}{\partial \beta_0}    & = -\sum_{i=1}^n  \left(y_i -\frac{\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}{1+\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}\right) \\
+                                                                         & \vdotswithin{=}                                                                                                                                  \\
+    \frac{\partial \mathcal{C}(\boldsymbol{\beta})}{\partial \beta_{29}} & = -\sum_{i=1}^n  \left(y_i -\frac{\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}{1+\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)}}\right)
   \end{aligned}
 \end{equation}
 
@@ -387,12 +388,12 @@ We have chosen to implement Logistic Regression with both stochastic gradient de
   \For{epoch in number of epochs}{
     \For{batch in number of batches}{
       $x_i \leftarrow$ X[batch]\;
-      
+
       $t_i \leftarrow$ t[batch]\;
-      
-      $p \leftarrow$ probabilites($x_i$, $\theta$)\;    
+
+      $p \leftarrow$ probabilites($x_i$, $\theta$)\;
       Compute $\frac{\partial \mathcal{C}(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}$\;
-      
+
       $\theta \leftarrow \theta-\eta*(\frac{\partial \mathcal{C}(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} + 2*\lambda*\theta)$\;
     }
   }
@@ -407,18 +408,18 @@ Another approach for logistic regression is to solve using Newton Raphson´s met
   \frac{\partial^2 \mathcal{C}(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}\partial \boldsymbol{\beta}^T} = \boldsymbol{X}^T\boldsymbol{W}\boldsymbol{X}
 \end{equation}
 
-Here, matrix $\boldsymbol{W}$ = $p(y_i\vert x_i,\boldsymbol{\beta})(1-p(y_i\vert x_i,\boldsymbol{\beta})$, is computed with the p values computed in same manner as in the algorithm for stochastic gradient descent. 
+Here, matrix $\boldsymbol{W}$ = $p(y_i\vert x_i,\boldsymbol{\beta})(1-p(y_i\vert x_i,\boldsymbol{\beta})$, is computed with the p values computed in same manner as in the algorithm for stochastic gradient descent.
 
 \begin{algorithm}
   \KwData{Design Matrix (X), target array (t) and initial guess at predictors $\theta$}
   \KwResult{Estimated value of the true predictors $\beta$}
   \For{epoch in number of epochs}{
-      $p \leftarrow $probabilites($x_i$, $\theta$)\;
-      ${W} \leftarrow p(y_i\vert x_i,\bm{\theta})(1-p(y_i\vert x_i,\bm{\theta})$\; 
-      
-      $hessian \leftarrow \boldsymbol{X^T W X}$\;
-      
-      $\theta \leftarrow \theta - {(X^T W X)}^{-1} \times  \frac{\partial \mathcal{C}(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}$\;
+  $p \leftarrow $probabilites($x_i$, $\theta$)\;
+  ${W} \leftarrow p(y_i\vert x_i,\bm{\theta})(1-p(y_i\vert x_i,\bm{\theta})$\;
+
+  $hessian \leftarrow \boldsymbol{X^T W X}$\;
+
+  $\theta \leftarrow \theta - {(X^T W X)}^{-1} \times  \frac{\partial \mathcal{C}(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}$\;
   }
   \Return{$\theta$}
   \caption{\label{alg:newtonraphson}Logistic Regression with Newton Raphson´s method}
@@ -432,20 +433,20 @@ Common for both algorithms is the approach in how we compute the accuracy. With 
   p(y_{test}|\bm{X_{test}},\bm{\beta}) = \frac{1}{1+\exp{-(\beta \boldsymbol{X_{test}})}}
 \end{equation}
 
-The values are then tresholded, assigning all probabilities $>$ 0.5 to class 1 and all $<$ 0.5 to 0. The accuracy for n samples is then simply calculated by 
+The values are then tresholded, assigning all probabilities $>$ 0.5 to class 1 and all $<$ 0.5 to 0. The accuracy for n samples is then simply calculated by
 
 \begin{equation}
   \text{Accuracy} = \frac{\sum_{i=1}^n I(t_i = y_i)}{n}
 \end{equation}
 
-Where $I$ is the indicator function, which is 1 if $t_i = y_i$ and 0 otherwise. 
+Where $I$ is the indicator function, which is 1 if $t_i = y_i$ and 0 otherwise.
 
 \section{Results}
-When creating the results, we note that all are generated from the Source Code in the appendix. For a further explanation on how to reproduce these results, we refer to the GitHub repository which contains a README explaining how to run the supplied source code. 
+When creating the results, we note that all are generated from the Source Code in the appendix. For a further explanation on how to reproduce these results, we refer to the GitHub repository which contains a README explaining how to run the supplied source code.
 
 \subsection{Stochastic Gradient Descent}
-Our Stochastic Gradient Descent is implemented akin to Algorithm (\ref{alg:sgd}). For all results concerning Stochastic Gradient Descent, a complexity of degree 6 is used in the setup of the Design Matrix. This results in 27 individual predictors after scaling and removal of the Intercept, which is in line with the preprocessing performed in Project 1. Moreover for clarity, unless specified the results are generated without a learning rate scheduler. 
-Figure (\ref{fig:a_mse_epoch}) plots the MSE computed from our SGD implementation against the number of epochs used. 
+Our Stochastic Gradient Descent is implemented akin to Algorithm (\ref{alg:sgd}). For all results concerning Stochastic Gradient Descent, a complexity of degree 6 is used in the setup of the Design Matrix. This results in 27 individual predictors after scaling and removal of the Intercept, which is in line with the preprocessing performed in Project 1. Moreover for clarity, unless specified the results are generated without a learning rate scheduler.
+Figure (\ref{fig:a_mse_epoch}) plots the MSE computed from our SGD implementation against the number of epochs used.
 
 \begin{figure}
   \includegraphics[width=\columnwidth]{figures/EX_A_mse_with_varying_epoch.pdf}
@@ -455,32 +456,32 @@ Figure (\ref{fig:a_mse_epoch}) plots the MSE computed from our SGD implementatio
 \begin{table}
   \caption{\label{tab:a_epoch_run}Runtime in seconds computed for SGD over an increasing number of epochs}
   \begin{tabular}{|c|c|}
-      \hline
-      \#epochs & Runtime [s] \\ \hline
-      25               & 8           \\ 
-      50               & 17          \\ 
-      75               & 27          \\ 
-      100              & 38          \\ 
-      125              & 45          \\ 
-      150              & 57          \\ 
-      175              & 65          \\ 
-      200              & 80          \\ 
-      225              & 78          \\ 
-      250              & 79          \\ 
-      275              & 88          \\ 
-      300              & 95          \\
-      \hline
+    \hline
+    \#epochs & Runtime [s] \\ \hline
+    25       & 8           \\
+    50       & 17          \\
+    75       & 27          \\
+    100      & 38          \\
+    125      & 45          \\
+    150      & 57          \\
+    175      & 65          \\
+    200      & 80          \\
+    225      & 78          \\
+    250      & 79          \\
+    275      & 88          \\
+    300      & 95          \\
+    \hline
   \end{tabular}
 \end{table}
 
-The following Figure (\ref{fig:a_gs}) plots the MSE as a function of batch\_size using the SGD algorithm in \ref{alg:sgd}. 
+The following Figure (\ref{fig:a_gs}) plots the MSE as a function of batch\_size using the SGD algorithm in \ref{alg:sgd}.
 
 \begin{figure}
   \includegraphics[width=\columnwidth]{figures/EX_A_mse_with_varying_batch_size.pdf}
   \caption{\label{fig:a_bs}MSE calculated from Stochastic Gradient Descent as function of the batch size with all other hyperparameters kept fixed}
 \end{figure}
 
-Both Figures (\ref{fig:a_gs}, \ref{fig:a_gslr}) are created using a grid search algorithm over different values of $\eta$ and $\lambda$, presented as a heatmap. 
+Both Figures (\ref{fig:a_gs}, \ref{fig:a_gslr}) are created using a grid search algorithm over different values of $\eta$ and $\lambda$, presented as a heatmap.
 
 \begin{figure*}
   \includegraphics[width=\textwidth]{figures/EX_A__gridsearch.pdf}
@@ -492,15 +493,15 @@ Both Figures (\ref{fig:a_gs}, \ref{fig:a_gslr}) are created using a grid search 
   \caption{\label{fig:a_gslr}MSE calculated for varying $\eta$ and $\lambda$ values in a grid search with learning rate scheduler turned on}
 \end{figure*}
 
-Table (\ref{tab:a_mse}) displays MSE results computed from different configurations of the developed SGD algorithm as well as the MSE computed from the Momentum Stochastic Gradient Descent algorithm explained in Algorithm (\ref{alg:msgd}). 
+Table (\ref{tab:a_mse}) displays MSE results computed from different configurations of the developed SGD algorithm as well as the MSE computed from the Momentum Stochastic Gradient Descent algorithm explained in Algorithm (\ref{alg:msgd}).
 
 \begin{table*}
   \caption{\label{tab:a_mse}MSE values from different SGD configurations based on the optimal hyperparameters as found in the grid search}
   \begin{ruledtabular}
     \begin{tabular}{lllll}
-      SGD with lr scheduler & Momentum SGD with lr scheduler & SGD w.o. lr scheduler & SciKit-learn & Ridge\\
+      SGD with lr scheduler & Momentum SGD with lr scheduler & SGD w.o. lr scheduler & SciKit-learn & Ridge  \\
       \hline
-      0.4783 & 0.4377 & 0.4203 & 1.0764 & 0.3256\\
+      0.4783                & 0.4377                         & 0.4203                & 1.0764       & 0.3256 \\
     \end{tabular}
   \end{ruledtabular}
 \end{table*}
@@ -509,14 +510,28 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
   \caption{\label{tab:a_mse_lrlmb}MSE values from different SGD configurations based on the optimal hyperparameters as found in the grid search, without regularization}
   \begin{ruledtabular}
     \begin{tabular}{lllll}
-      SGD with lr scheduler & Momentum SGD with lr scheduler & SGD w.o. lr scheduler & SciKit-learn & OLS\\
+      SGD with lr scheduler & Momentum SGD with lr scheduler & SGD w.o. lr scheduler & SciKit-learn & OLS    \\
       \hline
-      0.4778 & 0.4354 & 0.4171 & 1.0869 & 0.3216\\
+      0.4778                & 0.4354                         & 0.4171                & 1.0869       & 0.3216 \\
     \end{tabular}
   \end{ruledtabular}
 \end{table*}
 
 %% RESULTS NEURAL NETS HERE
+\subsection{Arificial Neural Net}
+ay
+\subsubsection{Optimal parameters}
+ay
+\subsubsection{Parameters and model complexity}
+ay
+\subsubsection{Performance of activation functions}
+ay
+\subsubsection{Effect of weight initialization}
+ay
+\subsubsection{Neural Net vs Ordinary Least Squares on terrain data}
+ay
+\subsubsection{Robustness of our Neural Net}
+ay
 
 \subsection{Logistic Regression}
 
@@ -524,9 +539,9 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 \section{Discussion}
 \subsection{Analyzing our Stochastic Gradient Descent implementation}
 As described in the introduction, all results above are generated using the Terrain data from Project 1 with the same data preprocessing and a fixed degree of 6. The degree was chosen as a compromise between complexity to the data and complexity to the computations.
-Figure (\ref{fig:a_mse_epoch}) shows the epoch dependance of the SGD algorithm measured in MSE. As can be seen in the figure, as the number of epochs are increased, the MSE is reduced. In this specific case, the reduction of MSE tend to closely follow a parabola, though for 100 epochs the MSE is reduced somewhat more than average. As such, the MSE seem to converge somewhere around 0.48, which is the approximate value at 300 epochs. However, though it can clearly be seen that a higher amount of epochs results in a more precise estimation of the predictors, the computational time for each run increases with epochs as seen in Table (\ref{tab:a_epoch_run}). Hence, as a consequence of running some of the computations on an Intel(R) Core(TM) i5-3230M CPU @ 2.60GHz, the number of epochs are constrained to 100 for further computations. Though we acknowledge that 100 epochs are not necessarily the optimal number of epochs if just concerning the MSE.  
+Figure (\ref{fig:a_mse_epoch}) shows the epoch dependance of the SGD algorithm measured in MSE. As can be seen in the figure, as the number of epochs are increased, the MSE is reduced. In this specific case, the reduction of MSE tend to closely follow a parabola, though for 100 epochs the MSE is reduced somewhat more than average. As such, the MSE seem to converge somewhere around 0.48, which is the approximate value at 300 epochs. However, though it can clearly be seen that a higher amount of epochs results in a more precise estimation of the predictors, the computational time for each run increases with epochs as seen in Table (\ref{tab:a_epoch_run}). Hence, as a consequence of running some of the computations on an Intel(R) Core(TM) i5-3230M CPU @ 2.60GHz, the number of epochs are constrained to 100 for further computations. Though we acknowledge that 100 epochs are not necessarily the optimal number of epochs if just concerning the MSE.
 
-Inspecting Figure (\ref{fig:a_bs}), it can be clearly seen that the lowest MSE values are attained for a batch size around 3 to 6 samples per batch. For batch sizes 8 and larger, the MSE tend to continuously increase following a weak slope. On the other hand, reducing the batch size to 2 samples per batch severely increases the MSE. Furthermore, for a batch size of 1 sample per batch, the MSE is not returned to due computational overflow (not shown). By combining the results of Figure (\ref{fig:a_mse_epoch}) and (\ref{fig:a_bs}), we can conclude that Stochastic Gradient Descent on the Terrain data performs optimal if given a descent number of epochs and a batch size of approximately 4. However, as previously discussed concerning computational resources, we have considered 100 epochs with a batch size of 4 the optimal when generating the coming results. 
+Inspecting Figure (\ref{fig:a_bs}), it can be clearly seen that the lowest MSE values are attained for a batch size around 3 to 6 samples per batch. For batch sizes 8 and larger, the MSE tend to continuously increase following a weak slope. On the other hand, reducing the batch size to 2 samples per batch severely increases the MSE. Furthermore, for a batch size of 1 sample per batch, the MSE is not returned to due computational overflow (not shown). By combining the results of Figure (\ref{fig:a_mse_epoch}) and (\ref{fig:a_bs}), we can conclude that Stochastic Gradient Descent on the Terrain data performs optimal if given a descent number of epochs and a batch size of approximately 4. However, as previously discussed concerning computational resources, we have considered 100 epochs with a batch size of 4 the optimal when generating the coming results.
 
 The two heatmaps shown in Figures (\ref{fig:a_gs}) and (\ref{fig:a_gslr}) show the effect of the learning rate $\eta$ as well as the l2 regularization term $\lambda$ without and with a learning rate scheduler respectively. By comparing the two plots, it can be seen that the learning rate scheduler causes all but one model to attain higher MSE. Which might be a result of too aggressive scheduling.
 
@@ -534,26 +549,38 @@ Moreover, a secondary observation of the inclusion of the learning rate can be p
 
 Figure (\ref{fig:a_gs}) shows that the optimal hyperparameters for our SGD algorithm given the current dataset, is $\eta = 0.01$ and $\lambda = 0.0001$. As such, Figure (\ref{fig:a_gs}) suggests that less regularization leads to lower attained MSE. This complies with the results of Table (\ref{tab:a_mse_lrlmb}), were an even lower MSE value is attained when noe regularization is present. Furthermore, by comparing the Ridge regression value in Table (\ref{tab:a_mse}) with the OLS value in Table (\ref{tab:a_mse_lrlmb}) it can be seen that OLS scores better than Ridge regression for the optimal regularization parameter as found in Figure (\ref{fig:a_gs}). These results are in line with what we discovered in Project 1 when analyzing our Ridge Regression algorithm and OLS algorithm on the same Terrain data, namely that OLS scores better in regards to MSE than Ridge.
 
-By comparing the values in Table (\ref{tab:a_mse}), it can be seen that 
+By comparing the values in Table (\ref{tab:a_mse}), it can be seen that
 the MSE values computed with our SGD algorithm gets close to the Ridge regression value, with an approximate difference of 0.1 for SGD without learning rate scheduler. Moreover, our SGD outperforms that of SciKit-learn, which is more than doubled of our computed MSE values. The same trends can be seen for the OLS case in Table (\ref{tab:a_mse_lrlmb}). Our SGD algorithm outperforms that of SciKit-learn, though lower MSE values are achieved as discussed in the previous paragraph.
 
 Another note when discussing Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) is the inclusion of Momentum SGD as described in Algorithm (\ref{alg:msgd}). With the added momentum parameter, lower MSE values are attained as all the hyperparameters are kept the same. Though the values are not as good as normal SGD without the learning rate scheduler.
 
-%% NEURAL NET DISCUSSION HERE
+
 
 \subsection{Comparing Stochastic Gradient Descent and Newton Raphson for Logistic Regression}
 As demonstrated by Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}), there are several distinct differences between the two implementations. While Newton Raphson´s method only iterates through the epochs, the stochastic gradient descent will have additional iterations through the batches. This might lead to the impression that the latter is computationally more complex than the first. This is however not the case, as the inversion of a $k \times k$ matrix has a complexity of $O(k^3)$, which has to be carried out for each iteration as the parameters change with every update \cite{Goodfellow2016}. For cases with a large number of parameters, the exponentially increasing computational burden imposed often makes SGD the preferred solver.
 
-
-
-
+%% NEURAL NET DISCUSSION HERE
+\subsection{Arificial Neural Net}
+ay
+\subsubsection{Optimal parameters}
+ay
+\subsubsection{Parameters and model complexity}
+ay
+\subsubsection{Performance of activation functions}
+ay
+\subsubsection{Effect of weight initialization}
+ay
+\subsubsection{Neural Net vs Ordinary Least Squares on terrain data}
+ay
+\subsubsection{Robustness of our Neural Net}
+ay
 
 \section{Conclusions}
 
 \appendix
 
 \section{Source Code}
-\label{sec:sc} 
+\label{sec:sc}
 Link to github repository containing all developed code for this project: \url{https://github.com/AndreasBordvik/FYS-STK4155-Prj2_report}
 
 % Create the reference section using BibTeX:

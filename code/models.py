@@ -240,9 +240,8 @@ class Layer:
 
 
 class NeuralNetwork:
-    def __init__(self, X_test, t_test, cost=MSE,  learning_rate=0.001, lmb=0, network_type="regression"):
+    def __init__(self, X_test, t_test,  learning_rate=0.001, lmb=0, network_type="regression"):
         self.sequential_layers = []
-        self.cost = cost
         self.grad_cost = None  # grad(cost)
         self.eta = learning_rate
         self.lmb = lmb
