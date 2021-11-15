@@ -11,7 +11,7 @@ groupedaddress,
 amsmath,
 amssymb
 ]{revtex4-2}
-
+\usepackage{subfig}
 \usepackage{relsize,makeidx,color,setspace,amsfonts}
 \usepackage{mathtools}
 
@@ -521,9 +521,132 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 \subsection{Arificial Neural Net}
 ay
 \subsubsection{Optimal parameters}
-ay
+
+
+% \begin{figure*}
+%   \includegraphics[width=\textwidth]{figures/EX_B_heatmap_own_NN_small_parameters_129_sigmoid.pdf}
+%   \caption{\label{fig:b_sigmoid}Grid search visualized for sigmoid activation function, number of parameters, $\eta$ and $\lambda$}
+% \end{figure*}
+
+\begin{figure*}
+  \vspace*{-2.5cm}
+  \subfloat[Own NN model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_sigmoid_NN_best}]{
+    \includegraphics[width=.89\textwidth]{figures/EX_B_heatmap_own_NN_small_parameters_129_sigmoid.pdf}
+  }\\
+  \vspace*{-0.45cm}
+  \subfloat[Tensorflow model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_sigmoid_TF_best}]{
+    \includegraphics[width=.89\textwidth]{figures/EX_B_heatmap_tf_small_parameters_129_sigmoid.pdf}
+  }
+  \caption{Grid search visualized for the best parameters using sigmoid activation function\label{fig:sigmoid_NN_vs_tf}}
+\end{figure*}
+
+
+\begin{figure*}
+  \vspace*{-2.5cm}
+  \subfloat[Own NN model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_relu_NN_best}]{
+    \includegraphics[width=.89\textwidth]{figures/EX_C_heatmap_own_NN_large_parameters_4629_relu.pdf}
+  }\\
+  \vspace*{-0.45cm}
+  \subfloat[Tensorflow model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_relu_TF_best}]{
+    \includegraphics[width=.89\textwidth]{figures/EX_C_heatmap_tf_large_parameters_4629_relu.pdf}
+  }
+  \caption{Grid search visualized for the best parameters using RELU activation function\label{fig:relu_NN_vs_tf}}
+\end{figure*}
+
+
+\begin{figure*}
+  \vspace*{-2.5cm}
+  \subfloat[Own NN model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_leaky_relu_NN_best}]{
+    \includegraphics[width=.89\textwidth]{figures/EX_C_heatmap_own_NN_large_parameters_4629_leaky_relu.pdf}
+  }\\
+  \vspace*{-0.45cm}
+  \subfloat[Tensorflow model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_leaky_relu_TF_best}]{
+    \includegraphics[width=.89\textwidth]{figures/EX_C_heatmap_tf_large_parameters_4629_leaky_relu.pdf}
+  }
+  \caption{Grid search visualized for the best parameters using Leaky RELU activation function\label{fig:relu_NN_vs_tf}}
+\end{figure*}
+
+
+
 \subsubsection{Parameters and model complexity}
-ay
+
+
+\newpage
+\begin{figure*}
+  \subfloat[Best fitted NN model using sigmoid and small arhitecture\label{fig:small_sigmoid_training}]{
+    \includegraphics[width=.5\textwidth]{figures/EX_B_own_NN_best_training_small_sigmoid_lr_0.1.pdf}
+  }
+  \subfloat[Best fitted NN model using sigmoid and large arhitecture\label{fig:large_sigmoid_training}]{
+    \includegraphics[width=.5\textwidth]{figures/EX_B_own_NN_best_training_large_sigmoid_lr_0.1.pdf}
+  }\\
+  \subfloat[Best fitted NN model using RELU and small arhitecture\label{fig:small_relu_training}]{
+    \includegraphics[width=.5\textwidth]{figures/EX_C_own_NN_best_training_small_relu_lr_0.1.pdf}
+  }
+  \subfloat[Best fitted NN model using RELU and large arhitecture\label{fig:large_relu_training}]{
+    \includegraphics[width=.5\textwidth]{figures/EX_C_own_NN_best_training_large_relu_lr_0.1.pdf}
+  }\\
+  \subfloat[Best fitted NN model using Leaky RELU and small arhitecture\label{fig:small_leaky_relu_training}]{
+    \includegraphics[width=.5\textwidth]{figures/EX_C_own_NN_best_training_small_leaky_relu_lr_0.1.pdf}
+  }
+  \subfloat[Best fitted NN model using Leaky RELU large arhitecture\label{fig:large_relu_training}]{
+    \includegraphics[width=.5\textwidth]{figures/EX_C_own_NN_best_training_large_leaky_relu_lr_0.1.pdf}
+  }
+  \caption{Small vs large architecture\label{fig:small_vs_large_architecture_training}}
+\end{figure*}
+
+
+
+
+% \begin{figure*}
+%   \subfloat[Best fitted NN model using small arhitecture\label{fig:small_relu_training}]{
+%     \includegraphics[width=.4\textwidth]{figures/EX_C_own_NN_best_training_small_relu_lr_0.1.pdf}
+%   }
+%   \subfloat[Best fitted NN model using large arhitecture\label{fig:large_relu_training}]{
+%     \includegraphics[width=.4\textwidth]{figures/EX_C_own_NN_best_training_large_relu_lr_0.1.pdf}
+%   }
+%   \caption{Small architecture vs large using RELU activation function\label{fig:relu_small_vs_large}}
+% \end{figure*}
+
+
+% \begin{figure*}
+%   \subfloat[Best fitted NN model using small arhitecture\label{fig:small_leaky_relu_training}]{
+%     \includegraphics[width=.4\textwidth]{figures/EX_C_own_NN_best_training_small_leaky_relu_lr_0.1.pdf}
+%   }
+%   \subfloat[Best fitted NN model using large arhitecture\label{fig:large_relu_training}]{
+%     \includegraphics[width=.4\textwidth]{figures/EX_C_own_NN_best_training_large_leaky_relu_lr_0.1.pdf}
+%   }
+%   \caption{Small architecture vs large using Leaky RELU activation function\label{fig:leaky_relu_small_vs_large}}
+% \end{figure*}
+
+
+
+% \begin{figure}
+%   \subfigure[caption]{\includegraphics[width = 2in]{figures/EX_B_own_NN_best_training_small_sigmoid_lr_0.1.pdf}}\\
+%   \subfigure[caption]{\includegraphics[width = 2in]{figures/EX_B_own_NN_best_training_large_sigmoid_lr_0.1.pdf}}
+% \end{figure}
+% \end{document}
+
+
+
+
+% \begin{figure}
+%   \centering
+%   \begin{subfigure}{.5\textwidth}
+%     \centering
+%     \includegraphics[width=.4\linewidth]{figures/EX_B_own_NN_best_training_small_sigmoid_lr_0.1.pdf}
+%     \caption{A subfigure}
+%     \label{fig:sub1}
+%   \end{subfigure}%
+%   \begin{subfigure}{.5\textwidth}
+%     \centering
+%     \includegraphics[width=.4\linewidth]{figures/EX_B_own_NN_best_training_large_sigmoid_lr_0.1.pdf}
+%     \caption{A subfigure}
+%     \label{fig:sub2}
+%   \end{subfigure}
+%   \caption{The most optimal models for small and large architecture}
+%   \label{fig:test}
+% \end{figure}
+
 \subsubsection{Performance of activation functions}
 ay
 \subsubsection{Effect of weight initialization}
@@ -562,18 +685,25 @@ As demonstrated by Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}), the
 %% NEURAL NET DISCUSSION HERE
 \subsection{Arificial Neural Net - Regression problem}
 To quantify the power of our neural network model, we studied how well the network performed relative to results obtained using Ordinary Least Squares (OLS) in project 1. Our best fit for the OLS model was MSE equal to 0.169, which served as our initial reference score for the NN model. For the models to compete on similar terms, we reused the same image patch from project 1 and fitted our NN on the same data using the same scaling process. We scale both the x and y input coordinates and the targets by subtracting their mean values. For the OLS fit, we feed the model using degree 10 for both the x and y coordinates for the OLS fit, which seeded the model with XX features to work on. One significant difference for our Neural Net is that we only feed the model with the raw data, meaning we input the first-order inputs of x and y. By doing this, we left it to the NN model to find the optimal polynomial and its degree to be incorporated within the different layers and neurons of its Neural Net. For a well-implemented Neural Net, it is often beneficial to leave it to the model to find the optimal relationships rather than seeding it to look for a specific degree. To be fair, the true optimal degree is unknown even though we approximated the best fit to be of degree 10 for the OLS model specifically. Seeding the NN to match a specific degree can go both ways; it can help the model converge faster with a better fit, but it can also restrain the model with too little or too much unnecessary input data. Feeding the model with too many features can also result in the model reaching the curse of dimensionality issue at some point, leaving the model with a worse fit, since having too many features may result in an increased level of noise. A common way to tackle too many features is to use the Principal Component Analysis (PCA) algorithm. This will extract the most essential features. However, increasing the number of degrees for our design matrix (order of magnitude of our raw input) and applying PCA on it is not a good choice since such an approach yields dependent input data when the higher level feature are constructed from the order of magnitude of the raw data; thus, the condition for using PCA is not met. This left us with the most optimal approach for input feature for the Neural Net to just being the coordinates x and y from the input data. One of the major challenges of training a network full of neurons is the choice of hyper parameter. A common way to find good hyperparameters is to traverse parts of the parameter space by using a grid search.
+
 \subsubsection{Optimal parameters}
-For finding optimal hyperparameters we utilized the grid search as shown in table xx. This grid search is using on the two different model architectures shown  in figure xx. We named the two architectures as small and large, and performed the grid search on both
+For finding optimal hyperparameters we utilized a grid search for different hyperparameters as shown in table xx. We decided to keep batch size and number of epochs constant to limit our options for computational reasons.  We ran grid search with the chosen hyperparameters for all three activation functions; Sigmoid, RELU, and Leaky RELU, using both the small and the large network architecture shown in figure xx.  The most optimal MSE value for all the three activation types relative is shown in figure x1,x2,x3.  Here we see that…. Relative to number of parameters.
+
+
 \subsubsection{Parameters and model complexity}
-ay
+In terms of model complexity and the number of parameters we see that our model behaves best for …xxxx
+Plots relative to model complexity for all activation functions.
+
 \subsubsection{Performance of activation functions}
-ay
+Comparing the different activation functions, the Sigmoid function has the worst performing given the parameters tested. RELU is performing significantly better than Sigmoid, and the best performing activation function is the Leaky RELU.
+
 \subsubsection{Effect of weight initialization}
-ay
+We first tried to initialize the weights using gaussian distribution with N(0,1). This resulted in significantly worse performance than our final initialization strategy. Our initial weight initialization strategy also resulted in the model being sensitive to exploding gradients from the training process for RELU and Leaky RELU. We struggled with predicted values exceeding float64 relatively often.
+
 \subsubsection{Neural Net vs Ordinary Least Squares on terrain data}
-ay
+Comparing our best fitted NN with the best OLS fit in project 1 is shown in figure1. It is clearly that our NN outperforms the OLS model. The
 \subsubsection{Robustness of our Neural Net}
-ay
+
 
 \section{Conclusions}
 
