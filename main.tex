@@ -15,6 +15,7 @@ amssymb
 \usepackage{relsize,makeidx,color,setspace,amsfonts}
 \usepackage{mathtools}
 
+
 \usepackage{listings}
 \lstset{
     language=Python,
@@ -82,7 +83,8 @@ pdftoolbar=true,
 bookmarksdepth=3   % Uncomment (and tweak) for PDF bookmarks with more levels than the TOC
 }
 
-
+\usepackage{csvsimple}
+\usepackage{todonotes}
 \setcounter{tocdepth}{2}  % levels in table of contents
 
 % prevent orhpans and widows
@@ -668,6 +670,8 @@ ay
 \end{figure*}
 
 
+
+
 % \begin{figure*}
 %   \subfloat[Best fitted NN model using small arhitecture\label{fig:small_relu_training}]{
 %     \includegraphics[width=.4\textwidth]{figures/EX_C_own_NN_best_training_small_relu_lr_0.1.pdf}
@@ -719,7 +723,19 @@ ay
 % \end{figure}
 
 \subsubsection{Performance of activation functions}
-ay
+
+\begin{center}
+  \csvautobooktabular{data/report_data/NN_optimal_parameters_small_sigmoid.csv}
+\end{center}
+
+\begin{center}
+  \csvautobooktabular{data/report_data/NN_optimal_parameters_large_relu.csv}
+\end{center}
+
+\begin{center}
+  \csvautobooktabular{data/report_data/NN_optimal_parameters_large_leaky_relu.csv}
+\end{center}
+
 \subsubsection{Effect of weight initialization}
 ay
 \subsubsection{Neural Net vs Ordinary Least Squares on terrain data}
@@ -755,10 +771,12 @@ As demonstrated by Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}), the
 
 %% NEURAL NET DISCUSSION HERE
 \subsection{Arificial Neural Net - Regression problem}
-To quantify the power of our neural network model, we studied how well the network performed relative to results obtained using Ordinary Least Squares (OLS) in project 1. Our best fit for the OLS model was MSE equal to 0.169, which served as our initial reference score for the NN model. For the models to compete on similar terms, we reused the same image patch from project 1 and fitted our NN on the same data using the same scaling process. We scale both the x and y input coordinates and the targets by subtracting their mean values. For the OLS fit, we feed the model using degree 10 for both the x and y coordinates for the OLS fit, which seeded the model with XX features to work on. One significant difference for our Neural Net is that we only feed the model with the raw data, meaning we input the first-order inputs of x and y. By doing this, we left it to the NN model to find the optimal polynomial and its degree to be incorporated within the different layers and neurons of its Neural Net. For a well-implemented Neural Net, it is often beneficial to leave it to the model to find the optimal relationships rather than seeding it to look for a specific degree. To be fair, the true optimal degree is unknown even though we approximated the best fit to be of degree 10 for the OLS model specifically. Seeding the NN to match a specific degree can go both ways; it can help the model converge faster with a better fit, but it can also restrain the model with too little or too much unnecessary input data. Feeding the model with too many features can also result in the model reaching the curse of dimensionality issue at some point, leaving the model with a worse fit, since having too many features may result in an increased level of noise. A common way to tackle too many features is to use the Principal Component Analysis (PCA) algorithm. This will extract the most essential features. However, increasing the number of degrees for our design matrix (order of magnitude of our raw input) and applying PCA on it is not a good choice since such an approach yields dependent input data when the higher level feature are constructed from the order of magnitude of the raw data; thus, the condition for using PCA is not met. This left us with the most optimal approach for input feature for the Neural Net to just being the coordinates x and y from the input data. One of the major challenges of training a network full of neurons is the choice of hyper parameter. A common way to find good hyperparameters is to traverse parts of the parameter space by using a grid search.
+To quantify the power of our neural network model, we studied how well the network performed relative to results obtained using Ordinary Least Squares (OLS) in project 1. Our best fit for the OLS model was MSE equal to 0.1601 as shown in figure \ref{??}, which served as our initial reference score for the NN model. For the models to compete on similar terms, we reused the same image patch from project 1 and fitted our NN on the same data using the same scaling process. We scale both the x and y input coordinates and the targets by subtracting their respective mean values. For the OLS fit, we feed the model using degree 10 for both the x and y coordinates for the OLS fit, which seeded the model with 65 features to work on. One significant difference for our Neural Net is that we only feed the NN model with the raw data, meaning we input the first-order inputs of x and y, two features in total. By doing this, the NN model receives the task of finding the optimal polynomial and its degree, and this will be incorporated within the different layers and neurons of its Neural Net. For a well-implemented Neural Net, it is often beneficial to leave it to the model to find the optimal relationships rather than seeding it to look for a specific degree. To be fair, the true optimal degree is unknown even though we approximated the best fit to be of degree 10 for the OLS model specifically. Seeding the NN to match a specific degree as done for the OLS can go both ways; it can help the NN model converge faster with a better fit, but it can also restrain the model with too little or too much unnecessary input data. Feeding the NN model with too many features can also result in the model reaching the curse of dimensionality issue at some point, leaving the model with a worse fit, since having too many features may result in an increased level of noise. A common way to tackle too many features is to use the Principal Component Analysis (PCA) algorithm. This will extract the most essential features. However, increasing the number of degrees in our design matrix (order of magnitude of our raw input) and applying PCA on it is not a good choice in this case. Such an approach yields dependent input data when the higher level feature are constructed from the order of magnitude of the raw data; thus, the condition for using PCA is not met. This left us with the most optimal approach for input feature for the Neural Net to just being the coordinates x and y from the input data. One of the major challenges of training a network full of neurons is the choice of hyper parameter. A common way to find good hyperparameters is to traverse parts of the parameter space by using a grid search.
 
 \subsubsection{Optimal parameters}
-For finding optimal hyperparameters we utilized a grid search for different hyperparameters as shown in table xx. We decided to keep batch size and number of epochs constant to limit our options for computational reasons.  We ran grid search with the chosen hyperparameters for all three activation functions; Sigmoid, RELU, and Leaky RELU, using both the small and the large network architecture shown in figure xx.  The most optimal MSE value for all the three activation types relative is shown in figure x1,x2,x3.  Here we see that…. Relative to number of parameters.
+For finding optimal hyperparameters we utilized a grid search for different hyperparameters as shown in table \ref{??}. We decided to keep batch size and number of epochs constant to limit our options for computational reasons.  We ran grid search with the chosen hyperparameters for all three activation functions; Sigmoid, RELU, and Leaky RELU, using both the small and the large network architecture shown in figure \ref{xx}.  The most optimal MSE values from the grid search can be found in the heatmaps for all the three activation types; Sigmoid in figure \ref{FIG5 a}, RELU in figure \ref{FIG6 a}, Leaky RELU in figure \ref{FIG7 a}. Figure \ref{FIG5 b}, \ref{FIG6 b}, and \ref{FIG7 b} shows how the similar Tensorflow model performs on the same grid search parameters. The most optimal hyperparameters for each activation function is summaries in table \ref{x}, \ref{x}, and \ref{x}.
+
+
 
 
 \subsubsection{Parameters and model complexity}
@@ -774,6 +792,7 @@ We first tried to initialize the weights using gaussian distribution with N(0,1)
 \subsubsection{Neural Net vs Ordinary Least Squares on terrain data}
 Comparing our best fitted NN with the best OLS fit in project 1 is shown in figure1. It is clearly that our NN outperforms the OLS model. The
 \subsubsection{Robustness of our Neural Net}
+
 
 
 \section{Conclusions}
