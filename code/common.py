@@ -209,7 +209,7 @@ def createTerrainData(terrain, includeMeshgrid=True):
 
 def save_model(model, path_filename):
     "saving the medel as .pkl filetype"
-    with open(path_filename, 'wb') as outp:  # Overwriting existing file.
+    with open(path_filename, 'wb') as outp:  # Overwrites existing .pkl file.
         pickle.dump(model, outp, pickle.HIGHEST_PROTOCOL)
 
 
