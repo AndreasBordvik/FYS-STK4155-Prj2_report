@@ -221,7 +221,7 @@ def load_model(path_filename):
     return model
 
 
-# OLS from project1
+# Methods and classes from project1
 class Regression():
     """ Super class containing methods for fitting, predicting and producing stats for regression models.   
     """
@@ -355,6 +355,39 @@ class OLS(Regression):
         self.betas = np.squeeze(self.betas)
         # print("betas.shape in train after squeeze:",self.betas.shape)
         return self.t_hat_train
+
+
+def prepare_data(X: np.ndarray, t: np.ndarray, random_state, test_size=0.2, shuffle=True, scale_X=False, scale_t=False, skip_intercept=True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Function to prepare data. Has the ability to set test size, shuffle, scale both X and t, and skip intercept. 
+
+    Args:
+        X (np.ndarray): Input data
+        t (np.ndarray): Target Data
+        random_state ([type]): Seed value
+        test_size (float, optional): Size of test data. Defaults to 0.2.
+        shuffle (bool, optional): Shuffles the data before split. Defaults to True.
+        scale_X (bool, optional): Scales x. Defaults to False.
+        scale_t (bool, optional): Scales target data. Defaults to False.
+        skip_intercept (bool, optional): Skips intercept. Defaults to True.
+
+    Returns:
+        Tuple: Arrays containing X_train, X_test, t_train, t_test
+    """
+    X_train, X_test, t_train, t_test = train_test_split(
+        X, t, test_size=test_size, shuffle=shuffle, random_state=random_state)
+
+    # Scale data
+    if(scale_X):
+        X_train, X_test = standard_scaling(X_train, X_test)
+
+    if(scale_t):
+        t_train, t_test = standard_scaling(t_train, t_test)
+
+    if (skip_intercept):
+        X_train = X_train[:, 1:]
+        X_test = X_test[:, 1:]
+
+    return X_train, X_test, t_train, t_test
 
 
 if __name__ == '__main__':
