@@ -11,7 +11,7 @@ groupedaddress,
 amsmath,
 amssymb
 ]{revtex4-2}
-\usepackage{subfig}
+\usepackage[caption=false]{subfig}
 \usepackage{relsize,makeidx,color,setspace,amsfonts}
 \usepackage{mathtools}
 
@@ -614,7 +614,7 @@ ay
   \subfloat[Tensorflow model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_leaky_relu_TF_best}]{
     \includegraphics[width=.89\textwidth]{figures/EX_C_heatmap_tf_large_parameters_4629_leaky_relu.pdf}
   }
-  \caption{Grid search visualized for the best parameters using Leaky RELU activation function\label{fig:relu_NN_vs_tf}}
+  \caption{Grid search visualized for the best parameters using Leaky RELU activation function\label{fig:leaky_relu_NN_vs_tf}}
 \end{figure*}
 
 
@@ -639,7 +639,7 @@ ay
   \subfloat[Best fitted NN model using Leaky RELU and small arhitecture\label{fig:small_leaky_relu_training}]{
     \includegraphics[width=.5\textwidth]{figures/EX_C_own_NN_best_training_small_leaky_relu_lr_0.1.pdf}
   }
-  \subfloat[Best fitted NN model using Leaky RELU large arhitecture\label{fig:large_relu_training}]{
+  \subfloat[Best fitted NN model using Leaky RELU large arhitecture\label{fig:large_leaky_relu_training}]{
     \includegraphics[width=.5\textwidth]{figures/EX_C_own_NN_best_training_large_leaky_relu_lr_0.1.pdf}
   }
   \caption{Small vs large architecture\label{fig:small_vs_large_architecture_training}}
