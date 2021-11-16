@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{tensorflow2015-whitepaper}
 Mart\'{\i}n Abadi, Ashish Agarwal, Paul Barham, Eugene Brevdo, Zhifeng Chen,
@@ -13,6 +13,10 @@ Mart\'{\i}n Abadi, Ashish Agarwal, Paul Barham, Eugene Brevdo, Zhifeng Chen,
 \newblock {TensorFlow}: Large-scale machine learning on heterogeneous systems,
   2015.
 \newblock Software available from tensorflow.org.
+
+\bibitem{Crameri2021}
+Fabio Crameri.
+\newblock Scientific colour maps, 2021.
 
 \bibitem{Cybenko1989}
 G.~Cybenko.
