@@ -7,50 +7,50 @@ Reallocating 'name_of_file' (item size: 1) to 6 items.
 The style file: plain.bst
 Database file #1: mainNotes.bib
 Database file #2: biblio.bib
-Warning--I didn't find a database entry for "He2015"
 Warning--empty journal in Cybenko1989
+Warning--empty journal in He2015
 Warning--empty journal in Hornik1989
 Warning--empty journal in paszke2019
 Warning--empty journal in Rumelhart1986
-You've used 10 entries,
+You've used 12 entries,
             2118 wiz_defined-function locations,
-            562 strings with 6604 characters,
-and the built_in function-call counts, 5009 in all, are:
-= -- 409
-> -- 476
-< -- 0
-+ -- 190
-- -- 180
-* -- 469
-:= -- 908
-add.period$ -- 31
-call.type$ -- 10
-change.case$ -- 117
+            577 strings with 7113 characters,
+and the built_in function-call counts, 5838 in all, are:
+= -- 490
+> -- 520
+< -- 2
++ -- 206
+- -- 194
+* -- 532
+:= -- 1040
+add.period$ -- 38
+call.type$ -- 12
+change.case$ -- 129
 chr.to.int$ -- 0
-cite$ -- 14
-duplicate$ -- 104
-empty$ -- 237
-format.name$ -- 180
-if$ -- 927
+cite$ -- 17
+duplicate$ -- 138
+empty$ -- 295
+format.name$ -- 194
+if$ -- 1104
 int.to.chr$ -- 0
-int.to.str$ -- 10
-missing$ -- 11
-newline$ -- 54
-num.names$ -- 20
-pop$ -- 140
+int.to.str$ -- 12
+missing$ -- 13
+newline$ -- 64
+num.names$ -- 26
+pop$ -- 155
 preamble$ -- 1
-purify$ -- 110
+purify$ -- 120
 quote$ -- 0
-skip$ -- 67
+skip$ -- 94
 stack$ -- 0
-substring$ -- 156
-swap$ -- 6
-text.length$ -- 0
+substring$ -- 198
+swap$ -- 18
+text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 34
-warning$ -- 4
-while$ -- 28
-width$ -- 12
-write$ -- 104
+type$ -- 42
+warning$ -- 5
+while$ -- 36
+width$ -- 14
+write$ -- 127
 (There were 5 warnings)
