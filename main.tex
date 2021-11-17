@@ -371,7 +371,7 @@ The \textbf{Sigmoid} function can be seen in Equation (\ref{eq:sigmoid}).
   \label{eq:sigmoid}
   \sigma(x) = \frac{1}{1 + \text{exp}(-x)}
 \end{equation}
-The function produces values in the range of $(0,1)$.
+The function produces values in the range of $(0,1)$, and is in line with the four restrictions posed above. Unfortunately, a major problem with the sigmoid as activation function is the vanishing gradient \cite{Glorot2010}. The vanishing gradient problem arises in Deep Neural Networks when the sigmoid function gets an extremely large value as input, which it then outputs close to saturation moreover leaving the derivative close to 0. Furthermore, the gradients already tend to weaken backwards trough the layers. Thus, combining the weakening gradient with with the derivative of the sigmoid potentially close to 0 could hinder the backpropagation algorithm to reach the first layers leaving them unchanged. 
 
 %% WRITE ABOUT DYING RELU AS MOTIVATION FOR LEAKY RELU PART C)
 
