@@ -62,6 +62,8 @@ amssymb
 \usepackage{ucs}
 \usepackage[utf8]{inputenc}
 
+\usepackage{neuralnetwork}
+
 \usepackage{lmodern}         % Latin Modern fonts derived from Computer Modern
 
 \usepackage{tikz}
@@ -589,6 +591,8 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 \end{figure*}
 
 
+
+
 \begin{figure*}[htb]
   \vspace*{-2.5cm}
   \subfloat[Own NN model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_relu_NN_best}]{
@@ -751,6 +755,37 @@ variation in the terrain.
 
 
 \subsubsection{Robustness of our Neural Net}
+
+\subsubsection{Model architecture}
+
+\begin{figure*}[htb]
+  \begin{neuralnetwork}[height=4]
+    \newcommand{\x}[2]{$x_#2$}
+    \newcommand{\y}[2]{$\hat{y}_#2$}
+    \newcommand{\hfirst}[2]{\small $h^{(1)}_#2$}
+    \inputlayer[count=2, bias=true, title=Input\\, text=\x]
+    \hiddenlayer[count=3, bias=false, title=Hidden\\layer 1, text=\hfirst] \linklayers
+    \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
+  \end{neuralnetwork}
+  \caption{Example of a small model architecture having two input features, three neurons in the first hidden layer, and one output\label{fig:small_architecture}}
+\end{figure*}
+
+\begin{figure*}[htb]
+  \begin{neuralnetwork}[height=7]
+    \newcommand{\x}[2]{$x_#2$}
+    \newcommand{\y}[2]{$\hat{y}_#2$}
+    \newcommand{\hfirst}[2]{\small $h^{(1)}_#2$}
+    \newcommand{\hsecond}[2]{\small $h^{(2)}_#2$}
+    \newcommand{\hthird}[2]{\small $h^{(2)}_#2$}
+    \inputlayer[count=2, bias=true, title=Input\\, text=\x]
+    \hiddenlayer[count=3, bias=true, title=Hidden\\layer 1, text=\hfirst] \linklayers
+    \hiddenlayer[count=6, bias=true, title=Hidden\\layer 2, text=\hsecond] \linklayers
+    \hiddenlayer[count=3, bias=false, title=Hidden\\layer 3, text=\hthird] \linklayers
+    \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
+  \end{neuralnetwork}
+  \caption{Example of a large model architecture having two input features, three neurons in the first hidden layer, and one output\label{fig:large_architecture}}
+\end{figure*}
+
 
 
 
