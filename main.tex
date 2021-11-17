@@ -108,24 +108,27 @@ bookmarksdepth=3   % Uncomment (and tweak) for PDF bookmarks with more levels th
 
 % ------------------- main content ----------------------
 
-\title{FYS-STK4155 - Project2 TITLE SHOULD BE DESCRIPTIVE}
+\title{Comparing Neural Networks with Regression methods for Classification and Regression problems}
 
-\author{Gard}
-\author{Are}
+\author{Gard Pavels Høivang}
+\email{gardph@mail.uio.no}
+\author{Are Frode Kvanum}
 \email{afkvanum@mail.uio.no}
 \affiliation{Department of Geoscience, University of Oslo}
 \author{David Andreas Bordvik}
+\email{davidabo@mail.uio.no}
 \affiliation{Department of Informatics, University of Oslo}
 \date{\today}
 
 \begin{abstract}
-  \begin{description}
-    \item[Background] The context needed to understand our paper
-    \item[Purpose] What is the purpose of our paper?
-    \item[Method] The methods used
-    \item[Results] Summarize our results
-    \item[Conclusions] Describe our conclusions
-  \end{description}
+  %\begin{description}
+    In this project, we studied both the terrain data used in Project 1 as well as the Wisconsin Breast Cancer Data with our own implementation of a Feed Forward Neural Network. We have implemented Stochastic Gradient Descent as a framework for the other algorithms. For the terrain data, we compare our own Neural Network with the OLS and Ridge regression algorithms which we developed in Project 1. When studying the categorical Wisconsin Breast Cancer Data, we have also developed code for Logistic Regression. Our developed algorithms have also been benchmarked with the popular machine learning libraries PyTorch and Tensorflow. By tuning the hyperparameters, we have shown that our own Neural Network outperforms our models from Project 1, when fitting the terrain data with an $\text{MSE} = 0.0971$ compared to our best result of $\text{MSE} = 0.1602$ from OLS. We have also shown that our Neural Net is able to achieve comparable MSE values with that of Tensorflow given the Leaky ReLU as activation function. With regards to classification, our Neural Network performs comparatively to both Logistic Regression as well as PyTorch. We conclude with our Neural Network being the method of choice when fitting the terrain data, \textbf{AND SOME MORE WITH CLASSIFICATION!}
+    %\item[Background] The context needed to understand our paper
+    %\item[Purpose] What is the purpose of our paper?
+    %\item[Method] The methods used
+    %\item[Results] Summarize our results
+    %\item[Conclusions] Describe our conclusions
+  %\end{description}
 \end{abstract}
 
 \maketitle
@@ -373,13 +376,38 @@ The \textbf{Sigmoid} function can be seen in Equation (\ref{eq:sigmoid}).
 \end{equation}
 The function produces values in the range of $(0,1)$, and is in line with the four restrictions posed above. Unfortunately, a major problem with the sigmoid as activation function is the vanishing gradient \cite{Glorot2010}. The vanishing gradient problem arises in Deep Neural Networks when the sigmoid function gets an extremely large value as input, which it then outputs close to saturation moreover leaving the derivative close to 0. Furthermore, the gradients already tend to weaken backwards trough the layers. Thus, combining the weakening gradient with with the derivative of the sigmoid potentially close to 0 could hinder the backpropagation algorithm to reach the first layers leaving them unchanged.
 
+As a consequence of the vanishing gradient problem, other activation functions have been proposed. In this project, we will inspect the ReLU function family, as it does not saturate for large positive values as the case was for sigmoid.
 
+The \textbf{ReLU} function is defined mathematically in Equation (\ref{eq:relu})
 
-%% WRITE ABOUT DYING RELU AS MOTIVATION FOR LEAKY RELU PART C)
+\begin{equation}
+  \label{eq:relu}
+  f(x) = 
+  \left\{
+    \begin{array}{ll}
+      0 & \mbox{if } x < 0 \\
+      x & \mbox{if } x \geq 0     
+    \end{array}
+  \right.
+\end{equation}
 
+Though Equation (\ref{eq:relu}) does not simulate nature to the same extent that the sigmoid does, it is expected that our Neural Network code will perform better with ReLU activation than sigmoid activation. However, a problem with the ReLU function is how it has the ability to output 0, as also seen in Equation (\ref{eq:relu}). Moreover, what happens if a node is activated to 0 is that the node effectively is rendered useless. Moreover the node is prone to keep outputting 0 if the weighted sum of the previous layers stay negative. This is known as the dying ReLU, as the nodes essentially dies out. 
+
+A fix to the dying ReLU problem is to implement the \textbf{Leaky ReLU} as activation, which slightly changes the ReLU function to the form described in Equation (\ref{eq:leakyrelu})
+
+\begin{equation}
+  \label{eq:leakyrelu}
+  f(x) = 
+  \left\{
+    \begin{array}{ll}
+      0.01x & \mbox{if } x < 0 \\
+      x & \mbox{if } x \geq 0     
+    \end{array}
+  \right.
+\end{equation}
 
 \subsubsection{Weight initialization}
-
+\todo[inline]{EMPTY SECTION}
 
 \subsubsection{Model architecture}
 For this project, we have developed two different model architectures which we will study in conjunction with the analysis of the datasets. As these different architectures pose different complexities in regards to model parameters and design, our goal is to study model dependency concerning model complexity. Our two proposed model architectures are presented visually in Figure (\ref{fig:small_architecture}) and (\ref{fig:large_architecture}). For a more technical implementation with regards to Source Code, we refer to the GitHub repository in the appendix where both models can be found under \textit{code/models.py}.   
@@ -409,13 +437,19 @@ For this project, we have developed two different model architectures which we w
     \hiddenlayer[count=3, bias=true, title=Hidden\\layer 3, text=\hthird] \linklayers
     \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
   \end{neuralnetwork}
-  \caption{Example of a large model architecture having two input features, three neurons in the first hidden layer, and one output\label{fig:large_architecture}}
+  \caption{Example of a large model architecture having two input features, three neurons in the first hidden layer, five neurons in the second hidden layer, three neurons in the third hidden layer and one output\label{fig:large_architecture}}
 \end{figure*}
 
 \subsection{The Wisconsin Breast Cancer Dataset}
 As briefly mentioned in the introduction, our implemented neural network will also be used in a classification context on the Wisconsin breast cancer data set that comes included with SciKit-Learn \cite{scikit-learn}. The dataset consists of 30 features computed from a sample of a breast mass taken from 569 individuals. The dataset also consists of a diagnosis attribute describing whether the current individual has a benign or malignant tumor; in other words if the tumor is cancerous or not. The spread of the current dataset with regards to the diagnosis attribute is a distribution where 357 tumors are benign, and 212 are malignant.
 
 The overall goal for the classification will be to predict a diagnosis with accuracy above a certain threshold on unseen data. For this, we will in the coming sections first rewrite our Neural Network code such that it can be used for classification, as well as regression. Second, we will develop our own Logistic Regression model based on the previously developed Stochastic Gradient Descent algorithm. With both our updated Neural Network and Logistic Regression model, we will test the models against each other to see which model gives the most accurate diagnosis.
+
+\subsection{Classification using our own Neural Network}
+In this section, we will highlight the important differences that separates a our Neural Network for regression and classification problems. First, a separate cost function than the MSE has to be supplied and solved after the feed forward pass (\ref{alg:ff}). In the case of classification, the cost function to minimize is the Cross Entropy function for a binary case. The equation will be derived in the coming section, but can be  seen in Equation (\ref{eq:crossentropy}). 
+Secondly, the output-layer is activated using the logistic sigmoid function, to ensure that the predicted values stay in the range of $(0,1)$ during training. This is in comparison to the output layer for a regression Neural Network, which is not required to contain an activation function, though ReLU could be used if the target is purely positive. Finally, when predicting new values using the Neural Network, they have to be tresholded with regards to some threshold to ensure that the predicted output is categorized. In this project, we are only dealing with a binary classification problem with the Wisconsin Breast Cancer Dataset \cite{scikit-learn}, thus when predicting new values using our Neural Network they have to be categorized into 0 or 1 (True / False).
+
+Though 
 
 \subsection{Introducing Logistic Regression}
 To further validate the fitness of our implemented neural network, we also implemented a logistic regression model.  These models are exceptionally well suited for cases where the goal is to assign observations to discrete classes. At the core of this regression model is the output of the probability of  the observed data belonging to the class in question.
@@ -444,6 +478,7 @@ Furthermore, we want to establish a cost function which will produce a convex pl
 
 \begin{widetext}
   \begin{equation}
+    \label{eq:crossentropy}
     \mathcal{C}(\boldsymbol{\beta})=-\sum_{i=1}^n  \left(y_i(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i) -\log{(1+\exp{(\beta_0+\beta_1x_i+ \ldots +\beta_{29}x_i)})}\right)
   \end{equation}
 \end{widetext}
