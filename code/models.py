@@ -11,6 +11,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from common import INPUT_DATA, REPORT_DATA, REPORT_FIGURES, EX_A, EX_B, EX_C, EX_D, EX_E, EX_F
 from cmcrameri import cm
+import torch
+from torch import nn
+import torch.optim as optim
+import torch.utils.data as data_utils
 
 
 def cost_MSE(X, y, theta, lmb=0):
@@ -568,10 +572,9 @@ class LogReg():
                     xi = np.take(X_train, minibatch, axis=0)
                     yi = np.take(t_train, minibatch, axis=0)
                     p = self.forward(xi)
-                    gradient = -xi.T @ (yi-p)
+                    gradient = -xi.T @ (yi-p) + 2*self.lmb*self.beta
 
                     # beta punishing
-                    self.beta += self.beta*self.lmb**2
                     # updating betas:
                     self.beta = self.beta - self.eta*gradient
 
@@ -610,3 +613,54 @@ class LogReg():
         score = self.forward(x)
         # score = z @ self.theta
         return (score > threshold).astype('int')
+
+
+class TorchNeuralNetwork(nn.Module):
+    def __init__(self, eta, lmb, input_dim, hidden_size):
+        super(TorchNeuralNetwork, self).__init__()
+        self.eta = eta
+        self.lmb = lmb
+        self.input_dim = input_dim
+        self.hidden_size = hidden_size
+
+        self.linear_stack = nn.Sequential(
+
+            nn.Linear(self.input_dim, self.hidden_size),  # hidden1
+            nn.ReLU(),
+            nn.Linear(self.hidden_size, self.hidden_size*2),  # hidden2
+            nn.ReLU(),
+            nn.Linear(self.hidden_size*2, self.hidden_size),  # hidden3
+            nn.ReLU(),
+            nn.Linear(self.hidden_size, 1),  # output
+            nn.Sigmoid()
+        )
+        self.optimizer = optim.SGD(
+            self.parameters(), lr=self.eta, weight_decay=self.lmb)
+        self.criterion = nn.BCELoss()
+
+    def fit(self, epochs, trainloader):
+        for epoch in range(epochs):
+            for i, data in enumerate(trainloader, 0):
+
+                inputs, labels = data
+                # unsqueeze to broadcast:
+                labels = labels.unsqueeze(-1)
+                # zero gradients to avoid accum.grads
+                self.optimizer.zero_grad()
+
+                # forward -> backward -> optimize
+                outputs = self.forward(inputs)
+                loss = self.criterion(outputs, labels)
+                loss.backward()
+                self.optimizer.step()
+
+    def forward(self, x):
+        logits = self.linear_stack(x)
+        return logits
+
+    def torch_accuracy(self, X_test, y_test):
+
+        y_hat = self.forward(X_test)
+        prediction_val = [1 if x > 0.5 else 0 for x in y_hat.data.numpy()]
+        correct_val = (prediction_val == y_test.numpy()).sum()
+        return correct_val/len(y_test)
