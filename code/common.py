@@ -4,6 +4,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import matplotlib.pyplot as plt
 from typing import Tuple
 import pickle
+import pandas as pd
 
 
 # Setting global variables
@@ -209,7 +210,7 @@ def createTerrainData(terrain, includeMeshgrid=True):
 
 def save_model(model, path_filename):
     "saving the medel as .pkl filetype"
-    with open(path_filename, 'wb') as outp:  # Overwriting existing file.
+    with open(path_filename, 'wb') as outp:  # Overwrites existing .pkl file.
         pickle.dump(model, outp, pickle.HIGHEST_PROTOCOL)
 
 
@@ -218,6 +219,175 @@ def load_model(path_filename):
     with open(path_filename, 'rb') as inp:
         model = pickle.load(inp)
     return model
+
+
+# Methods and classes from project1
+class Regression():
+    """ Super class containing methods for fitting, predicting and producing stats for regression models.   
+    """
+
+    def __init__(self):
+        self.betas = None
+        self.X_train = None
+        self.t_train = None
+        self.t_hat_train = None
+        self.param = None
+        self.param_name = None
+        self.SVDfit = None
+        self.SE_betas = None
+
+    def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """Polymorph 
+
+        """
+        pass
+
+    @property
+    def get_all_betas(self) -> np.ndarray:
+        """Returns predictor values
+
+        Returns:
+            [np.ndarray]: betas
+        """
+        return self.betas
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """Performs a prediction:       
+
+        Args:
+            X (np.ndarray): input data
+
+        Returns:
+            np.ndarray: Predicted values
+        """
+
+        prediction = X @ self.betas
+        return prediction
+
+    @property
+    def SE(self):
+        """Returns the standard error
+
+        Returns:
+            [type]: [description]
+        """
+        var_hat = (1./self.X_train.shape[0]) * \
+            np.sum((self.t_train - self.t_hat_train)**2)
+
+        if self.SVDfit:
+            invXTX_diag = np.diag(SVDinv(self.X_train.T @ self.X_train))
+        else:
+            invXTX_diag = np.diag(np.linalg.pinv(
+                self.X_train.T @ self.X_train))
+        return np.sqrt(var_hat * invXTX_diag)
+
+    def summary(self) -> pd.DataFrame:
+        """Produces a summary with coeffs,  STD, confidence intervals
+
+        Returns:
+            [pd.DataFrame]: dataframe with values. 
+        """
+        # Estimated standard error for the beta coefficients
+        N, P = self.X_train.shape
+        SE_betas = self.SE
+
+        # Calculating 95% confidence intervall
+        CI_lower_all_betas = self.betas - (1.96 * SE_betas)
+        CI_upper_all_betas = self.betas + (1.96 * SE_betas)
+
+        # Summary dataframe
+        params = np.zeros(self.betas.shape[0])
+        params.fill(self.param)
+
+        coeffs_df = pd.DataFrame.from_dict({f"{self.param_name}": params,
+                                            "coeff name": [rf"$\beta${i}" for i in range(0, self.betas.shape[0])],
+                                            "coeff value": np.round(self.betas, decimals=4),
+                                            "std error": np.round(SE_betas, decimals=4),
+                                            "CI lower": np.round(CI_lower_all_betas, decimals=4),
+                                            "CI upper": np.round(CI_upper_all_betas, decimals=4)},
+                                           orient='index').T
+
+        return coeffs_df
+
+
+class OLS(Regression):
+    """Class for ordinary least squares regression. 
+
+    Args:
+        Regression ([Class]): Class to inherit. 
+    """
+
+    def __init__(self, degree=1, param_name="degree"):
+        """init.
+
+        Args:
+            degree (int, optional): [description]. Defaults to 1.
+            param_name (str, optional): [description]. Defaults to "degree".
+        """
+        super().__init__()
+        self.param = degree
+        self.param_name = param_name
+
+    def fit(self, X: np.ndarray, t: np.ndarray) -> np.ndarray:
+        """Function to fit model
+
+        Args:
+            X (np.ndarray): Input data
+            t (np.ndarray): target data
+
+        Returns:
+            np.ndarray: Predicted values. 
+        """
+        #self.SVDfit = SVDfit
+        #self.keep_intercept = keep_intercept
+        # if keep_intercept == False:
+        #    X = X[:, 1:]
+
+        self.X_train = X
+        self.t_train = t
+
+        # if SVDfit:
+        #    self.betas = SVDinv(X.T @ X) @ X.T @ t
+        # else:
+        self.betas = np.linalg.pinv(X.T @ X) @ X.T @ t
+        self.t_hat_train = X @ self.betas
+        # print("betas.shape in train before squeeze:",self.betas.shape)
+        self.betas = np.squeeze(self.betas)
+        # print("betas.shape in train after squeeze:",self.betas.shape)
+        return self.t_hat_train
+
+
+def prepare_data(X: np.ndarray, t: np.ndarray, random_state, test_size=0.2, shuffle=True, scale_X=False, scale_t=False, skip_intercept=True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Function to prepare data. Has the ability to set test size, shuffle, scale both X and t, and skip intercept. 
+
+    Args:
+        X (np.ndarray): Input data
+        t (np.ndarray): Target Data
+        random_state ([type]): Seed value
+        test_size (float, optional): Size of test data. Defaults to 0.2.
+        shuffle (bool, optional): Shuffles the data before split. Defaults to True.
+        scale_X (bool, optional): Scales x. Defaults to False.
+        scale_t (bool, optional): Scales target data. Defaults to False.
+        skip_intercept (bool, optional): Skips intercept. Defaults to True.
+
+    Returns:
+        Tuple: Arrays containing X_train, X_test, t_train, t_test
+    """
+    X_train, X_test, t_train, t_test = train_test_split(
+        X, t, test_size=test_size, shuffle=shuffle, random_state=random_state)
+
+    # Scale data
+    if(scale_X):
+        X_train, X_test = standard_scaling(X_train, X_test)
+
+    if(scale_t):
+        t_train, t_test = standard_scaling(t_train, t_test)
+
+    if (skip_intercept):
+        X_train = X_train[:, 1:]
+        X_test = X_test[:, 1:]
+
+    return X_train, X_test, t_train, t_test
 
 
 if __name__ == '__main__':
