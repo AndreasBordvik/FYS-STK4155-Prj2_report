@@ -733,7 +733,7 @@ Figure \ref{fig:NN_model_complexity} is showing how the model performance is con
 The sigmoid function seems to be the activation function more sensitive to hyperparameters out of all the activation functions tested, and the vertical lines in figure \ref{fig:NN_model_complexity} for the sigmoid function looks to superseed the others in variation. Moreover, the sigmoid function seems to fit slightly better for small architectures having smaller complexity and fewer parameters. It looks like the sigmoid function is not able to harness the potential of increased model complexity that well. The sigmoid function is know to saturate at the upper and lower bounds, and this may lead to the gradients being washed out during training. This can in turn lead to the known vanishing gradient problem. Looking at the plot, we believe that the known problems with the sigmoid activation is surfacing within the figure, and that it is clear that the sigmoid is not being as potent as RELU and Leaky RELU in terms of performance and robustnes to hyperparameters.\\\\
 
 \textbf{The RELU activation function}\\
-
+The RELU activation function seems to tackle higher model complexity than the sigmoid activation function as shown in figure \ref{fig:NN_model_complexity}. The MSE values using RELU are decreasing as the model complexity is increasing considering MSE relative to all hyperparameters indicated in the vertical line. The verical lines for RELU spans a relatvly short range of MSE values especially for lower model complexity, and this indicates that the RELU is maximizing the potential in smaller model complexities regardless of the choice of model complexity.
 
 
 \textbf{The Leaky RELU activation function}\\
@@ -748,11 +748,13 @@ We first tried to initialize the weights using gaussian distribution with N(0,1)
 
 
 \subsubsection{Neural Net vs Ordinary Least Squares on terrain data}
-Comparing our best fitted NN with the best OLS fit in project 1 is shown in figure1. It is clearly that our NN outperforms the OLS model. The
+Comparing our best fitted NN with the best OLS fit in project 1 is shown in figure1. It is clearly that our NN outperforms the OLS model in terms of MSE.
 
 In figure \ref{x} and \ref{y} we see that the NN model is more greedy than the OLS model when it comes to minimizing errors. It looks like the NN model prioretizing parts in the terran
 where it is more beneficial to minimize the error. E.g., minmizing along the deep valey and along the cliff. These are parts of the terrain that potentioly yeilds the large error due to the steep
-variation in the terrain.
+variation in the terrain. Albeit Figure (\ref{fig:2D_preds_NN_vs_OLS}, c) fits the finer details in the original terrain to a larger extent than (\ref{fig:2D_preds_NN_vs_OLS}, b), this is circumvented by its inability to precisly fit these details. Thus yielding a positive gain to the MSE. As such, it might seem more productive to precisly fit some structures while disregarding other structures when fitting the terrain data, with regards to lowering the MSE.
+
+This might be a derived result from the Bias-Variance tradeoff which we thourgly discussed in Project 1, were we studied MSE as result of model generalizability. Moreover, we concluded that a overfitted model in terms of its own training data would have difficulties correctly fitting new data. As the Neural Net predicts a new value using a significantly smaller amount of predictors in comparison to the OLS model $(2 < 65)$, the model is not forced by the composition of predictors to fit a certain way. Which is reflected in the lack of structures in the fitted terrain compraed to OLS as seen in Figures (\ref{fig:2D_preds_NN_vs_OLS}) and (\ref{fig:3D_preds_NN_vs_OLS}). However, the smaller amount of predictors does not imply that the Neural Network would not be able to overfit. Had the Neural Network been trained on fewer datapoints, the threshold for overfitting the model could have been reached at an earlier epoch.
 
 
 \subsubsection{Robustness of our Neural Net}
