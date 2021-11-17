@@ -7,13 +7,14 @@ Reallocating 'name_of_file' (item size: 1) to 6 items.
 The style file: plain.bst
 Database file #1: mainNotes.bib
 Database file #2: biblio.bib
+Warning--I didn't find a database entry for "He2015"
 Warning--empty journal in Cybenko1989
 Warning--empty journal in Hornik1989
 Warning--empty journal in paszke2019
 Warning--empty journal in Rumelhart1986
 You've used 10 entries,
             2118 wiz_defined-function locations,
-            560 strings with 6592 characters,
+            562 strings with 6604 characters,
 and the built_in function-call counts, 5009 in all, are:
 = -- 409
 > -- 476
@@ -52,4 +53,4 @@ warning$ -- 4
 while$ -- 28
 width$ -- 12
 write$ -- 104
-(There were 4 warnings)
+(There were 5 warnings)
