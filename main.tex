@@ -371,7 +371,9 @@ The \textbf{Sigmoid} function can be seen in Equation (\ref{eq:sigmoid}).
   \label{eq:sigmoid}
   \sigma(x) = \frac{1}{1 + \text{exp}(-x)}
 \end{equation}
-The function produces values in the range of $(0,1)$, and is in line with the four restrictions posed above. Unfortunately, a major problem with the sigmoid as activation function is the vanishing gradient \cite{Glorot2010}. The vanishing gradient problem arises in Deep Neural Networks when the sigmoid function gets an extremely large value as input, which it then outputs close to saturation moreover leaving the derivative close to 0. Furthermore, the gradients already tend to weaken backwards trough the layers. Thus, combining the weakening gradient with with the derivative of the sigmoid potentially close to 0 could hinder the backpropagation algorithm to reach the first layers leaving them unchanged. 
+The function produces values in the range of $(0,1)$, and is in line with the four restrictions posed above. Unfortunately, a major problem with the sigmoid as activation function is the vanishing gradient \cite{Glorot2010}. The vanishing gradient problem arises in Deep Neural Networks when the sigmoid function gets an extremely large value as input, which it then outputs close to saturation moreover leaving the derivative close to 0. Furthermore, the gradients already tend to weaken backwards trough the layers. Thus, combining the weakening gradient with with the derivative of the sigmoid potentially close to 0 could hinder the backpropagation algorithm to reach the first layers leaving them unchanged.
+
+
 
 %% WRITE ABOUT DYING RELU AS MOTIVATION FOR LEAKY RELU PART C)
 
@@ -709,12 +711,12 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 
 \subsubsection{Neural Net vs Ordinary Least Squares on terrain data}
 
-\begin{figure*}[htb]
+\begin{figure*}
   \subfloat{\includegraphics[width=1.0\textwidth]{figures/NN_vs_OLS_2D.pdf}}
   \caption{2D prediciton comparison between own NN and own OLS \label{fig:2D_preds_NN_vs_OLS}}
 \end{figure*}
 
-\begin{figure*}[htb]
+\begin{figure*}
   \subfloat{\includegraphics[width=1.0\textwidth]{figures/NN_vs_OLS_3D.pdf}}
   \caption{3D prediciton comparison between own NN and own OLS \label{fig:3D_preds_NN_vs_OLS}}
 \end{figure*}
