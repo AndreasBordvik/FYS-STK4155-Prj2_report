@@ -578,7 +578,7 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 
 \subsubsection{Optimal parameters}
 
-\begin{figure*}[htb]
+\begin{figure*}
   \vspace*{-2.5cm}
   \subfloat[Own NN model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_sigmoid_NN_best}]{
     \includegraphics[width=.89\textwidth]{figures/EX_B_heatmap_own_NN_small_parameters_129_sigmoid.pdf}
@@ -593,7 +593,7 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 
 
 
-\begin{figure*}[htb]
+\begin{figure*}
   \vspace*{-2.5cm}
   \subfloat[Own NN model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_relu_NN_best}]{
     \includegraphics[width=.89\textwidth]{figures/EX_C_heatmap_own_NN_large_parameters_4629_relu.pdf}
@@ -605,7 +605,7 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
   \caption{Grid search visualized for the best parameters using RELU activation function\label{fig:relu_NN_vs_tf}}
 \end{figure*}
 
-\begin{figure*}[htb]
+\begin{figure*}
   \vspace*{-2.5cm}
   \subfloat[Own NN model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_leaky_relu_NN_best}]{
     \includegraphics[width=.89\textwidth]{figures/EX_C_heatmap_own_NN_large_parameters_4629_leaky_relu.pdf}
@@ -619,15 +619,15 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 
 
 \subsubsection{Parameters and model complexity}
-\begin{figure*}[htb]
+\begin{figure*}
   \subfloat{\includegraphics[width=.6\textwidth]{figures/NN_MSE_vs_Parameters.pdf}}
-  \caption{MSE score vs number of paramteters in model architecture\label{fig:NN_model_complexity}}
+  \caption{MSE score vs number of paramteters in model architecture. Vertical lines visualize the minimum and maximum MSE value obtained using gridsearch over $\eta$ and $\lambda$ with respect to the current model architecture\label{fig:NN_model_complexity}}
 \end{figure*}
 
 
 
 \subsubsection{Performance of activation functions}
-\begin{figure*}[htb]
+\begin{figure*}
   \subfloat[Best fitted NN model using sigmoid and small arhitecture\label{fig:small_sigmoid_training}]{
     \includegraphics[width=.5\textwidth]{figures/EX_B_own_NN_best_training_small_sigmoid_lr_0.1.pdf}
   }
@@ -649,24 +649,24 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
   \caption{Small vs large architecture\label{fig:small_vs_large_architecture_training}}
 \end{figure*}
 
-\begin{table*}[htb]
+\begin{table*}
   \caption{\label{tab:grid_search_optimal_sigmoid}Optimal grid search parameters for the sigmoid activation function}
   \csvautotabular{data/report_data/NN_optimal_parameters_small_sigmoid.csv}
 \end{table*}
 
-\begin{table*}[htb]
+\begin{table*}
   \caption{\label{tab:grid_search_optimal_RELU}Optimal grid search parameters for the RELU activation function}
   \csvautotabular{data/report_data/NN_optimal_parameters_large_relu.csv}
 \end{table*}
 
-\begin{table*}[htb]
+\begin{table*}
   \caption{\label{tab:grid_search_optimal_Leaky_RELU}Optimal grid search parameters for the Leaky RELU activation function}
   \csvautotabular{data/report_data/NN_optimal_parameters_large_leaky_relu.csv}
 \end{table*}
 
 
 \subsubsection{Own Neural Net vs Tensorflow}
-\begin{figure*}[htb]
+\begin{figure*}
   \hspace*{-1.5cm}
   \subfloat{\includegraphics[width=1.1\textwidth]{figures/Own_NN_vs_Tensorflow_Leaky_RELU_Large_architecture.pdf}}
   \caption{MSE comparison between own NN and Tensorflow - MSE from grid search using Leaky RELU\label{fig:own_NN_vs_tf}}
@@ -730,9 +730,10 @@ For finding optimal hyperparameters we utilized a grid search for different hype
 Figure \ref{fig:NN_model_complexity} is showing how the model performance is connected to complexity. The plot is showing MSE performance for all the six model complexities having $33,65,129,325,1211,4629$ parameters relative to the hyperparameters used during grid search. The small model architecture consisting of only one hidden layer is relating to parameter sizes $33,65,129$. The large model architecture consisting of three hidden layers where the second hidden has twice the debth (neurons) as the first and last layer, and the large architecture is relating to parameter sizes $325,1211,4629$. The vertical line in the plot for each parametercount is not a standard deviation, but it shows how the MSE varies relative to the different hyperparameters used during grid search. A complete grid search was conducted for all the six parametercounts. The variation in MSE performance for each parametercount indicates how sensitive the model is to the hyperparameters considering the activation function and the model complxity.\\\\
 
 \textbf{The sigmoid activation function}\\
-The sigmoid function seems to be the activation function that is the most sensitive to hyperparameters out of all the three activation functions tested, and the vertical lines for the sigmoid function looks to supercide the others in variation. Moreover, the sigmoid function seems to fit slightly better for small architectures having smaller complexity and fewer parameters. It looks like the sigmoid function is not able to harness the potential of increased model complexity. The sigmoid function is know to saturate at the upper and lower bounds, and this may lead to the gradient being washed out. This is famiously known as the vanishing gradient problem. Looking at the plot, we believe that the known problems of the sigmoid activation is showing in the figure, and since it is clear that the sigmoid is not being as potent as RELU and Leaky RELU in terms of performance abd robustnes to hyperparameters.\\\\
+The sigmoid function seems to be the activation function more sensitive to hyperparameters out of all the activation functions tested, and the vertical lines in figure \ref{fig:NN_model_complexity} for the sigmoid function looks to superseed the others in variation. Moreover, the sigmoid function seems to fit slightly better for small architectures having smaller complexity and fewer parameters. It looks like the sigmoid function is not able to harness the potential of increased model complexity that well. The sigmoid function is know to saturate at the upper and lower bounds, and this may lead to the gradients being washed out during training. This can in turn lead to the known vanishing gradient problem. Looking at the plot, we believe that the known problems with the sigmoid activation is surfacing within the figure, and that it is clear that the sigmoid is not being as potent as RELU and Leaky RELU in terms of performance and robustnes to hyperparameters.\\\\
 
 \textbf{The RELU activation function}\\
+
 
 
 \textbf{The Leaky RELU activation function}\\
@@ -762,7 +763,8 @@ variation in the terrain.
   \begin{neuralnetwork}[height=4]
     \newcommand{\x}[2]{$x_#2$}
     \newcommand{\y}[2]{$\hat{y}_#2$}
-    \newcommand{\hfirst}[2]{\small $h^{(1)}_#2$}
+    \newcommand{\hfirst}[2]{67
+      \small $h^{(1)}_#2$}
     \inputlayer[count=2, bias=true, title=Input\\, text=\x]
     \hiddenlayer[count=3, bias=true, title=Hidden\\layer 1, text=\hfirst] \linklayers
     \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
