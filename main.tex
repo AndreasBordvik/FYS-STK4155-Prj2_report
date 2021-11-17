@@ -764,7 +764,7 @@ variation in the terrain.
     \newcommand{\y}[2]{$\hat{y}_#2$}
     \newcommand{\hfirst}[2]{\small $h^{(1)}_#2$}
     \inputlayer[count=2, bias=true, title=Input\\, text=\x]
-    \hiddenlayer[count=3, bias=false, title=Hidden\\layer 1, text=\hfirst] \linklayers
+    \hiddenlayer[count=3, bias=true, title=Hidden\\layer 1, text=\hfirst] \linklayers
     \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
   \end{neuralnetwork}
   \caption{Example of a small model architecture having two input features, three neurons in the first hidden layer, and one output\label{fig:small_architecture}}
@@ -780,7 +780,7 @@ variation in the terrain.
     \inputlayer[count=2, bias=true, title=Input\\, text=\x]
     \hiddenlayer[count=3, bias=true, title=Hidden\\layer 1, text=\hfirst] \linklayers
     \hiddenlayer[count=6, bias=true, title=Hidden\\layer 2, text=\hsecond] \linklayers
-    \hiddenlayer[count=3, bias=false, title=Hidden\\layer 3, text=\hthird] \linklayers
+    \hiddenlayer[count=3, bias=true, title=Hidden\\layer 3, text=\hthird] \linklayers
     \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
   \end{neuralnetwork}
   \caption{Example of a large model architecture having two input features, three neurons in the first hidden layer, and one output\label{fig:large_architecture}}
