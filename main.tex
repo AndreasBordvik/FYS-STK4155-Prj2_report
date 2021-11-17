@@ -371,11 +371,44 @@ The \textbf{Sigmoid} function can be seen in Equation (\ref{eq:sigmoid}).
   \label{eq:sigmoid}
   \sigma(x) = \frac{1}{1 + \text{exp}(-x)}
 \end{equation}
-The function produces values in the range of $(0,1)$.
-
-%% WRITE ABOUT 
+The function produces values in the range of $(0,1)$, and is in line with the four restrictions posed above. Unfortunately, a major problem with the sigmoid as activation function is the vanishing gradient \cite{Glorot2010}. The vanishing gradient problem arises in Deep Neural Networks when the sigmoid function gets an extremely large value as input, which it then outputs close to saturation moreover leaving the derivative close to 0. Furthermore, the gradients already tend to weaken backwards trough the layers. Thus, combining the weakening gradient with with the derivative of the sigmoid potentially close to 0 could hinder the backpropagation algorithm to reach the first layers leaving them unchanged. 
 
 %% WRITE ABOUT DYING RELU AS MOTIVATION FOR LEAKY RELU PART C)
+
+
+\subsubsection{Weight initialization}
+
+
+\subsubsection{Model architecture}
+For this project, we have developed two different model architectures which we will study in conjunction with the analysis of the datasets. As these different architectures pose different complexities in regards to model parameters and design, our goal is to study model dependency concerning model complexity. Our two proposed model architectures are presented visually in Figure (\ref{fig:small_architecture}) and (\ref{fig:large_architecture}). For a more technical implementation with regards to Source Code, we refer to the GitHub repository in the appendix where both models can be found under \textit{code/models.py}.   
+
+\begin{figure*}
+  \begin{neuralnetwork}[height=4]
+    \newcommand{\x}[2]{$x_#2$}
+    \newcommand{\y}[2]{$\hat{y}_#2$}
+    \newcommand{\hfirst}[2]{\small $h^{(1)}_#2$}
+    \inputlayer[count=2, bias=true, title=Input\\, text=\x]
+    \hiddenlayer[count=3, bias=true, title=Hidden\\layer 1, text=\hfirst] \linklayers
+    \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
+  \end{neuralnetwork}
+  \caption{Example of a small model architecture having two input features, three neurons in the first hidden layer, and one output\label{fig:small_architecture}}
+\end{figure*}
+
+\begin{figure*}
+  \begin{neuralnetwork}[height=7]
+    \newcommand{\x}[2]{$x_#2$}
+    \newcommand{\y}[2]{$\hat{y}_#2$}
+    \newcommand{\hfirst}[2]{\small $h^{(1)}_#2$}
+    \newcommand{\hsecond}[2]{\small $h^{(2)}_#2$}
+    \newcommand{\hthird}[2]{\small $h^{(2)}_#2$}
+    \inputlayer[count=2, bias=true, title=Input\\, text=\x]
+    \hiddenlayer[count=3, bias=true, title=Hidden\\layer 1, text=\hfirst] \linklayers
+    \hiddenlayer[count=6, bias=true, title=Hidden\\layer 2, text=\hsecond] \linklayers
+    \hiddenlayer[count=3, bias=true, title=Hidden\\layer 3, text=\hthird] \linklayers
+    \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
+  \end{neuralnetwork}
+  \caption{Example of a large model architecture having two input features, three neurons in the first hidden layer, and one output\label{fig:large_architecture}}
+\end{figure*}
 
 \subsection{The Wisconsin Breast Cancer Dataset}
 As briefly mentioned in the introduction, our implemented neural network will also be used in a classification context on the Wisconsin breast cancer data set that comes included with SciKit-Learn \cite{scikit-learn}. The dataset consists of 30 features computed from a sample of a breast mass taken from 569 individuals. The dataset also consists of a diagnosis attribute describing whether the current individual has a benign or malignant tumor; in other words if the tumor is cancerous or not. The spread of the current dataset with regards to the diagnosis attribute is a distribution where 357 tumors are benign, and 212 are malignant.
@@ -759,36 +792,7 @@ This might be a derived result from the Bias-Variance tradeoff which we thourgly
 
 \subsubsection{Robustness of our Neural Net}
 
-\subsubsection{Model architecture}
 
-\begin{figure*}[htb]
-  \begin{neuralnetwork}[height=4]
-    \newcommand{\x}[2]{$x_#2$}
-    \newcommand{\y}[2]{$\hat{y}_#2$}
-    \newcommand{\hfirst}[2]{67
-      \small $h^{(1)}_#2$}
-    \inputlayer[count=2, bias=true, title=Input\\, text=\x]
-    \hiddenlayer[count=3, bias=true, title=Hidden\\layer 1, text=\hfirst] \linklayers
-    \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
-  \end{neuralnetwork}
-  \caption{Example of a small model architecture having two input features, three neurons in the first hidden layer, and one output\label{fig:small_architecture}}
-\end{figure*}
-
-\begin{figure*}[htb]
-  \begin{neuralnetwork}[height=7]
-    \newcommand{\x}[2]{$x_#2$}
-    \newcommand{\y}[2]{$\hat{y}_#2$}
-    \newcommand{\hfirst}[2]{\small $h^{(1)}_#2$}
-    \newcommand{\hsecond}[2]{\small $h^{(2)}_#2$}
-    \newcommand{\hthird}[2]{\small $h^{(2)}_#2$}
-    \inputlayer[count=2, bias=true, title=Input\\, text=\x]
-    \hiddenlayer[count=3, bias=true, title=Hidden\\layer 1, text=\hfirst] \linklayers
-    \hiddenlayer[count=6, bias=true, title=Hidden\\layer 2, text=\hsecond] \linklayers
-    \hiddenlayer[count=3, bias=true, title=Hidden\\layer 3, text=\hthird] \linklayers
-    \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
-  \end{neuralnetwork}
-  \caption{Example of a large model architecture having two input features, three neurons in the first hidden layer, and one output\label{fig:large_architecture}}
-\end{figure*}
 
 
 

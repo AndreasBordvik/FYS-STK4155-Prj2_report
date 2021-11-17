@@ -394,7 +394,7 @@ def NN_regression_comparison(eta, nbf_features, batch_size, epochs, X_test, t_te
 
 def NN_simple_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
     # Own implemented NN model
-    NN_model = NeuralNetwork(cost=MSE, learning_rate=eta, lmb=lmb,
+    NN_model = NeuralNetwork(learning_rate=eta, lmb=lmb,
                              network_type=problem_type, X_test=X_test, t_test=t_test)
     NN_model.add(Layer(nbf_features, hidden_size,
                  activation=act_func, name="hidden1"))
@@ -422,7 +422,7 @@ def NN_simple_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_
 
 def NN_large_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
     # Own implemented NN model
-    NN_model = NeuralNetwork(cost=MSE, learning_rate=eta, lmb=lmb,
+    NN_model = NeuralNetwork(learning_rate=eta, lmb=lmb,
                              network_type=problem_type, X_test=X_test, t_test=t_test)
     h1 = Layer(nbf_features, hidden_size,
                activation=act_func, name="hidden1")
