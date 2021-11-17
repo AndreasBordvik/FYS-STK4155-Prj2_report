@@ -5,6 +5,7 @@ from autograd import grad
 from sklearn.metrics import mean_squared_error as MSE
 from sklearn.metrics import r2_score as R2
 from tqdm import tqdm
+from common import standard_scaling
 import tensorflow as tf
 from sklearn.neural_network import MLPRegressor
 import seaborn as sns
@@ -15,6 +16,7 @@ import torch
 from torch import nn
 import torch.optim as optim
 import torch.utils.data as data_utils
+from sklearn.model_selection import KFold
 
 
 def cost_MSE(X, y, theta, lmb=0):
@@ -664,3 +666,64 @@ class TorchNeuralNetwork(nn.Module):
         prediction_val = [1 if x > 0.5 else 0 for x in y_hat.data.numpy()]
         correct_val = (prediction_val == y_test.numpy()).sum()
         return correct_val/len(y_test)
+
+
+def NN_crossval(eta, nbf_features, problem_type, X_test, t_test, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
+    # Own implemented NN model
+    NN_model = NeuralNetwork(learning_rate=eta, lmb=lmb,
+                             network_type=problem_type, X_test=X_test, t_test=t_test)
+    h1 = Layer(nbf_features, hidden_size,
+               activation=act_func, name="hidden1")
+    NN_model.add(h1)
+    h2 = Layer(h1.neurons, hidden_size*2,
+               activation=act_func, name="hidden2")
+    NN_model.add(h2)
+    h3 = Layer(h2.neurons, hidden_size, activation=act_func, name="hidden3")
+    NN_model.add(h3)
+    h4 = Layer(h3.neurons, np.ceil(hidden_size//3).astype(int),
+               activation=act_func, name="hidden4")
+    NN_model.add(h4)
+    out = Layer(h4.neurons, nbf_outputs, name="output")
+    NN_model.add(out)
+
+    return NN_model
+
+
+def cross_val(k: int, X: np.ndarray, z: np.ndarray, eta, batch_size, lmb, epochs, hidden_size, random_state=None) -> np.ndarray:
+    """
+    .........
+    """
+
+    kfold = KFold(n_splits=k, shuffle=True, random_state=random_state)
+    scores_KFold = np.zeros(k)
+    # scores_KFold idx counter
+    j = 0
+    z = z.ravel().reshape(-1, 1)
+
+    for train_inds, test_inds in kfold.split(X, z):
+        print(f"in fold {j}")
+        # get all cols and selected train_inds rows/elements:
+        xtrain = X[train_inds, :]
+        ztrain = z[train_inds]
+        # get all cols and selected test_inds rows/elements:
+        xtest = X[test_inds, :]
+        ztest = z[test_inds]
+        # fit a scaler to train_data and transform train and test:
+        X_train_scaled, X_test_scaled = standard_scaling(xtrain, xtest)
+        ztrain_scaled, ztest_scaled = standard_scaling(ztrain, ztest)
+
+        model = NN_crossval(eta, 2, problem_type="regression", X_test=X_test_scaled,
+                            t_test=ztest_scaled, lmb=lmb, hidden_size=hidden_size, act_func="leaky_relu")
+
+        _, _ = model.fit(X_train_scaled, ztrain_scaled, batch_size=batch_size, epochs=epochs,
+                         lr_scheduler=False, verbose=False)
+
+        zpred = model.predict(X_test_scaled)
+
+        score = MSE(zpred, ztest_scaled)
+        print(score)
+        scores_KFold[j] = score
+
+        j += 1
+
+    return scores_KFold
