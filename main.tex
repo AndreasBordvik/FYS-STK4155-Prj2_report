@@ -834,6 +834,15 @@ This might be a derived result from the Bias-Variance tradeoff which we thourgly
 
 
 \section{Conclusions}
+Throughout this Project, we have studied the behaviour of our own implementation of a Feed Forward Neural Network with regards to both the fitting of a terrain as well as classification of breast cancer. We started by implementing Stochastic Gradient Descent, which we used as a reference when developing other Gradient optimizer-methods such as Logistic Regression and the aforementioned Neural Network. All our own implementations were also benchmarked against their similar counterparts using SciKit-learn, TensorFlow and PyTorch. 
+
+When studying the Stochastic Gradient Descent, we saw that the learning rate scheduler which we implemented severely prohibited the gradient from moving, especially for low initial learning rates. Moreover, we found that when applied to the terrain data, it performed optimally when $\eta = 0.01$ and no l2 regularization. With this setup, our SGD was able to reach MSE values of $0.4172$ which is slightly larger than the OLS counterpart of $0.3216$ at the same degree 6. As such, we gain no confidence in using our SGD algorithm as a replacement for the OLS from Project 1, relative degree 6. Though other degrees have not been thoroughly explored, we consider it reasonable to assume that SGD would not outperform OLS even at other degrees.
+
+Moving on to Neural Networks for regression, the architecture in combination with hyperparameters resulted in several models which were able to outperform our benchmark OLS from Project 1. This served as motivation when further tuning the hyperparameters for finding the model fit using grid search, which the result can be seen in both Figure (\ref{fig:2D_preds_NN_vs_OLS}) and (\ref{fig:3D_preds_NN_vs_OLS}). The most critical factor for model performance when fitting the terrain data seemed to be the activation function together with weight initialization. As expected, the sigmoid function was out performed by the ReLU function which itself was superseded by the Leaky ReLU. Though as alluded, the ReLU function family required He initialization instead of a normal distribution of the weights to be able to reach the reported results. Moreover, $\eta = 0.1$, no l2 regularization together with a Leaky ReLU, HE weight initialization and a large model architecture containing 4629 individual parameters defined our optimal Neural Net configuration. With this architecture, the model was able to achieve an MSE of $0.0971$ in the predicted terrain fit compared to OLS from Project 1 which scored an MSE of $0.1602$, as seen in Figures (\ref{fig:2D_preds_NN_vs_OLS}) and (\ref{fig:3D_preds_NN_vs_OLS}). Thus our Neural Network is able to outperform the OLS from Project 1 with respect to degree $10$ (65 predictors), which also was found to be the optimal fit of OLS. 
+
+In studying the Wisconsin Breast Cancer Data, 
+
+% GRADIENT CLIPPING to prevent gradient explosion
 
 \appendix
 
