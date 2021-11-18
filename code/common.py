@@ -1,10 +1,12 @@
+import pickle
 import time
 import autograd.numpy as np
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import matplotlib.pyplot as plt
-from typing import Tuple
-import pickle
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from typing import Callable, List, Tuple
+
 
 
 # Setting global variables
@@ -21,7 +23,16 @@ EX_F = "EX_F_"
 # Common methods
 
 
-def learning_rate_upper_limit(X_train):
+def learning_rate_upper_limit(X_train : np.ndarray) -> float:
+    """Computes the upper limit for the learning rate from the Hessian
+
+    Args:
+        X_train (np.ndarray): Traning data
+
+    Returns:
+        float: Computed learning rate
+    """
+
     XT_X = X_train.T @ X_train
     H = (2./X_train.shape[0]) * XT_X  # The Hessian is the second derivate
     # Picking the largest eigenvalue of the Hessian matrix to use as a guide for determain upper limit for learning rate
@@ -42,6 +53,7 @@ def manual_scaling(data: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Scaled data
     """
+
     return data - np.mean(data, axis=0)
 
 
@@ -55,6 +67,7 @@ def standard_scaling(train: np.ndarray, test: np.ndarray) -> Tuple[np.ndarray, n
     Returns:
         Tuple[np.ndarray, np.ndarray]: Scaled data
     """
+
     scaler = StandardScaler()
     scaler.fit(train)
     train_scaled = scaler.transform(train)
@@ -62,7 +75,7 @@ def standard_scaling(train: np.ndarray, test: np.ndarray) -> Tuple[np.ndarray, n
     return train_scaled, test_scaled
 
 
-def standard_scaling_single(data):
+def standard_scaling_single(data: np.ndarray) -> Tuple[np.ndarray, Callable]:
     """Scales data using the StandarScaler from sklearn.preprocessing. For scaling a single dataset.    
 
     Args:
@@ -71,13 +84,14 @@ def standard_scaling_single(data):
     Returns:
         [type]: Scaled data
     """
+
     scaler = StandardScaler()
     scaler.fit(data)
     data_scaled = scaler.transform(data)
     return data_scaled, scaler
 
 
-def min_max_scaling(data):
+def min_max_scaling(data: np.ndarray) -> Tuple[np.ndarray, Callable]:
     """Scales data using the MinMaxScaler from sklearn.preprocessing
 
     Args:
@@ -86,6 +100,7 @@ def min_max_scaling(data):
     Returns:
         [type]: Scaled data
     """
+
     scaler = MinMaxScaler()
     scaler.fit(data)
     data_scaled = scaler.transform(data)
@@ -103,6 +118,7 @@ def create_X(x: np.ndarray, y: np.ndarray, n: int) -> np.ndarray:
     Returns:
         np.ndarray: Design Matrix
     """
+
     if (len(x.shape)) > 1:
         x = np.ravel(x)
         y = np.ravel(y)
@@ -120,7 +136,7 @@ def create_X(x: np.ndarray, y: np.ndarray, n: int) -> np.ndarray:
     # return X[:, 1:]
 
 
-def remove_intercept(X):
+def remove_intercept(X: np.ndarray) -> np.ndarray:
     """Removes the intercept from design matrix
 
     Args:
@@ -129,13 +145,15 @@ def remove_intercept(X):
     Returns:
         [type]: Design matrix with intercept removed. 
     """
+
     return X[:, 1:]
 
 
-def timer(func) -> float:
+def timer(func: Callable) -> float:
     """
     Simple timer that can be used as a decorator to time functions
     """
+
     def timer_inner(*args, **kwargs):
         t0: float = time.time()
         result = func(*args, **kwargs)
@@ -147,7 +165,18 @@ def timer(func) -> float:
     return timer_inner
 
 
-def create_img_patches(img, ySteps, xSteps):
+def create_img_patches(img: np.ndarray, ySteps: int, xSteps: int) -> List[np.ndarray]:
+    """Divides an image into set of patches
+
+    Args:
+        img (np.ndarray): Original image
+        ySteps (int): size of patch horizontally
+        xSteps (int): size of patch vertically
+
+    Returns:
+        List[np.ndarray]: List containing patches
+    """
+
     patches = []
     for y in range(0, img.shape[0], ySteps):
         for x in range(0, img.shape[1], xSteps):
@@ -161,7 +190,21 @@ def create_img_patches(img, ySteps, xSteps):
     return patches
 
 
-def patches_to_img(patches, ySteps, xSteps, nYpatches, nXpatches, plotImage=False):
+def patches_to_img(patches: List[np.ndarray], ySteps: int, xSteps: int, nYpatches: int, nXpatches: int, plotImage: bool=False) -> np.ndarray:
+    """Reconstructing the original image from a set of patches
+
+    Args:
+        patches (List[np.ndarray]): List of patches
+        ySteps (int): size of patch horizontally
+        xSteps (int): size of patch vertically
+        nYpatches (int): number of patches in the horizontal
+        nXpatches (int): number of patches in the vertical
+        plotImage (bool, optional): True if image is to be plotted and shown. Defaults to False.
+
+    Returns:
+        np.ndarray: The reconstructed image
+    """
+
     img = np.zeros((ySteps*nYpatches, xSteps*nXpatches))
     i = 0
     for y in range(0, img.shape[0], ySteps):
@@ -180,7 +223,19 @@ def patches_to_img(patches, ySteps, xSteps, nYpatches, nXpatches, plotImage=Fals
     return img
 
 
-def plotTerrainPatches(patches, nYpatches, nXpatches, plotTitle="Terrain patches"):
+def plotTerrainPatches(patches: List[np.ndarray], nYpatches: int, nXpatches: int, plotTitle: str="Terrain patches") -> Callable:
+    """Plots a set of terrain patches
+
+    Args:
+        patches (List[np.ndarray]): List of patches
+        nYpatches (int): Number of patches in the horizontal
+        nXpatches (int): Number of patches in the vertical
+        plotTitle (str, optional): Title of the plot. Defaults to "Terrain patches".
+
+    Returns:
+        Callable: Matplotlib Figure object
+    """
+
     # Plotting terrain patches)
     fig, ax = plt.subplots(nYpatches, nXpatches, figsize=(4, 10))
     i = 0
@@ -196,10 +251,18 @@ def plotTerrainPatches(patches, nYpatches, nXpatches, plotTitle="Terrain patches
     plt.tight_layout()
 
     return fig
-    plt.show()
 
+def createTerrainData(terrain: np.ndarray, includeMeshgrid: bool=True) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Sets up (x,y) gridpoints in relation to the terrain values as z
 
-def createTerrainData(terrain, includeMeshgrid=True):
+    Args:
+        terrain (np.ndarray): terrain data
+        includeMeshgrid (bool, optional): combines the (x,y) points as a mesh. Defaults to True.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: returns the x,y and z values. 
+    """
+    
     z = np.array(terrain)
     x = np.arange(0, z.shape[1])
     y = np.arange(0, z.shape[0])
@@ -208,14 +271,28 @@ def createTerrainData(terrain, includeMeshgrid=True):
     return x, y, z
 
 
-def save_model(model, path_filename):
-    "saving the medel as .pkl filetype"
+def save_model(model: Callable, path_filename: str) -> None:
+    """saving the medel as .pkl filetype
+
+    Args:
+        model (Callable): Model to be saved
+        path_filename (str): /path/to/model
+    """
+    
     with open(path_filename, 'wb') as outp:  # Overwrites existing .pkl file.
         pickle.dump(model, outp, pickle.HIGHEST_PROTOCOL)
 
 
-def load_model(path_filename):
-    "Loading a .pkl filetype"
+def load_model(path_filename: str) -> Callable:
+    """Loading a .pkl filetype
+
+    Args:
+        path_filename (str): /path/to/model
+
+    Returns:
+        Callable: Loaded model
+    """
+
     with open(path_filename, 'rb') as inp:
         model = pickle.load(inp)
     return model
@@ -317,7 +394,7 @@ class OLS(Regression):
         Regression ([Class]): Class to inherit. 
     """
 
-    def __init__(self, degree=1, param_name="degree"):
+    def __init__(self, degree: int=1, param_name: str="degree"):
         """init.
 
         Args:
@@ -357,7 +434,7 @@ class OLS(Regression):
         return self.t_hat_train
 
 
-def prepare_data(X: np.ndarray, t: np.ndarray, random_state, test_size=0.2, shuffle=True, scale_X=False, scale_t=False, skip_intercept=True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def prepare_data(X: np.ndarray, t: np.ndarray, random_state: int, test_size: float=0.2, shuffle: bool=True, scale_X: bool=False, scale_t: bool=False, skip_intercept: bool=True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Function to prepare data. Has the ability to set test size, shuffle, scale both X and t, and skip intercept. 
 
     Args:

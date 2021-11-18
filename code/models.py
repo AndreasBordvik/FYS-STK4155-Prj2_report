@@ -1,7 +1,5 @@
 import autograd.numpy as np
-# Replacing numpy with autograd might break something, beware!
 from autograd import grad
-# import numpy as np
 from sklearn.metrics import mean_squared_error as MSE
 from sklearn.metrics import r2_score as R2
 from tqdm import tqdm
