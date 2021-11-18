@@ -9,7 +9,7 @@ prl,
 reprint,
 groupedaddress,
 amsmath,
-amssymb
+amssymb,
 ]{revtex4-2}
 \usepackage[caption=false]{subfig}
 \usepackage{relsize,makeidx,color,setspace,amsfonts}
@@ -122,13 +122,7 @@ bookmarksdepth=3   % Uncomment (and tweak) for PDF bookmarks with more levels th
 
 \begin{abstract}
   %\begin{description}
-  In this project, we studied both the terrain data used in Project 1 as well as the Wisconsin Breast Cancer Data with our own implementation of a Feed Forward Neural Network. We have implemented Stochastic Gradient Descent as a framework for the other algorithms. For the terrain data, we compare our own Neural Network with the OLS and Ridge regression algorithms which we developed in Project 1. When studying the categorical Wisconsin Breast Cancer Data, we have also developed code for Logistic Regression. Our developed algorithms have also been benchmarked with the popular machine learning libraries PyTorch and Tensorflow. By tuning the hyperparameters, we have shown that our own Neural Network outperforms our models from Project 1, when fitting the terrain data with an $\text{MSE} = 0.0971$ compared to our best result of $\text{MSE} = 0.1602$ from OLS. We have also shown that our Neural Net is able to achieve comparable MSE values with that of Tensorflow given the Leaky ReLU as activation function. With regards to classification, our Neural Network performs comparatively to both Logistic Regression as well as PyTorch. We conclude with our Neural Network being the method of choice when fitting the terrain data, \textbf{AND SOME MORE WITH CLASSIFICATION!}
-  %\item[Background] The context needed to understand our paper
-  %\item[Purpose] What is the purpose of our paper?
-  %\item[Method] The methods used
-  %\item[Results] Summarize our results
-  %\item[Conclusions] Describe our conclusions
-  %\end{description}
+  In this project, we studied both the terrain data used in Project 1 as well as the Wisconsin Breast Cancer Data with our own implementation of a Feed Forward Neural Network. We have implemented Stochastic Gradient Descent as a framework for the other algorithms. For the terrain data, we compare our own Neural Network with the OLS and Ridge regression algorithms which we developed in Project 1. When studying the categorical Wisconsin Breast Cancer Data, we have also developed code for Logistic Regression. Our developed algorithms have also been benchmarked with the popular machine learning libraries PyTorch and Tensorflow. By tuning the hyperparameters, we have shown that our own Neural Network outperforms our models from Project 1, when fitting the terrain data with an $\text{MSE} = 0.0971$ compared to our best result of $\text{MSE} = 0.1602$ from OLS. We have also shown that our Neural Net is able to achieve comparable MSE values with that of Tensorflow given the Leaky ReLU as activation function. With regards to classification, our Neural Network performs comparatively to both Logistic Regression as well as PyTorch. We conclude with our Neural Network being the method of choice when fitting the terrain data, and that our Neural Network perform equally well to Logistic Regression on the Wisconsin Breast Cancer Data.
 \end{abstract}
 
 \maketitle
@@ -149,7 +143,8 @@ For clarity, all source code developed has been written using the Python program
 In the following section, we will derive the theory and develop an algorithm for Stochastic Gradient Descent. Using that algorithm as a basis, we will further derive theory and develop code for our own Neural Network and Logistic Regression. With the developed algorithms, we will study their behavior and skill when used with both the Terrain data from Project 1 as well as the Breast Cancer data provided by SciKit-learn \cite{scikit-learn}. The results obtained from our own developed code, as well as the benchmarks with the previously stated Machine Learning software will be presented in the \textbf{Results} section. A discussion of our results will be confined to the \textbf{Discussion} section. Finally, the project will be concluded with our final thoughts for the results as well as this project as a whole in the \textbf{Conclusions} section.
 
 \section{Theory and Methods}
-\subsection{Moving along the gradient}
+\subsection{Stochastic Gradient Descent}
+\subsubsection{Moving along the gradient}
 Gradient Descent is an iterative algorithm that minimizes a given function by following its gradient down towards the global minimum. For a given cost-function $C(\beta)$ with predictors $\beta$ and a hyperparameter $\eta$ (which will be described in the following paragraph), the process of Gradient Descent can be expressed mathematically as follows
 \begin{equation}
   \label{eq:gd}
@@ -160,7 +155,7 @@ By inspecting Equation (\ref{eq:gd}), it can be seen that given some random init
 
 Another pitfall for gradient based convergence methods is the existence of local minimums. As not all functions are created equal, some functions might feature some unevenness that the gradient descent will mistake as a global minimum. As such, gradient descent on the form as in Equation (\ref{eq:gd}) will get stuck in any local minima that it encounters. However, given the case of regression, the MSE cost function is a convex function. As such, there is only one minimum of the function which is the global minimum \cite{Geron2019}. Thus, when considering regression, there is no risk of the algorithm getting stuck in a local minima.
 
-\subsection{Introducing stochasticity to gradient descent}
+\subsubsection{Introducing stochasticity to gradient descent}
 By utilizing the entire gradient of the cost function to compute the next step along the gradient, a lot of computational resources are utilized. Especially if one are to consider a large data-set consisting of several data-points and features. A method to alleviate some of the computational demand of the algorithm is to only compute the gradient for a smaller subset of the data. With Stochastic Gradient Descent, this idea is implemented with a stochastic element, that is, which subset of the data is used is selected at random. The resulting gradient algorithm converges towards the same global minimum as regular gradient descent over the entire data-set, though at a higher pace following an uneven gradient path \cite{Geron2019}.
 
 Another benefit of Stochastic Gradient Descent (SGD) compared to its non-stochastic variant is its ability to exit local minima. As the SGD never reaches a true minimum, a local minima might not be able to contain the algorithm when recomputing the gradient based on a different subset of data. On the other hand, as a consequence of never achieving true minimum, SGD will never return optimal values when compared to non-stochastic gradient descent.
@@ -170,7 +165,7 @@ As pointed out, the Stochastic Gradient Descent algorithm never achieves a minim
 The effect of reducing the learning rate over time is that the step length taken along the gradient after several epochs is smaller. Furthermore, Stochastic Gradient Descent might benefit from such a dynamic learning rate, as it can  be assumed that the algorithm have already closed in on convergence before reaching maximum number of epochs. The scheduler in turn will then be able to dampen all future steps taken, to minimize the effect of the random walk behaviour of the algorithm around the minima.
 For our SGD algorithm, the learning rate scheduler we have implemented is an inverse scaling similarly to the \textit{invscaling} parameter passed on to SciKit-learn's \textbf{SGDRegressor} class. That is, the scheduler updates the learning rate following the equation $\eta = \eta_0/t^{t_0}$ \cite{scikit-learn}. However, in an attempt to reduce the immediate impact of the learning rate scheduler, the first 10 epochs will be completed without scheduling.
 
-\subsection{Implementing Stochastic Gradient Descent with minibatches}
+\subsubsection{Implementing Stochastic Gradient Descent with minibatches}
 By introducing the concept of mini-batches to Gradient Descent, we have to split our data randomly into mini-batches such that the resulting design matrix is
 $$
   X_{\text{perm}} = \left\{X_0, X_1, \ldots, X_M\right\}^T
@@ -204,7 +199,7 @@ Stochastic Gradient Descent is implemented as pseudocode in Algorithm (\ref{alg:
 
 For clarity, Algorithm (\ref{alg:sgd}) can easily be extended with a regularization term, such as the l2 regularizer making it comparable to Ridge Regression. In the case of regularization, the computation of the Cost-function gradient have to be updated with the regularization term accordingly. For our Stochastic Gradient Descent implementation, we have used the automatic differentiation library \href{https://github.com/HIPS/autograd}{Autograd}, with regularization included in the MSE cost function.
 
-\subsection{Adding momentum to SGD}
+\subsubsection{Adding momentum to SGD}
 Equation (\ref{eq:grad_step}) can be generalized with a momentum term as follows
 
 \begin{equation}
@@ -449,7 +444,7 @@ The overall goal for the classification will be to predict a diagnosis with accu
 In this section, we will highlight the important differences that separates a Neural Network applied to regression and classification problems. First, a separate cost function than the MSE has to be supplied and solved after the feed forward pass (\ref{alg:ff}). In the case of classification, our cost function to minimize is the Cross Entropy function for a binary case. The equation will be derived in the coming section, but can be  seen in Equation (\ref{eq:crossentropy}).
 Secondly, the output-layer is activated using the logistic sigmoid function, to ensure that the predicted values stay in the range of $(0,1)$ during training to retain the inherent probability. This is in comparison to the output layer for a regression Neural Network, which is not required to contain an activation function, though ReLU could be used if the target is purely positive. Finally, when predicting new values using the Neural Network, they have to be tresholded with regards to some given threshold to ensure that the predicted output is categorized based on the output probability. In this project, we are only dealing with a binary classification problem with the Wisconsin Breast Cancer Dataset \cite{scikit-learn}, thus when predicting new values using our Neural Network they have to be categorized into 0 or 1 (True / False).
 
-\subsection{Introducing Logistic Regression}
+\subsubsection{Logistic Regression}
 To further validate the fitness of our implemented neural network, we also implemented a logistic regression model.  These models are exceptionally well suited for cases where the goal is to assign observations to discrete classes. At the core of this regression model is the output of the probability of  the observed data belonging to the class in question.
 
 For a binary classification problem, as the Wisconsin breast cancer data, and 2 arbitrary parameters, the probabilities can be formulated as the sigmoid function, mathematically defined as
@@ -548,7 +543,7 @@ Here, matrix $\boldsymbol{W}$ = $p(y_i\vert x_i,\boldsymbol{\beta})(1-p(y_i\vert
   \caption{\label{alg:newtonraphson}Logistic Regression with Newton Raphson´s method}
 \end{algorithm}
 
-\subsection{Computing the accuracy of a logistic model}
+\subsubsection{Computing the accuracy of a logistic model}
 Common for both algorithms is the approach in how we compute the accuracy. With all the epochs done, $\beta$ has reached its final estimation, based on the training data. We compute the probabilities of the observed data in the test set $X_{test}$ with
 
 \begin{equation}
@@ -619,36 +614,24 @@ Both Figures (\ref{fig:a_gs}, \ref{fig:a_gslr}) are created using a grid search 
   \caption{\label{fig:a_gslr}MSE calculated for varying $\eta$ and $\lambda$ values in a grid search with learning rate scheduler turned on}
 \end{figure*}
 
-Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results computed from different configurations of the developed SGD algorithm, the Momentum Stochastic Gradient Descent algorithm explained in Algorithm (\ref{alg:msgd}) as well as with SGDregressor from SciKit-learn and a regression method from Project 1.
+Table (\ref{tab:a_mse}) displays MSE results computed from different configurations of the developed SGD algorithm, the Momentum Stochastic Gradient Descent algorithm explained in Algorithm (\ref{alg:msgd}) as well as with SGDregressor from SciKit-learn and a regression method from Project 1.
 
 \begin{table*}
   \caption{\label{tab:a_mse}MSE values from different SGD configurations based on the optimal hyperparameters as found in the grid search}
   \begin{ruledtabular}
-    \begin{tabular}{lllll}
-      SGD with lr scheduler & Momentum SGD with lr scheduler & SGD w.o. lr scheduler & SciKit-learn & Ridge  \\
+    \begin{tabular}{llllll}
+      l2 regularizer & SGD with lr scheduler & Momentum SGD with lr scheduler & SGD w.o. lr scheduler & SciKit-learn & Regression  \\
       \hline
-      0.4783                & 0.4377                         & 0.4203                & 1.0764       & 0.3256 \\
+      Yes & 0.4783                & 0.4377                         & 0.4203                & 1.0764       & 0.3256 \\
+      No & 0.4778                & 0.4354                         & 0.4171                & 1.0869       & 0.3216 \\
     \end{tabular}
   \end{ruledtabular}
 \end{table*}
 
-\begin{table*}
-  \caption{\label{tab:a_mse_lrlmb}MSE values from different SGD configurations based on the optimal hyperparameters as found in the grid search, without regularization}
-  \begin{ruledtabular}
-    \begin{tabular}{lllll}
-      SGD with lr scheduler & Momentum SGD with lr scheduler & SGD w.o. lr scheduler & SciKit-learn & OLS    \\
-      \hline
-      0.4778                & 0.4354                         & 0.4171                & 1.0869       & 0.3216 \\
-    \end{tabular}
-  \end{ruledtabular}
-\end{table*}
+\subsection{Regression}
+Our Neural Network has been implemented with the Feed Forward pass and Backpropagation algorithm as described in Algorithm (\ref{alg:ff}) and (\ref{alg:bp}). Moreover, different model architecture has been implemented following the design of Figure (\ref{fig:small_architecture}) and (\ref{fig:large_architecture}). 
 
-%% RESULTS NEURAL NETS HERE
-
-
-
-
-\subsubsection{Optimal parameters}
+Figure (\ref{fig:leaky_relu_NN_vs_tf}) display a grid search over different learning rate $\eta$ and regularization terms $\lambda$ for a model with the Leaky ReLU activation function and large model architecture for both our Neural Network and the TensorFlow implementation.
 
 \begin{figure*}
   \vspace*{-2.5cm}
@@ -663,14 +646,14 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
 \end{figure*}
 
 
-\subsubsection{Parameters and model complexity}
+Moreover, Figure (\ref{fig:NN_model_complexity}) plots output MSE for three different models with different activation functions as a dependency on the number of parameters in the model.
 \begin{figure}
   \subfloat{\includegraphics[width=\columnwidth]{figures/NN_MSE_vs_Parameters.pdf}}
   \caption{MSE score vs number of paramteters in model architecture. Vertical lines visualize the minimum and maximum MSE value obtained using gridsearch over $\eta$ and $\lambda$ with respect to the current model architecture\label{fig:NN_model_complexity}}
 \end{figure}
 
 
-\subsubsection{Performance of activation functions}
+Figure (\ref{fig:small_vs_large_architecture_training}) plots the different model architectures and activation function dependance on number of epochs. 
 \begin{figure*}
   \subfloat[Best fitted NN model using sigmoid and small arhitecture\label{fig:small_sigmoid_training}]{
     \includegraphics[width=.5\textwidth]{figures/EX_B_own_NN_best_training_small_sigmoid_lr_0.1.pdf}
@@ -690,9 +673,10 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
   \subfloat[Best fitted NN model using Leaky RELU large arhitecture\label{fig:large_leaky_relu_training}]{
     \includegraphics[width=.5\textwidth]{figures/EX_C_own_NN_best_training_large_leaky_relu_lr_0.1.pdf}
   }
-  \caption{Small vs large architecture\label{fig:small_vs_large_architecture_training}}
+  \caption{MSE computed for small and large model architecture for the different activation functions as a function of epochs\label{fig:small_vs_large_architecture_training}}
 \end{figure*}
 
+Table (\ref{tab:grid_search_optimal_sigmoid} - \ref{tab:grid_search_optimal_Leaky_RELU}) display the optimal hyperparamter setup as we have found for a model of each activation function.
 \begin{table}
   \caption{\label{tab:grid_search_optimal_sigmoid}Optimal grid search parameters for the sigmoid activation function}
   \csvautotabular{data/report_data/NN_optimal_parameters_small_sigmoid.csv}
@@ -708,16 +692,14 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
   \csvautotabular{data/report_data/NN_optimal_parameters_large_leaky_relu.csv}
 \end{table}
 
-
-\subsubsection{Own Neural Net vs Tensorflow}
+Figure (\ref{fig:own_NN_vs_tf}) plots both our own Neural Network as well as the implementation using TensorFlow with the Leaky ReLU activation function with found optimal architecture as a function of number of epochs.
 \begin{figure*}
   \hspace*{-1.5cm}
   \subfloat{\includegraphics[width=1.1\textwidth]{figures/Own_NN_vs_Tensorflow_Leaky_RELU_Large_architecture.pdf}}
   \caption{MSE comparison between own NN and Tensorflow - MSE from grid search using Leaky RELU\label{fig:own_NN_vs_tf}}
 \end{figure*}
 
-\subsubsection{Neural Net vs Ordinary Least Squares on terrain data}
-
+We have visualized our terrain reconstruction in both Figure (\ref{fig:2D_preds_NN_vs_OLS}) and (\ref{fig:3D_preds_NN_vs_OLS}). Both reconstructions were made using the optimal model architecture for our Neural Network. Moreover, for comparison, the best result from Project 1 using OLS with max polynomial degree 10 is shown.
 \begin{figure*}
   \subfloat{\includegraphics[width=1.0\textwidth]{figures/NN_vs_OLS_2D.pdf}}
   \caption{2D prediction comparison between own NN and own OLS \label{fig:2D_preds_NN_vs_OLS}}
@@ -729,9 +711,9 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
 \end{figure*}
 
 
-\subsubsection{Robustness of our Neural Net}
+Table (\ref{tab:cross_val_scores}) shows a 7 fold cross validation of the optimal model, though with the learning rate $\eta = 0.05$. 
 \begin{table}
-  \caption{\label{tab:cross_val_scores}MSE from 7-fold cross-validation on regression problem}
+  \caption{\label{tab:cross_val_scores}MSE from 7-fold cross-validation on the regression problem with $\eta = 0.05$ as only changed hyperparameter from the optimal architecture}
   \csvautotabular{data/report_data/EX_C_cross_val.csv}
 \end{table}
 
@@ -739,7 +721,6 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
 
 For the classification problem, we used our Neural Network following the three changes mentioned in the prior Section. Figure (\ref{fig:conf_matrix_home_torch}) plots the Confusion matrices for both the own Neural Network classifier and the similar PyTorch classifier. Both confusion matrices are created from models using optimal parameters as found doing a grid search (not shown).
 
-\subsection{Artificial Neural Net Vs PyTorch}
 \begin{figure*}
   \subfloat[Own NN model - Confusion Matrix\label{fig:EX_D_homebrew_conf_matrix_a}]{
     \includegraphics[width=\columnwidth]{figures/EX_D_homebrew_conf_matrix.pdf}
@@ -757,7 +738,7 @@ Figure (\ref{fig:EX_E_logreg_gridsearch}) shows the result of a grid search over
 \end{figure*}
 
 Moreover, Figure (\ref{fig:conf_matrix_sgd_nrm}) also plots confusion matrices, though for two different Logistic Regression models. Namely Stochastic Gradient Descent and Newton Raphson. For the SGD Logistic Regression, the hyperparameters has been optimized according to the grid search in Figure (\ref{fig:EX_E_logreg_gridsearch}).
-\subsection{Logistic Regression: SGD Vs NRM}
+
 \begin{figure*}
   \subfloat[Logistic Regression with NRM - Confusion Matrix\label{fig:EX_E_logreg_nrm_confmat_a}]{
     \includegraphics[width=\columnwidth]{figures/EX_E_logreg_nrm_confmat.pdf}
@@ -768,7 +749,6 @@ Moreover, Figure (\ref{fig:conf_matrix_sgd_nrm}) also plots confusion matrices, 
   \caption{Confusion matrices for Logistic Regression using both Stochastic Gradient Descent and Newton Raphson. The parameters for the Logistic Regression has been optimized considering the SGD algorithm using the Grid Search. Newton Raphson does not require the same hyperparameters.\label{fig:conf_matrix_sgd_nrm}}
 \end{figure*}
 
-\subsection{ROC Curve}
 The plot shown in Figure (\ref{fig:EX_E_roc_curve}) is a Receiver Operating Characteristic plot with curves for the different classification algorithms used in this Project.
 \begin{figure}
   \includegraphics[width=\columnwidth]{figures/EX_E_roc_curve.pdf}
@@ -787,25 +767,18 @@ The two heatmaps shown in Figures (\ref{fig:a_gs}) and (\ref{fig:a_gslr}) show t
 
 Moreover, a secondary observation of the inclusion of the learning rate can be pointed out. By comparing the two rightmost columns of Figure (\ref{fig:a_gs}) and (\ref{fig:a_gslr}), it can be seen that SGD differ greatly in MSE value for $\eta=0.00001$ regardless of regularization parameter. This might be an effect of scheduling the learning rate, in combination with the learning rate being initialized to such a low value that the model is unable converge in time of the scheduling reducing all movement along the gradient. Furthermore, the difference in MSE between the model for higher learning rates is not as great as for $\eta = 0.00001$, which then might be a result of the model reaching close to a minima before scheduling.
 
-Figure (\ref{fig:a_gs}) shows that the optimal hyperparameters for our SGD algorithm given the current dataset, is $\eta = 0.01$ and $\lambda = 0.0001$. As such, Figure (\ref{fig:a_gs}) suggests that less regularization leads to lower attained MSE. This complies with the results of Table (\ref{tab:a_mse_lrlmb}), were an even lower MSE value is attained when noe regularization is present. Furthermore, by comparing the Ridge regression value in Table (\ref{tab:a_mse}) with the OLS value in Table (\ref{tab:a_mse_lrlmb}) it can be seen that OLS scores better than Ridge regression for the optimal regularization parameter as found in Figure (\ref{fig:a_gs}). These results are in line with what we discovered in Project 1 when analyzing our Ridge Regression algorithm and OLS algorithm on the same Terrain data, namely that OLS scores better in regards to MSE than Ridge.
+Figure (\ref{fig:a_gs}) shows that the optimal hyperparameters for our SGD algorithm given the current dataset, is $\eta = 0.01$ and $\lambda = 0.0001$. As such, Figure (\ref{fig:a_gs}) suggests that less regularization leads to lower attained MSE. This complies with the results of Table (\ref{tab:a_mse}), were an even lower MSE value is attained when noe regularization is present. Furthermore, by comparing the Ridge regression value in Table (\ref{tab:a_mse}) with the OLS value, it can be seen that OLS scores better than Ridge regression for the optimal regularization parameter as found in Figure (\ref{fig:a_gs}). These results are in line with what we discovered in Project 1 when analyzing our Ridge Regression algorithm and OLS algorithm on the same Terrain data, namely that OLS scores better in regards to MSE than Ridge.
 
 By comparing the values in Table (\ref{tab:a_mse}), it can be seen that
-the MSE values computed with our SGD algorithm gets close to the Ridge regression value, with an approximate difference of 0.1 for SGD without learning rate scheduler. Moreover, our SGD outperforms that of SciKit-learn, which is more than doubled of our computed MSE values. The same trends can be seen for the OLS case in Table (\ref{tab:a_mse_lrlmb}). Our SGD algorithm outperforms that of SciKit-learn, though lower MSE values are achieved as discussed in the previous paragraph.
+the MSE values computed with our SGD algorithm gets close to the Ridge regression value, with an approximate difference of 0.1 for SGD without learning rate scheduler. Moreover, our SGD outperforms that of SciKit-learn, which is more than doubled of our computed MSE values. The same trends can be seen for the OLS case in Table (\ref{tab:a_mse}). Our SGD algorithm outperforms that of SciKit-learn also when no regularization is present.
 
-Another note when discussing Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) is the inclusion of Momentum SGD as described in Algorithm (\ref{alg:msgd}). With the added momentum parameter, lower MSE values are attained as all the hyperparameters are kept the same. Though the values are not as good as normal SGD without the learning rate scheduler.
-
-
-\subsection{Comparing Stochastic Gradient Descent and Newton Raphson for Logistic Regression}
-As demonstrated by Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}), there are several distinct differences between the two implementations. While Newton Raphson´s method only iterates through the epochs, the stochastic gradient descent will have additional iterations through the batches. This might lead to the impression that the latter is computationally more complex than the first. This is however not the case, as the inversion of a $k \times k$ matrix has a complexity of $O(k^3)$, which has to be carried out for each iteration as the parameters change with every update \cite{Goodfellow2016}. For cases with a large number of parameters, the exponentially increasing computational burden imposed often makes SGD the preferred solver.
-
+Another note when discussing Table (\ref{tab:a_mse}) is the inclusion of Momentum SGD as described in Algorithm (\ref{alg:msgd}). With the added momentum parameter, lower MSE values are attained as all the hyperparameters are kept the same. Though the values are not as good as normal SGD without the learning rate scheduler. This could be a result of Momentum SGD requiring a learning rate scheduler to be able to run without overflow, with the same reasoning as when discussing Figure (\ref{fig:a_gs}) and (\ref{fig:a_gslr}).
 
 \subsection{Arificial Neural Net - Regression problem}
 To quantify the power of our neural network model, we studied how well the network performed relative to results obtained using Ordinary Least Squares (OLS) in project 1. Our best fit for the OLS model was MSE equal to 0.1601 as shown in figure \ref{??}, which served as our initial reference score for the NN model. For the models to compete on similar terms, we reused the same image patch from project 1 and fitted our NN on the same data using the same scaling process. We scale both the x and y input coordinates and the targets by subtracting their respective mean values. For the OLS fit, we feed the model using degree 10 for both the x and y coordinates for the OLS fit, which seeded the model with 65 features to work on. One significant difference for our Neural Net is that we only feed the NN model with the raw data, meaning we input the first-order inputs of x and y, two features in total. By doing this, the NN model receives the task of finding the optimal polynomial and its degree, and this will be incorporated within the different layers and neurons of its Neural Net. For a well-implemented Neural Net, it is often beneficial to leave it to the model to find the optimal relationships rather than seeding it to look for a specific degree. To be fair, the true optimal degree is unknown even though we approximated the best fit to be of degree 10 for the OLS model specifically. Seeding the NN to match a specific degree as done for the OLS can go both ways; it can help the NN model converge faster with a better fit, but it can also restrain the model with too little or too much unnecessary input data. Feeding the NN model with too many features can also result in the model reaching the curse of dimensionality issue at some point, leaving the model with a worse fit, since having too many features may result in an increased level of noise. A common way to tackle too many features is to use the Principal Component Analysis (PCA) algorithm. This will extract the most essential features. However, increasing the number of degrees in our design matrix (order of magnitude of our raw input) and applying PCA on it is not a good choice in this case. Such an approach yields dependent input data when the higher level feature are constructed from the order of magnitude of the raw data; thus, the condition for using PCA is not met. This left us with the most optimal approach for input feature for the Neural Net to just being the coordinates x and y from the input data. One of the major challenges of training a network full of neurons is the choice of hyper parameter. A common way to find good hyperparameters is to traverse parts of the parameter space by using a grid search.
 
 \subsubsection{Optimal parameters}
 For finding optimal hyperparameters we utilized a grid search for different hyperparameters as shown in table \ref{??}. We decided to keep batch size and number of epochs constant to limit our options for computational reasons.  We ran grid search with the chosen hyperparameters for all three activation functions; Sigmoid, RELU, and Leaky RELU, using both the small and the large network architecture shown in figure \ref{xx}.  The most optimal MSE values from the grid search can be found in the heatmaps for all the three activation types; Sigmoid in figure \ref{FIG5 a}, RELU in figure \ref{FIG6 a}, Leaky RELU in figure \ref{FIG7 a}. Figure \ref{FIG5 b}, \ref{FIG6 b}, and \ref{FIG7 b} shows how the similar Tensorflow model performs on the same grid search parameters. The most optimal hyperparameters for each activation function is summaries in table \ref{x}, \ref{x}, and \ref{x}.
-
-
 
 
 \subsubsection{Parameters and model complexity}
@@ -849,8 +822,11 @@ As stated in the Results, we followed the process outlined in the Methods sectio
 
 With the initial architecture, we ran two separate grid searches for both our own Neural Network as well as the one implemented using PyTorch. For our own Neural Network, the grid search returned $\eta=0.1$ and $\lambda = 0.0$ as optimal parameters with an Accuracy score (\ref{eq:acc}) of $0.9824$, whereas PyTorch got $\eta = 0.002$, $\lambda = 0.00001$ and the same Accuracy score. Figure (\ref{fig:conf_matrix_home_torch}) plots the associated confusion matrices for the just described models. Figure (\ref{fig:conf_matrix_home_torch}) demonstrates how two classification models can attain the same Accuracy score, albeit their predictions are distributed differently. Our Neural Network has an additional false positive not seen in the PyTorch network, although the PyTorch model has an additional False negative such that the total sum of misclassifications is equal. This is also reflected in their correct classifications as a direct consequence of their misclassifications.
 
-\subsubsection{Comparing with Logistic Regression}
-When implementing the Logistic Regression method, we followed both Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}) as they result in two different approaches to gradient optimization. % SGD being the poor man's choice - Morten
+\subsubsection{Complexity of Stochastic Gradient Descent and Newton Raphson for Logistic Regression}
+When implementing the Logistic Regression method, we followed both Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}) as they result in two different approaches to gradient optimization.
+As demonstrated by Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}), there are several distinct differences between the two implementations. While Newton Raphson´s method only iterates through the epochs, the stochastic gradient descent will have additional iterations through the batches. This might lead to the impression that the latter is computationally more complex than the first. This is however not the case, as the inversion of a $k \times k$ matrix has a complexity of $O(k^3)$, which has to be carried out for each iteration as the parameters change with every update \cite{Goodfellow2016}. For cases with a large number of parameters, the exponentially increasing computational burden imposed often makes SGD the preferred solver. % SGD being the poor man's choice - Morten
+
+\subsubsection{Comparing the Neural Network with Logistic Regression}
 Compared to Stochastic Gradient Descent which has approximated the Hessian with the learning rate $\eta$, Newton Raphson iteratively computes the first and second derivative for each epoch. As such, it would not be possible to do a similar grid search for both models, as they require different hyperparameter. Thus, we only do a grid search for Logistic Regression with Stochastic Gradient Descent which can be seen in Figure (\ref{fig:EX_E_logreg_gridsearch}). By inspecting Figure (\ref{fig:EX_E_logreg_gridsearch}), it can be seen that a model with a high learning rate $\eta = 0.1$ and l2 regularization term approaching 0. Though it is difficult to assert which hyperparameters are optimal, as the optimal region in Figure (\ref{fig:EX_E_logreg_gridsearch}) contains many viable combinations. Though there seems to be a clear trend towards a model with higher learning rate and less l2 regularization within the parameter space.
 
 Using the hyperparameters obtained from the SGD Logistic Regression grid search in Figure (\ref{fig:EX_E_logreg_gridsearch}), the confusion matrices for both Logistic Regression methods are shown in Figure (\ref{fig:conf_matrix_sgd_nrm}). By inspecting Figure (\ref{fig:conf_matrix_sgd_nrm}), it can be seen that the results agree less than when inspecting Figure (\ref{fig:conf_matrix_home_torch}). This difference in Accuracy score might arise due to the Newton Raphson model being more prone to misclassifications, especially regarding false positives. We note that there is no regularization term added to the Newton Raphson equation, which could have resolved some misclassifications if the Hessian matrix was e.g. non positive definite. Moreover, the Stochastic Gradient Descent approach does not lead to any false positives. This might be a result of limited data, were no data points match the criterion for the model to misclassify accordingly.
@@ -877,7 +853,7 @@ Finally, this project have demonstrated the power of the Universal approximation
 Link to github repository containing all developed code for this project: \url{https://github.com/AndreasBordvik/FYS-STK4155-Prj2_report}
 
 \section{Additional Figures}
-For a directory containing additional Figures and models, we refer to to the Appendix located in our GitHub: \url{}
+For a directory containing additional Figures and models, we refer to to the Appendix located in our GitHub: \textbf{LINK TO APPENDIX}
 
 % Create the reference section using BibTeX:
 
