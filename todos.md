@@ -20,48 +20,48 @@
 3. ```Done:``` Initialize the weights using a normal distribution. 
 4. ```Missing analysis on choice:``` How would you initialize the biases? 
 5. ```Missing analysis on choice:``` And which activation function would you select for the final output layer?
-6. Train your network and compare the results with those from your OLS and Ridge Regression codes from project 1.
-7. You should test your results against a similar code using Scikit-Learn (see the examples in the above lecture notes from week 41) or tensorflow/keras.
-8. Comment your results and give a critical discussion of the results obtained with the Linear Regression code 
-9. Comment your results and give a critical discussion of the results obtained with the your own Neural Network code.
-10. Compare the results with those from project 1. 
-11. Make an analysis of the regularization parameters and the learning rates employed to find the optimal MSE and R2 scores.
+6. ```Done:``` Train your network and compare the results with those from your OLS and Ridge Regression codes from project 1.
+7. ```Done:``` You should test your results against a similar code using Scikit-Learn (see the examples in the above lecture notes from week 41) or tensorflow/keras.
+8. ```Done:``` Comment your results and give a critical discussion of the results obtained with the Linear Regression code 
+9. ```Done:``` Comment your results and give a critical discussion of the results obtained with the your own Neural Network code.
+10. ```Done:``` Compare the results with those from project 1. 
+11. ```Done:``` Make an analysis of the regularization parameters and the learning rates employed to find the optimal MSE and R2 scores.
 12. ```Done:```Do manual backprop calculation on the XOR problem to validate neural network. 
 13. ```Done:``` Use terrain data for testing
-14. Implement working autograd.
-15. Leaky relu
+14. ```Nope:``` Implement working autograd.
+15. ```Done:``` Leaky relu
 
 
 ## Part c) - Testing different activation functions
-0. Make stuff work using autograd
-1. Sigmoid
-2. RELU
-3. Leaky RELU
-4. discuss your results
-5. You may also study the way you initialize your weights and biases. Comment on choice. etc
+0. ```Nope:``` Make stuff work using autograd
+1. ```Done:``` Sigmoid
+2. ```Done:``` RELU
+3. ```Done:``` Leaky RELU
+4. ```Done:``` discuss your results
+5. ```Done:``` You may also study the way you initialize your weights and biases. Comment on choice. etc
 
 
 ## Part d) - Classification analysis using neural networks
 1. ```DONE:``` With a well-written code it should now be easy to change the activation function for the output layer.
-2. ```Must be implemeted in common.``` Here we will change the cost function for our neural network code developed in parts b) and c) in order to perform a classification analysis.
-3. ```Write about nature of the problem:``` We will here study the Wisconsin Breast Cancer data set. This is a typical binary classification problem with just one single output, either True or Fale, 0 or 1 etc. You find more information about this at the Scikit-Learn site or at the University of California at Irvine.
-4. ```Implement indicator function accuracy score meassures. Also include confussion matrix.``` To measure the performance of our classification problem we use the so-called accuracy score. The accuracy is as you would expect just the number of correctly guessed targets ti divided by the total number of targets, that is 
+2. ```Done:``` Here we will change the cost function for our neural network code developed in parts b) and c) in order to perform a classification analysis.
+3. ```Done:``` We will here study the Wisconsin Breast Cancer data set. This is a typical binary classification problem with just one single output, either True or Fale, 0 or 1 etc. You find more information about this at the Scikit-Learn site or at the University of California at Irvine.
+4. ```Done:``` To measure the performance of our classification problem we use the so-called accuracy score. The accuracy is as you would expect just the number of correctly guessed targets ti divided by the total number of targets, that is 
 
 
-5. Discuss your results and give a critical analysis of the various parameters, including hyper-parameters like the ```learning rates``` and the ```regularization parameter λ``` (as you did in Ridge Regression), ```various activation functions```, ```number of hidden layers``` and ```nodes``` and ```activation functions```.
+5. ```Done:``` Discuss your results and give a critical analysis of the various parameters, including hyper-parameters like the ```learning rates``` and the ```regularization parameter λ``` (as you did in Ridge Regression), ```various activation functions```, ```number of hidden layers``` and ```nodes``` and ```activation functions```.
 
 6. ```Extra:``` As stated in the introduction, it can also be useful to study other datasets.
 
-7. ```TODO:``` Again, we strongly recommend that you compare your own neural Network code for classification and pertinent results against a similar code using Scikit-Learn or tensorflow/keras or pytorch.
+7. ```Done:``` Again, we strongly recommend that you compare your own neural Network code for classification and pertinent results against a similar code using Scikit-Learn or tensorflow/keras or pytorch.
 
 
 
 ## Part e)
-1. Compare our neural network classification results with Logistic regression results. 
-2. ```Which cost function to use?``` Define your cost function and the design matrix before you start writing your code. 
-3. You can also use standard gradient descent in this case, with a learning rate as hyper-parameter. 
-    1. Write thereafter a Logistic regression code using your SGD algorithm. 
-5. Study the results as functions of the chosen ```learning rates```. 
-6. ```TODO:``` Add also an l2 regularization parameter λ. 
-7. Compare your results with those from your FFNN code as well as those obtained using Scikit-Learn's logistic regression functionality.
-8. Check cost function and update of parameters
+1. ```Done:``` Compare our neural network classification results with Logistic regression results. 
+2. ```Done:``` Define your cost function and the design matrix before you start writing your code. 
+3. ```Nope:``` You can also use standard gradient descent in this case, with a learning rate as hyper-parameter. 
+    1. ```Done:``` Write thereafter a Logistic regression code using your SGD algorithm. 
+5. ```Done:``` Study the results as functions of the chosen ```learning rates```. 
+6. ```Done:``` Add also an l2 regularization parameter λ. 
+7. ```Done:``` Compare your results with those from your FFNN code as well as those obtained using Scikit-Learn's logistic regression functionality.
+8. ```Done:``` Check cost function and update of parameters
