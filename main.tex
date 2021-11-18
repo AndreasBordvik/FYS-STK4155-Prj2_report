@@ -652,33 +652,6 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
 
 \begin{figure*}
   \vspace*{-2.5cm}
-  \subfloat[Own NN model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_sigmoid_NN_best}]{
-    \includegraphics[width=.89\textwidth]{figures/EX_B_heatmap_own_NN_small_parameters_129_sigmoid.pdf}
-  }\\
-  \vspace*{-0.45cm}
-  \subfloat[Tensorflow model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_sigmoid_TF_best}]{
-    \includegraphics[width=.89\textwidth]{figures/EX_B_heatmap_tf_small_parameters_129_sigmoid.pdf}
-  }
-  \caption{Grid search visualized for the best parameters using sigmoid activation function\label{fig:sigmoid_NN_vs_tf}}
-\end{figure*}
-
-
-
-
-\begin{figure*}
-  \vspace*{-2.5cm}
-  \subfloat[Own NN model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_relu_NN_best}]{
-    \includegraphics[width=.89\textwidth]{figures/EX_C_heatmap_own_NN_large_parameters_4629_relu.pdf}
-  }\\
-  \vspace*{-0.45cm}
-  \subfloat[Tensorflow model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_relu_TF_best}]{
-    \includegraphics[width=.89\textwidth]{figures/EX_C_heatmap_tf_large_parameters_4629_relu.pdf}
-  }
-  \caption{Grid search visualized for the best parameters using RELU activation function\label{fig:relu_NN_vs_tf}}
-\end{figure*}
-
-\begin{figure*}
-  \vspace*{-2.5cm}
   \subfloat[Own NN model - Showing number of parameters, $\eta$ and $\lambda$\label{fig:gridsearch_leaky_relu_NN_best}]{
     \includegraphics[width=.89\textwidth]{figures/EX_C_heatmap_own_NN_large_parameters_4629_leaky_relu.pdf}
   }\\
@@ -695,7 +668,6 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
   \subfloat{\includegraphics[width=\columnwidth]{figures/NN_MSE_vs_Parameters.pdf}}
   \caption{MSE score vs number of paramteters in model architecture. Vertical lines visualize the minimum and maximum MSE value obtained using gridsearch over $\eta$ and $\lambda$ with respect to the current model architecture\label{fig:NN_model_complexity}}
 \end{figure}
-
 
 
 \subsubsection{Performance of activation functions}
@@ -870,7 +842,7 @@ This might be a derived result from the Bias-Variance tradeoff which we thourgly
 
 
 \subsubsection{Robustness of our Neural Net}
-
+In the same manner as in Project 1, we implemented the k-fold Cross Validation resampling technique to study the robustness of the reported MSE values. Note that due to model overflow using the optimal architecture setup, we used $\eta = 0.05$ instead of $\eta = 0.1$ with large architecture. As seen in Table (\ref{tab:cross_val_scores}), there is a steady overall performance except for fold 5. This might be a consequence of the nature of the terrain data resampling, were fold 5 contains more complex terrain compared to other folds. Moreover, the less optimal results might be a consequence of the suboptimal model configuration.
 
 \subsection{Classification using our Neural Network}
 As stated in the Results, we followed the process outlined in the Methods section when we made our Neural Network compliant with classification problems. As a note, the rest of the Neural Network architecture and internal methods are the same for regression and classification. The initial architecture was chosen to be similar to the large architecture in Figure (\ref{fig:large_architecture}), with 32 nodes in the first hidden layer which is then doubled in the second hidden layer then halved back to 32 in the last hidden layer. The dimension of the output layer is governed by the nature of the target data. In this case, we only work on binary classification problem, which translates to a single output in contrast to a multiclass problem. For the latter, the size of the output layer would be dictated by the number of classes, with target data being one-hot encoded. 
@@ -903,6 +875,9 @@ Finally, this project have demonstrated the power of the Universal approximation
 \section{Source Code}
 \label{sec:sc}
 Link to github repository containing all developed code for this project: \url{https://github.com/AndreasBordvik/FYS-STK4155-Prj2_report}
+
+\section{Additional Figures}
+For a directory containing additional Figures and models, we refer to to the Appendix located in our GitHub: \url{}
 
 % Create the reference section using BibTeX:
 
