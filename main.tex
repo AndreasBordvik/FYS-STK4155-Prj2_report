@@ -446,10 +446,8 @@ As briefly mentioned in the introduction, our implemented neural network will al
 The overall goal for the classification will be to predict a diagnosis with accuracy above a certain threshold on unseen data. For this, we will in the coming sections first rewrite our Neural Network code such that it can be used for classification, as well as regression. Second, we will develop our own Logistic Regression model based on the previously developed Stochastic Gradient Descent algorithm. With both our updated Neural Network and Logistic Regression model, we will test the models against each other to see which model gives the most accurate diagnosis.
 
 \subsection{Classification using our own Neural Network}
-In this section, we will highlight the important differences that separates a our Neural Network for regression and classification problems. First, a separate cost function than the MSE has to be supplied and solved after the feed forward pass (\ref{alg:ff}). In the case of classification, the cost function to minimize is the Cross Entropy function for a binary case. The equation will be derived in the coming section, but can be  seen in Equation (\ref{eq:crossentropy}).
-Secondly, the output-layer is activated using the logistic sigmoid function, to ensure that the predicted values stay in the range of $(0,1)$ during training. This is in comparison to the output layer for a regression Neural Network, which is not required to contain an activation function, though ReLU could be used if the target is purely positive. Finally, when predicting new values using the Neural Network, they have to be tresholded with regards to some threshold to ensure that the predicted output is categorized. In this project, we are only dealing with a binary classification problem with the Wisconsin Breast Cancer Dataset \cite{scikit-learn}, thus when predicting new values using our Neural Network they have to be categorized into 0 or 1 (True / False).
-
-Though
+In this section, we will highlight the important differences that separates a Neural Network applied to regression and classification problems. First, a separate cost function than the MSE has to be supplied and solved after the feed forward pass (\ref{alg:ff}). In the case of classification, our cost function to minimize is the Cross Entropy function for a binary case. The equation will be derived in the coming section, but can be  seen in Equation (\ref{eq:crossentropy}).
+Secondly, the output-layer is activated using the logistic sigmoid function, to ensure that the predicted values stay in the range of $(0,1)$ during training to retain the inherent probability. This is in comparison to the output layer for a regression Neural Network, which is not required to contain an activation function, though ReLU could be used if the target is purely positive. Finally, when predicting new values using the Neural Network, they have to be tresholded with regards to some given threshold to ensure that the predicted output is categorized based on the output probability. In this project, we are only dealing with a binary classification problem with the Wisconsin Breast Cancer Dataset \cite{scikit-learn}, thus when predicting new values using our Neural Network they have to be categorized into 0 or 1 (True / False).
 
 \subsection{Introducing Logistic Regression}
 To further validate the fitness of our implemented neural network, we also implemented a logistic regression model.  These models are exceptionally well suited for cases where the goal is to assign observations to discrete classes. At the core of this regression model is the output of the probability of  the observed data belonging to the class in question.
@@ -561,6 +559,7 @@ Common for both algorithms is the approach in how we compute the accuracy. With 
 The values are then tresholded, assigning all probabilities $>$ 0.5 to class 1 and all $<$ 0.5 to 0. The accuracy for n samples is then simply calculated by
 
 \begin{equation}
+  \label{eq:acc}
   \text{Accuracy} = \frac{\sum_{i=1}^n I(t_i = y_i)}{n}
 \end{equation}
 
@@ -692,10 +691,10 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
 
 
 \subsubsection{Parameters and model complexity}
-\begin{figure*}
-  \subfloat{\includegraphics[width=.6\textwidth]{figures/NN_MSE_vs_Parameters.pdf}}
+\begin{figure}
+  \subfloat{\includegraphics[width=\columnwidth]{figures/NN_MSE_vs_Parameters.pdf}}
   \caption{MSE score vs number of paramteters in model architecture. Vertical lines visualize the minimum and maximum MSE value obtained using gridsearch over $\eta$ and $\lambda$ with respect to the current model architecture\label{fig:NN_model_complexity}}
-\end{figure*}
+\end{figure}
 
 
 
@@ -722,21 +721,20 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
   \caption{Small vs large architecture\label{fig:small_vs_large_architecture_training}}
 \end{figure*}
 
-\begin{table*}
+\begin{table}
   \caption{\label{tab:grid_search_optimal_sigmoid}Optimal grid search parameters for the sigmoid activation function}
   \csvautotabular{data/report_data/NN_optimal_parameters_small_sigmoid.csv}
-\end{table*}
+\end{table}
 
-\begin{table*}
+\begin{table}
   \caption{\label{tab:grid_search_optimal_RELU}Optimal grid search parameters for the RELU activation function}
   \csvautotabular{data/report_data/NN_optimal_parameters_large_relu.csv}
-\end{table*}
+\end{table}
 
-\begin{table*}
+\begin{table}
   \caption{\label{tab:grid_search_optimal_Leaky_RELU}Optimal grid search parameters for the Leaky RELU activation function}
   \csvautotabular{data/report_data/NN_optimal_parameters_large_leaky_relu.csv}
-\end{table*}
-
+\end{table}
 
 
 \subsubsection{Own Neural Net vs Tensorflow}
@@ -745,8 +743,6 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
   \subfloat{\includegraphics[width=1.1\textwidth]{figures/Own_NN_vs_Tensorflow_Leaky_RELU_Large_architecture.pdf}}
   \caption{MSE comparison between own NN and Tensorflow - MSE from grid search using Leaky RELU\label{fig:own_NN_vs_tf}}
 \end{figure*}
-
-%\subsubsection{Effect of weight initialization} % handled in discussion. No plots to show
 
 \subsubsection{Neural Net vs Ordinary Least Squares on terrain data}
 
@@ -762,14 +758,15 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
 
 
 \subsubsection{Robustness of our Neural Net}
-\begin{table*}
+\begin{table}
   \caption{\label{tab:cross_val_scores}MSE from 7-fold cross-validation on regression problem}
   \csvautotabular{data/report_data/EX_C_cross_val.csv}
-\end{table*}
+\end{table}
 
 \subsection{Classification}
 
 For the classification problem, we used our Neural Network following the three changes mentioned in the prior Section. Figure (\ref{fig:conf_matrix_home_torch}) plots the Confusion matrices for both the own Neural Network classifier and the similar PyTorch classifier. Both confusion matrices are created from models using optimal parameters as found doing a grid search (not shown).
+
 \subsection{Artificial Neural Net Vs PyTorch}
 \begin{figure*}
   \subfloat[Own NN model - Confusion Matrix\label{fig:EX_D_homebrew_conf_matrix_a}]{
@@ -801,10 +798,10 @@ Moreover, Figure (\ref{fig:conf_matrix_sgd_nrm}) also plots confusion matrices, 
 
 \subsection{ROC Curve}
 The plot shown in Figure (\ref{fig:EX_E_roc_curve}) is a Receiver Operating Characteristic plot with curves for the different classification algorithms used in this Project.
-\begin{figure*}
-  \includegraphics[width=\textwidth]{figures/EX_E_roc_curve.pdf}
+\begin{figure}
+  \includegraphics[width=\columnwidth]{figures/EX_E_roc_curve.pdf}
   \caption{\label{fig:EX_E_roc_curve}Comparison of ROC-curves for all classification algorithms}
-\end{figure*}
+\end{figure}
 
 
 \section{Discussion}
@@ -828,6 +825,7 @@ Another note when discussing Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb})
 
 \subsection{Comparing Stochastic Gradient Descent and Newton Raphson for Logistic Regression}
 As demonstrated by Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}), there are several distinct differences between the two implementations. While Newton Raphson´s method only iterates through the epochs, the stochastic gradient descent will have additional iterations through the batches. This might lead to the impression that the latter is computationally more complex than the first. This is however not the case, as the inversion of a $k \times k$ matrix has a complexity of $O(k^3)$, which has to be carried out for each iteration as the parameters change with every update \cite{Goodfellow2016}. For cases with a large number of parameters, the exponentially increasing computational burden imposed often makes SGD the preferred solver.
+
 
 \subsection{Arificial Neural Net - Regression problem}
 To quantify the power of our neural network model, we studied how well the network performed relative to results obtained using Ordinary Least Squares (OLS) in project 1. Our best fit for the OLS model was MSE equal to 0.1601 as shown in figure \ref{??}, which served as our initial reference score for the NN model. For the models to compete on similar terms, we reused the same image patch from project 1 and fitted our NN on the same data using the same scaling process. We scale both the x and y input coordinates and the targets by subtracting their respective mean values. For the OLS fit, we feed the model using degree 10 for both the x and y coordinates for the OLS fit, which seeded the model with 65 features to work on. One significant difference for our Neural Net is that we only feed the NN model with the raw data, meaning we input the first-order inputs of x and y, two features in total. By doing this, the NN model receives the task of finding the optimal polynomial and its degree, and this will be incorporated within the different layers and neurons of its Neural Net. For a well-implemented Neural Net, it is often beneficial to leave it to the model to find the optimal relationships rather than seeding it to look for a specific degree. To be fair, the true optimal degree is unknown even though we approximated the best fit to be of degree 10 for the OLS model specifically. Seeding the NN to match a specific degree as done for the OLS can go both ways; it can help the NN model converge faster with a better fit, but it can also restrain the model with too little or too much unnecessary input data. Feeding the NN model with too many features can also result in the model reaching the curse of dimensionality issue at some point, leaving the model with a worse fit, since having too many features may result in an increased level of noise. A common way to tackle too many features is to use the Principal Component Analysis (PCA) algorithm. This will extract the most essential features. However, increasing the number of degrees in our design matrix (order of magnitude of our raw input) and applying PCA on it is not a good choice in this case. Such an approach yields dependent input data when the higher level feature are constructed from the order of magnitude of the raw data; thus, the condition for using PCA is not met. This left us with the most optimal approach for input feature for the Neural Net to just being the coordinates x and y from the input data. One of the major challenges of training a network full of neurons is the choice of hyper parameter. A common way to find good hyperparameters is to traverse parts of the parameter space by using a grid search.
@@ -874,9 +872,18 @@ This might be a derived result from the Bias-Variance tradeoff which we thourgly
 \subsubsection{Robustness of our Neural Net}
 
 
+\subsection{Classification using our Neural Network}
+As stated in the Results, we followed the process outlined in the Methods section when we made our Neural Network compliant with classification problems. As a note, the rest of the Neural Network architecture and internal methods are the same for regression and classification. The initial architecture was chosen to be similar to the large architecture in Figure (\ref{fig:large_architecture}), with 32 nodes in the first hidden layer which is then doubled in the second hidden layer then halved back to 32 in the last hidden layer. The dimension of the output layer is governed by the nature of the target data. In this case, we only work on binary classification problem, which translates to a single output in contrast to a multiclass problem. For the latter, the size of the output layer would be dictated by the number of classes, with target data being one-hot encoded.
 
+With the initial architecture, we ran two separate grid searches for both our own Neural Network as well as the one implemented using PyTorch. For our own Neural Network, the grid search returned $\eta=0.1$ and $\lambda = 0.0$ as optimal parameters with an Accuracy score (\ref{eq:acc}) of $0.9824$, whereas PyTorch got $\eta = 0.002$, $\lambda = 0.00001$ and the same Accuracy score. Figure (\ref{fig:conf_matrix_home_torch}) plots the associated confusion matrices for the just described models. Figure (\ref{fig:conf_matrix_home_torch}) demonstrates how two classification models can attain the same Accuracy score, albeit their predictions are distributed differently. Our Neural Network has an additional false positive not seen in the PyTorch network, although the PyTorch model has an additional False negative such that the total sum of misclassifications is equal. This is also reflected in their correct classifications as a direct consequence of their misclassifications.
 
+\subsubsection{Comparing with Logistic Regression}
+When implementing the Logistic Regression method, we followed both Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}) as they result in two different approaches to gradient optimization. % SGD being the poor man's choice - Morten
+Compared to Stochastic Gradient Descent which has approximated the Hessian with the learning rate $\eta$, Newton Raphson iteratively computes the first and second derivative for each epoch. As such, it would not be possible to do a similar grid search for both models, as they require different hyperparameter. Thus, we only do a grid search for Logistic Regression with Stochastic Gradient Descent which can be seen in Figure (\ref{fig:EX_E_logreg_gridsearch}). By inspecting Figure (\ref{fig:EX_E_logreg_gridsearch}), it can be seen that a model with a high learning rate $\eta = 0.1$ and l2 regularization term approaching 0. Though it is difficult to assert which hyperparameters are optimal, as the optimal region in Figure (\ref{fig:EX_E_logreg_gridsearch}) contains many viable combinations. Though there seems to be a clear trend towards a model with higher learning rate and less l2 regularization within the parameter space.
 
+Using the hyperparameters obtained from the SGD Logistic Regression grid search in Figure (\ref{fig:EX_E_logreg_gridsearch}), the confusion matrices for both Logistic Regression methods are shown in Figure (\ref{fig:conf_matrix_sgd_nrm}). By inspecting Figure (\ref{fig:conf_matrix_sgd_nrm}), it can be seen that the results agree less than when inspecting Figure (\ref{fig:conf_matrix_home_torch}). This difference in Accuracy score might arise due to the Newton Raphson model being more prone to misclassifications, especially regarding false positives. We note that there is no regularization term added to the Newton Raphson equation, which could have resolved some misclassifications if the Hessian matrix was e.g. non positive definite. Moreover, the Stochastic Gradient Descent approach does not lead to any false positives. This might be a result of limited data, were no data points match the criterion for the model to misclassify accordingly.
+
+Finally, Figure (\ref{fig:EX_E_roc_curve}) summarizes all implemented models in a Receiver Operating Characteristic plot. Figure (\ref{fig:EX_E_roc_curve}) demonstrates the performance of all four classification models without regards to some pre-set threshold. The optimal area under the curve for a ROC-plot equals $1$, which translates to the model being able to perfectly distinguish all positives and negatives correctly. As can be seen, all our models achieves an area under the roc-curve $\approx 1$, which follows what we already have seen in the confusion matrices for the case of a threshold $ = 0.5$. It is difficult to determine which model performs best, though it can be clearly seen that Newton Raphson performs considerably worse with a higher false positive rate as also seen in Figure (\ref{fig:conf_matrix_sgd_nrm}).
 
 \section{Conclusions}
 Throughout this Project, we have studied the behaviour of our own implementation of a Feed Forward Neural Network with regards to both the fitting of a terrain as well as classification of breast cancer. We started by implementing Stochastic Gradient Descent, which we used as a reference when developing other Gradient optimizer-methods such as Logistic Regression and the aforementioned Neural Network. All our own implementations were also benchmarked against their similar counterparts using SciKit-learn, TensorFlow and PyTorch.
@@ -885,9 +892,11 @@ When studying the Stochastic Gradient Descent, we saw that the learning rate sch
 
 Moving on to Neural Networks for regression, the architecture in combination with hyperparameters resulted in several models which were able to outperform our benchmark OLS from Project 1. This served as motivation when further tuning the hyperparameters for finding the model fit using grid search, which the result can be seen in both Figure (\ref{fig:2D_preds_NN_vs_OLS}) and (\ref{fig:3D_preds_NN_vs_OLS}). The most critical factor for model performance when fitting the terrain data seemed to be the activation function together with weight initialization. As expected, the sigmoid function was out performed by the ReLU function which itself was superseded by the Leaky ReLU. Though as alluded, the ReLU function family required He initialization instead of a normal distribution of the weights to be able to reach the reported results. Moreover, $\eta = 0.1$, no l2 regularization together with a Leaky ReLU, HE weight initialization and a large model architecture containing 4629 individual parameters defined our optimal Neural Net configuration. With this architecture, the model was able to achieve an MSE of $0.0971$ in the predicted terrain fit compared to OLS from Project 1 which scored an MSE of $0.1602$, as seen in Figures (\ref{fig:2D_preds_NN_vs_OLS}) and (\ref{fig:3D_preds_NN_vs_OLS}). Thus our Neural Network is able to outperform the OLS from Project 1 with respect to degree $10$ (65 predictors), which also was found to be the optimal fit of OLS.
 
-In studying the Wisconsin Breast Cancer Data,
+In studying the Wisconsin Breast Cancer Data, we saw that all models performed well above a certainty of $0.9$. Though the preferred model is tied to the classification problem in question, for our dataset all models performed relatively equally except for Newton Raphson which posed a higher misclassification rate. However, not all models are computationally equal, and with regards to computational efficiency as well as a high Accuracy Logistic Regression with Stochastic Gradient Descent would be our preferred model. Another highly important aspect of the Stochastic Gradient Descent model was its ability to correctly classify all negatives. In the context of Breast Cancer screening, this would be a highly desired behaviour. However, this result might also simply arise from the fact that the limited size and complexity of the dataset, as it would not seem reasonable for our model to never misclassify a negative.
 
-% GRADIENT CLIPPING to prevent gradient explosion
+While working on this Project, we have seen that a Neural Network is able to outperform regression methods given the right architecture. However, though we have tried to explore different hyperparamter combinations through extensive use of grid search, we note that our final model could be outperformed given other unexplored hyperparameter combinations. Furthermore, our Neural Network is implemented in such a way that extending the model with new activation functions, cost functions, weight initializations, gradient clipping and more is relatively simple. Though we have limited itself to three activation functions, two different weight initializations and Stochastic Gradient Descent, improving upon these methods would probably achieve even better results.
+
+Finally, this project have demonstrated the power of the Universal approximation Theorem. We have seen that Neural Networks aptly fit complicated data, even with sparse input dimensionality. Though Regression methods do have their use, especially with regards to computational efficiency and simplicity. With increasingly complex data, is is difficult to disregard the adaptability and extendability made possible with Neural Networks.
 
 \appendix
 
