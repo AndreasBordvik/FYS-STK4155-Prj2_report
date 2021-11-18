@@ -108,7 +108,7 @@ bookmarksdepth=3   % Uncomment (and tweak) for PDF bookmarks with more levels th
 
 % ------------------- main content ----------------------
 
-\title{Comparing Neural Networks with Regression methods for Classification and Regression problems}
+\title{Comparing Neural Networks with Regression methods for Classification and Regression\\Project 2 - FYS-STK4155}
 
 \author{Gard Pavels Høivang}
 \email{gardph@mail.uio.no}
@@ -578,6 +578,8 @@ Figure (\ref{fig:a_mse_epoch}) plots the MSE computed from our SGD implementatio
   \caption{\label{fig:a_mse_epoch}MSE calculated from Stochastic Gradient Descent optimization of the predictors $\theta$ as function of the number of epochs with all other hyperparameters kept fixed}
 \end{figure}
 
+The table seen in Table (\ref{tab:a_epoch_run}) shows the computational runtime associated with number of epochs. 
+
 \begin{table}
   \caption{\label{tab:a_epoch_run}Runtime in seconds computed for SGD over an increasing number of epochs}
   \begin{tabular}{|c|c|}
@@ -599,7 +601,7 @@ Figure (\ref{fig:a_mse_epoch}) plots the MSE computed from our SGD implementatio
   \end{tabular}
 \end{table}
 
-The following Figure (\ref{fig:a_gs}) plots the MSE as a function of batch\_size using the SGD algorithm in \ref{alg:sgd}.
+The following Figure (\ref{fig:a_bs}) plots the MSE as a function of batch\_size using the SGD algorithm in \ref{alg:sgd}.
 
 \begin{figure}
   \includegraphics[width=\columnwidth]{figures/EX_A_mse_with_varying_batch_size.pdf}
@@ -618,7 +620,7 @@ Both Figures (\ref{fig:a_gs}, \ref{fig:a_gslr}) are created using a grid search 
   \caption{\label{fig:a_gslr}MSE calculated for varying $\eta$ and $\lambda$ values in a grid search with learning rate scheduler turned on}
 \end{figure*}
 
-Table (\ref{tab:a_mse}) displays MSE results computed from different configurations of the developed SGD algorithm as well as the MSE computed from the Momentum Stochastic Gradient Descent algorithm explained in Algorithm (\ref{alg:msgd}).
+Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results computed from different configurations of the developed SGD algorithm, the Momentum Stochastic Gradient Descent algorithm explained in Algorithm (\ref{alg:msgd}) as well as with SGDregressor from SciKit-learn and a regression method from Project 1. 
 
 \begin{table*}
   \caption{\label{tab:a_mse}MSE values from different SGD configurations based on the optimal hyperparameters as found in the grid search}
@@ -746,14 +748,14 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 
 \subsubsection{Neural Net vs Ordinary Least Squares on terrain data}
 
-\begin{figure*}[htb]
+\begin{figure*}
   \subfloat{\includegraphics[width=1.0\textwidth]{figures/NN_vs_OLS_2D.pdf}}
-  \caption{2D prediciton comparison between own NN and own OLS \label{fig:2D_preds_NN_vs_OLS}}
+  \caption{2D prediction comparison between own NN and own OLS \label{fig:2D_preds_NN_vs_OLS}}
 \end{figure*}
 
-\begin{figure*}[htb]
+\begin{figure*}
   \subfloat{\includegraphics[width=1.0\textwidth]{figures/NN_vs_OLS_3D.pdf}}
-  \caption{3D prediciton comparison between own NN and own OLS \label{fig:3D_preds_NN_vs_OLS}}
+  \caption{3D prediction comparison between own NN and own OLS \label{fig:3D_preds_NN_vs_OLS}}
 \end{figure*}
 
 
@@ -768,7 +770,7 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 As described in the introduction, all results above are generated using the Terrain data from Project 1 with the same data preprocessing and a fixed degree of 6. The degree was chosen as a compromise between complexity to the data and complexity to the computations.
 Figure (\ref{fig:a_mse_epoch}) shows the epoch dependance of the SGD algorithm measured in MSE. As can be seen in the figure, as the number of epochs are increased, the MSE is reduced. In this specific case, the reduction of MSE tend to closely follow a parabola, though for 100 epochs the MSE is reduced somewhat more than average. As such, the MSE seem to converge somewhere around 0.48, which is the approximate value at 300 epochs. However, though it can clearly be seen that a higher amount of epochs results in a more precise estimation of the predictors, the computational time for each run increases with epochs as seen in Table (\ref{tab:a_epoch_run}). Hence, as a consequence of running some of the computations on an Intel(R) Core(TM) i5-3230M CPU @ 2.60GHz, the number of epochs are constrained to 100 for further computations. Though we acknowledge that 100 epochs are not necessarily the optimal number of epochs if just concerning the MSE.
 
-Inspecting Figure (\ref{fig:a_bs}), it can be clearly seen that the lowest MSE values are attained for a batch size around 3 to 6 samples per batch. For batch sizes 8 and larger, the MSE tend to continuously increase following a weak slope. On the other hand, reducing the batch size to 2 samples per batch severely increases the MSE. Furthermore, for a batch size of 1 sample per batch, the MSE is not returned to due computational overflow (not shown). By combining the results of Figure (\ref{fig:a_mse_epoch}) and (\ref{fig:a_bs}), we can conclude that Stochastic Gradient Descent on the Terrain data performs optimal if given a descent number of epochs and a batch size of approximately 4. However, as previously discussed concerning computational resources, we have considered 100 epochs with a batch size of 4 the optimal when generating the coming results.
+Inspecting Figure (\ref{fig:a_bs}), it can be clearly seen that the lowest MSE values are attained for a batch size around 3 to 6 samples per batch. For batch sizes 8 and larger, the MSE tend to continuously increase following a weak slope. On the other hand, reducing the batch size to 2 samples per batch severely increases the MSE. Furthermore, for a batch size of 1 sample per batch, the MSE is not returned to due computational overflow (not shown). By combining the results of Figure (\ref{fig:a_mse_epoch}) and (\ref{fig:a_bs}), we can conclude that Stochastic Gradient Descent on the Terrain data performs optimal if given a descent number of epochs and a batch size of approximately 4. However, as previously discussed concerning computational resources, we have considered 100 epochs with a batch size of 4 the optimal when generating the Stochastic Gradient Descent results.
 
 The two heatmaps shown in Figures (\ref{fig:a_gs}) and (\ref{fig:a_gslr}) show the effect of the learning rate $\eta$ as well as the l2 regularization term $\lambda$ without and with a learning rate scheduler respectively. By comparing the two plots, it can be seen that the learning rate scheduler causes all but one model to attain higher MSE. Which might be a result of too aggressive scheduling.
 
