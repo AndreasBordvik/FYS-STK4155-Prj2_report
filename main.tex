@@ -643,7 +643,39 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 \end{table*}
 
 %% RESULTS NEURAL NETS HERE
-\subsection{Arificial Neural Net}
+
+\subsection{Arificial Neural Net Vs PyTorch}
+\begin{figure*}
+  \vspace*{-2.5cm}
+  \subfloat[Own NN model - Confusion Matrix\label{fig:EX_D_homebrew_conf_matrix}]{
+    \includegraphics[width=.89\textwidth]{figures/EX_D_homebrew_conf_matrix.pdf}
+  }\\
+  \vspace*{-0.45cm}
+  \subfloat[PyTorch model - Confusion Matrix\label{fig:EX_D_torch_conf_matrix}]{
+    \includegraphics[width=.89\textwidth]{figures/EX_D_torch_conf_matrix.pdf}
+  }
+  \caption{bla blab\label{fig:conf_matrix}}
+\end{figure*}
+
+\subsection{Logistic Regression: SGD Vs NRM}
+\begin{figure*}
+  \vspace*{-2.5cm}
+  \subfloat[Logistic Regression with NRM - Confusion Matrix\label{fig:EX_E_logreg_nrm_confmat}]{
+    \includegraphics[width=.89\textwidth]{figures/EX_E_logreg_nrm_confmat.pdf}
+  }\\
+  \vspace*{-0.45cm}
+  \subfloat[Logistic Regression with SGD - Confusion Matrix\label{fig:EX_E_logreg_sgd_confmat.pdf}]{
+    \includegraphics[width=.89\textwidth]{figures/EX_E_logreg_sgd_confmat.pdf}
+  }
+  \caption{bla bla bla \label{fig:conf_matrix}}
+\end{figure*}
+
+
+\subsection{ROC Curve}
+\begin{figure*}
+  \includegraphics[width=\textwidth]{figures/EX_E_roc_curve.pdf}
+  \caption{\label{fig:EX_E_roc_curve}Comparison of ROC-curves for all classification algorithms}
+\end{figure*}
 
 
 \subsubsection{Optimal parameters}
@@ -758,10 +790,19 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
 
 
 \subsubsection{Robustness of our Neural Net}
-\todo[inline]{Insert CV plot using Leaky RELU and Large architecture}
+\begin{table*}
+  \caption{\label{tab:cross_val_scores}MSE from 7-fold cross-validation on regression problem}
+  \csvautotabular{data/report_data/EX_C_cross_val.csv}
+\end{table*}
 
-\subsection{Logistic Regression}
-\todo[inline]{Insert results of classification}
+\subsection{Classification}
+
+\begin{figure*}[htb]
+  \subfloat{\includegraphics[width=1.0\textwidth]{figures/EX_E_logreg_gridsearch.pdf}}
+  \caption{Grid search accuracies for logistic regression with varying $\eta$, $\lambda$ values. \label{fig:EX_E_logreg_gridsearch}}
+\end{figure*}
+
+
 
 \section{Discussion}
 \subsection{Analyzing our Stochastic Gradient Descent implementation}
