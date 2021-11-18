@@ -646,38 +646,7 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
 
 %% RESULTS NEURAL NETS HERE
 
-\subsection{Arificial Neural Net Vs PyTorch}
-\begin{figure*}
-  \vspace*{-2.5cm}
-  \subfloat[Own NN model - Confusion Matrix\label{fig:EX_D_homebrew_conf_matrix}]{
-    \includegraphics[width=.89\textwidth]{figures/EX_D_homebrew_conf_matrix.pdf}
-  }\\
-  \vspace*{-0.45cm}
-  \subfloat[PyTorch model - Confusion Matrix\label{fig:EX_D_torch_conf_matrix}]{
-    \includegraphics[width=.89\textwidth]{figures/EX_D_torch_conf_matrix.pdf}
-  }
-  \caption{bla blab\label{fig:conf_matrix}}
-\end{figure*}
 
-\subsection{Logistic Regression: SGD Vs NRM}
-\begin{figure*}
-  \vspace*{-2.5cm}
-  \subfloat[Logistic Regression with NRM - Confusion Matrix\label{fig:EX_E_logreg_nrm_confmat}]{
-    \includegraphics[width=.89\textwidth]{figures/EX_E_logreg_nrm_confmat.pdf}
-  }\\
-  \vspace*{-0.45cm}
-  \subfloat[Logistic Regression with SGD - Confusion Matrix\label{fig:EX_E_logreg_sgd_confmat.pdf}]{
-    \includegraphics[width=.89\textwidth]{figures/EX_E_logreg_sgd_confmat.pdf}
-  }
-  \caption{bla bla bla \label{fig:conf_matrix}}
-\end{figure*}
-
-
-\subsection{ROC Curve}
-\begin{figure*}
-  \includegraphics[width=\textwidth]{figures/EX_E_roc_curve.pdf}
-  \caption{\label{fig:EX_E_roc_curve}Comparison of ROC-curves for all classification algorithms}
-\end{figure*}
 
 
 \subsubsection{Optimal parameters}
@@ -769,6 +738,7 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
 \end{table*}
 
 
+
 \subsubsection{Own Neural Net vs Tensorflow}
 \begin{figure*}
   \hspace*{-1.5cm}
@@ -799,11 +769,42 @@ Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) displays MSE results compute
 
 \subsection{Classification}
 
-\begin{figure*}[htb]
+For the classification problem, we used our Neural Network following the three changes mentioned in the prior Section. Figure (\ref{fig:conf_matrix_home_torch}) plots the Confusion matrices for both the own Neural Network classifier and the similar PyTorch classifier. Both confusion matrices are created from models using optimal parameters as found doing a grid search (not shown).
+\subsection{Artificial Neural Net Vs PyTorch}
+\begin{figure*}
+  \subfloat[Own NN model - Confusion Matrix\label{fig:EX_D_homebrew_conf_matrix_a}]{
+    \includegraphics[width=\columnwidth]{figures/EX_D_homebrew_conf_matrix.pdf}
+  }
+  \subfloat[PyTorch model - Confusion Matrix\label{fig:EX_D_torch_conf_matrix_b}]{
+    \includegraphics[width=\columnwidth]{figures/EX_D_torch_conf_matrix.pdf}
+  }
+  \caption{Confusion matrices for our own Neural Network as well as a similar Neural Network implemented using PyTorch. Both Neural Networks has been initialized using parameters found from independent Grid Searches.\label{fig:conf_matrix_home_torch}}
+\end{figure*}
+
+Figure (\ref{fig:EX_E_logreg_gridsearch}) shows the result of a grid search over different values of $\eta$ and $\lambda$ for the Logistic Regression with Stochastic Gradient Descent.
+\begin{figure*}
   \subfloat{\includegraphics[width=1.0\textwidth]{figures/EX_E_logreg_gridsearch.pdf}}
   \caption{Grid search accuracies for logistic regression with varying $\eta$, $\lambda$ values. \label{fig:EX_E_logreg_gridsearch}}
 \end{figure*}
 
+Moreover, Figure (\ref{fig:conf_matrix_sgd_nrm}) also plots confusion matrices, though for two different Logistic Regression models. Namely Stochastic Gradient Descent and Newton Raphson. For the SGD Logistic Regression, the hyperparameters has been optimized according to the grid search in Figure (\ref{fig:EX_E_logreg_gridsearch}).
+\subsection{Logistic Regression: SGD Vs NRM}
+\begin{figure*}
+  \subfloat[Logistic Regression with NRM - Confusion Matrix\label{fig:EX_E_logreg_nrm_confmat_a}]{
+    \includegraphics[width=\columnwidth]{figures/EX_E_logreg_nrm_confmat.pdf}
+  }
+  \subfloat[Logistic Regression with SGD - Confusion Matrix\label{fig:EX_E_logreg_sgd_confmat_b}]{
+    \includegraphics[width=\columnwidth]{figures/EX_E_logreg_sgd_confmat.pdf}
+  }
+  \caption{Confusion matrices for Logistic Regression using both Stochastic Gradient Descent and Newton Raphson. The parameters for the Logistic Regression has been optimized considering the SGD algorithm using the Grid Search. Newton Raphson does not require the same hyperparameters.\label{fig:conf_matrix_sgd_nrm}}
+\end{figure*}
+
+\subsection{ROC Curve}
+The plot shown in Figure (\ref{fig:EX_E_roc_curve}) is a Receiver Operating Characteristic plot with curves for the different classification algorithms used in this Project.
+\begin{figure*}
+  \includegraphics[width=\textwidth]{figures/EX_E_roc_curve.pdf}
+  \caption{\label{fig:EX_E_roc_curve}Comparison of ROC-curves for all classification algorithms}
+\end{figure*}
 
 
 \section{Discussion}
@@ -825,11 +826,9 @@ the MSE values computed with our SGD algorithm gets close to the Ridge regressio
 Another note when discussing Table (\ref{tab:a_mse}) and (\ref{tab:a_mse_lrlmb}) is the inclusion of Momentum SGD as described in Algorithm (\ref{alg:msgd}). With the added momentum parameter, lower MSE values are attained as all the hyperparameters are kept the same. Though the values are not as good as normal SGD without the learning rate scheduler.
 
 
-
 \subsection{Comparing Stochastic Gradient Descent and Newton Raphson for Logistic Regression}
 As demonstrated by Algorithm (\ref{alg:lsgd}) and (\ref{alg:newtonraphson}), there are several distinct differences between the two implementations. While Newton Raphson´s method only iterates through the epochs, the stochastic gradient descent will have additional iterations through the batches. This might lead to the impression that the latter is computationally more complex than the first. This is however not the case, as the inversion of a $k \times k$ matrix has a complexity of $O(k^3)$, which has to be carried out for each iteration as the parameters change with every update \cite{Goodfellow2016}. For cases with a large number of parameters, the exponentially increasing computational burden imposed often makes SGD the preferred solver.
 
-%% NEURAL NET DISCUSSION HERE
 \subsection{Arificial Neural Net - Regression problem}
 To quantify the power of our neural network model, we studied how well the network performed relative to results obtained using Ordinary Least Squares (OLS) in project 1. Our best fit for the OLS model was MSE equal to 0.1601 as shown in figure \ref{??}, which served as our initial reference score for the NN model. For the models to compete on similar terms, we reused the same image patch from project 1 and fitted our NN on the same data using the same scaling process. We scale both the x and y input coordinates and the targets by subtracting their respective mean values. For the OLS fit, we feed the model using degree 10 for both the x and y coordinates for the OLS fit, which seeded the model with 65 features to work on. One significant difference for our Neural Net is that we only feed the NN model with the raw data, meaning we input the first-order inputs of x and y, two features in total. By doing this, the NN model receives the task of finding the optimal polynomial and its degree, and this will be incorporated within the different layers and neurons of its Neural Net. For a well-implemented Neural Net, it is often beneficial to leave it to the model to find the optimal relationships rather than seeding it to look for a specific degree. To be fair, the true optimal degree is unknown even though we approximated the best fit to be of degree 10 for the OLS model specifically. Seeding the NN to match a specific degree as done for the OLS can go both ways; it can help the NN model converge faster with a better fit, but it can also restrain the model with too little or too much unnecessary input data. Feeding the NN model with too many features can also result in the model reaching the curse of dimensionality issue at some point, leaving the model with a worse fit, since having too many features may result in an increased level of noise. A common way to tackle too many features is to use the Principal Component Analysis (PCA) algorithm. This will extract the most essential features. However, increasing the number of degrees in our design matrix (order of magnitude of our raw input) and applying PCA on it is not a good choice in this case. Such an approach yields dependent input data when the higher level feature are constructed from the order of magnitude of the raw data; thus, the condition for using PCA is not met. This left us with the most optimal approach for input feature for the Neural Net to just being the coordinates x and y from the input data. One of the major challenges of training a network full of neurons is the choice of hyper parameter. A common way to find good hyperparameters is to traverse parts of the parameter space by using a grid search.
 
