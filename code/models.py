@@ -1,3 +1,4 @@
+from typing import List
 import autograd.numpy as np
 from autograd import grad
 from sklearn.metrics import mean_squared_error as MSE
@@ -71,7 +72,24 @@ def lr_expdecay(eta, t):
 # Different SGD implementations
 
 
-def sgd(X_train, t_train, theta, n_epoch, batch_size, eta, lr_scheduler=False, scheduler=lr_invscaling, lmb=0, d_cost_MSE=grad(cost_MSE, 2)):
+def sgd(X_train: np.ndarray, t_train: np.ndarray, theta: np.ndarray, n_epoch: int, batch_size: int, eta: float, lr_scheduler=False, scheduler=lr_invscaling, lmb=0, d_cost_MSE=grad(cost_MSE, 2)) -> np.ndarray:
+    """Method for Stochastic Gradient Descent. 
+
+    Args:
+        X_train (np.ndarray): Dataset for training
+        t_train (np.ndarray): Target values
+        theta (np.ndarray): Theta values
+        n_epoch (int): Number of epochs
+        batch_size (int): Size of each mini batch
+        eta (float): Learning Rate
+        lr_scheduler (bool, optional): Scheduler.. Defaults to False.
+        scheduler ([type], optional): Type of scheduler. Defaults to lr_invscaling.
+        lmb (int, optional): Regularization term.. Defaults to 0.
+        d_cost_MSE ([type], optional): Derived cost. Defaults to grad(cost_MSE, 2).
+
+    Returns:
+        [np.ndarray]: Updated thetas
+    """
     n_batches = int(X_train.shape[0] / batch_size)
 
     if lr_scheduler:
@@ -94,7 +112,24 @@ def sgd(X_train, t_train, theta, n_epoch, batch_size, eta, lr_scheduler=False, s
     return theta.ravel()
 
 
-def momentum_sgd(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, lr_scheduler=False, lmb=0, d_cost_MSE=grad(cost_MSE, 2)):
+def momentum_sgd(X_train: np.ndarray, t_train: np.ndarray, theta: np.ndarray, n_epoch: int, batch_size: int, eta: float, beta=0.9, lr_scheduler=False, lmb=0, d_cost_MSE=grad(cost_MSE, 2)) -> np.ndarray:
+    """Method for Momentum SGD
+
+    Args:
+        X_train (np.ndarray): Dataset for training
+        t_train (np.ndarray): Target values
+        theta (np.ndarray): Theta values
+        n_epoch (int): Number of epochs
+        batch_size (int): Size of each mini batch
+        eta (float): Learning Rate
+        lr_scheduler (bool, optional): Scheduler.. Defaults to False.
+        scheduler ([type], optional): Type of scheduler. Defaults to lr_invscaling.
+        lmb (int, optional): Regularization term.. Defaults to 0.
+        d_cost_MSE ([type], optional): Derived cost. Defaults to grad(cost_MSE, 2).
+
+    Returns:
+        [np.ndarray]: Updated thetas
+    """
     n_batches = int(X_train.shape[0] / batch_size)
 
     if lr_scheduler:
@@ -119,7 +154,26 @@ def momentum_sgd(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, lr
     return theta.ravel()
 
 
-def rmsprop(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, eps=10**(-8), lr_scheduler=False, lmb=0, d_cost_MSE=grad(cost_MSE, 2)):
+def rmsprop(X_train: np.ndarray, t_train: np.ndarray, theta: np.ndarray, n_epoch: int, batch_size: int, eta: float, beta=0.9, eps=10**(-8), lr_scheduler=False, lmb=0, d_cost_MSE=grad(cost_MSE, 2)) -> np.ndarray:
+    """Method for RMSprop
+
+    Args:
+        X_train (np.ndarray): Dataset for training
+        t_train (np.ndarray): Target values
+        theta (np.ndarray): Theta values
+        n_epoch (int): Number of epochs
+        batch_size (int): Size of each mini batch
+        eta (float): Learning Rate
+        beta (float, optional): TODO. Defaults to 0.9.
+        eps ([type], optional): TODO. Defaults to 10**(-8).
+        lr_scheduler (bool, optional): Learning rate scheduler. Defaults to False.
+        lmb (int, optional): Regularization term.. Defaults to 0.
+        d_cost_MSE ([type], optional): Derived cost. Defaults to grad(cost_MSE, 2).
+
+    Returns:
+        [np.ndarray]: Updated thetas.
+    """
+
     n_batches = int(X_train.shape[0] // batch_size)
 
     if lr_scheduler:
@@ -144,7 +198,26 @@ def rmsprop(X_train, t_train, theta, n_epoch, batch_size, eta, beta=0.9, eps=10*
     return theta.ravel()
 
 
-def adam(X_train, t_train, theta, n_epoch, batch_size, eta, beta1=0.9, beta2=0.99, eps=10**(-8), lr_scheduler=False, lmb=0, d_cost_MSE=grad(cost_MSE, 2)):
+def adam(X_train: np.ndarray, t_train: np.ndarray, theta: np.ndarray, n_epoch: int, batch_size: int, eta: float, beta1=0.9, beta2=0.99, eps=10**(-8), lr_scheduler=False, lmb=0, d_cost_MSE=grad(cost_MSE, 2)) -> np.ndarray:
+    """[summary]
+
+    Args:
+        X_train (np.ndarray): Dataset for training
+        t_train (np.ndarray): Target values
+        theta (np.ndarray): Theta values
+        n_epoch (int): Number of epochs
+        batch_size (int): Size of each mini batch
+        eta (float): Learning Rate
+        beta1 (float, optional): TODO. Defaults to 0.9.
+        beta2 (float, optional): TODO. Defaults to 0.99.
+        eps ([type], optional): TODO. Defaults to 10**(-8).
+        lr_scheduler (bool, optional): Learning rate scheduler . Defaults to False.
+        lmb (int, optional): Regularization term.. Defaults to 0.
+        d_cost_MSE ([type], optional): Derived cost. Defaults to grad(cost_MSE, 2).
+
+    Returns:
+        np.ndarray: [description]
+    """
     n_batches = int(X_train.shape[0] // batch_size)
 
     if lr_scheduler:
@@ -178,7 +251,18 @@ def adam(X_train, t_train, theta, n_epoch, batch_size, eta, beta1=0.9, beta2=0.9
 
 
 class Fixed_layer:
-    def __init__(self, nbf_inputs: int, nbf_outputs: int, weights, bias, activation="sigmoid", name="name"):
+    def __init__(self, nbf_inputs: int, nbf_outputs: int, weights: np.ndarray, bias: np.ndarray, activation="sigmoid", name="name"):
+        """Class for Fixed layer NN
+
+        Args:
+            nbf_inputs (int): Input dimension
+            nbf_outputs (int): Output dimension
+            weights (np.ndarray): Weight matrix
+            bias (np.ndarray): Bias Matrix
+            activation (str, optional): Tyoe of activation func. Defaults to "sigmoid".
+            name (str, optional): Name of layer. Defaults to "name".
+        """
+
         pick_activation = {"sigmoid": [
             sigmoid, grad_sigmoid], "relu": [leaky_relu, grad_relu]}
 
@@ -188,14 +272,19 @@ class Fixed_layer:
         self.activation = pick_activation[activation][0]
         self.grad_activation = pick_activation[activation][1]
 
-        # np.random.rand(nbf_inputs, nbf_outputs) # TODO: include possible negative weight initialization
         self.weights = weights
-        # np.random.rand(1, nbf_outputs) # TODO: include possible negative weight initialization
         self.bias = bias
         self.accumulated_gradient = np.zeros_like(self.weights)
         self.deltas = 0
 
     def forward_prop(self, input_: np.ndarray) -> np.ndarray:
+        """Forward pass
+
+        Args:
+            input_ (np.ndarray): Input
+        Returns:
+            np.ndarray: Activated values
+        """
         self.z = (input_ @ self.weights) + self.bias
         self.a = self.activation(self.z)
         return self.a
@@ -203,6 +292,14 @@ class Fixed_layer:
 
 class Layer:
     def __init__(self, nbf_inputs: int, nbf_neurons: int, activation="none", name="name"):
+        """Class for layer in NN
+
+        Args:
+            nbf_inputs (int): Input dimension
+            nbf_neurons (int): Output dimension
+            activation (str, optional): Tyoe of activation func. Defaults to "sigmoid".
+            name (str, optional): Name of layer. Defaults to "name".
+        """
 
         pick_activation = {"sigmoid": [sigmoid, grad_sigmoid],
                            "relu": [relu, grad_relu],
@@ -235,6 +332,14 @@ class Layer:
         self.deltas = 0  # The gradient of the error
 
     def forward_prop(self, input_: np.ndarray) -> np.ndarray:
+        """Forward pass
+
+        Args:
+            input_ (np.ndarray): Input
+
+        Returns:
+            np.ndarray: Activated values
+        """
         self.z = (input_ @ self.weights) + self.bias
         self.output = self.activation(self.z)
         return self.output
@@ -244,7 +349,16 @@ class Layer:
 
 
 class NeuralNetwork:
-    def __init__(self, X_test, t_test,  learning_rate=0.001, lmb=0, network_type="regression"):
+    def __init__(self, X_test: np.ndarray, t_test: np.ndarray,  learning_rate=0.001, lmb=0, network_type="regression"):
+        """Class for Neural Network
+
+        Args:
+            X_test (np.ndarray): Dataset for training
+            t_test (np.ndarray): Target values
+            learning_rate (float, optional): Eta. Defaults to 0.001.
+            lmb (int, optional): Regularization term.. Defaults to 0.
+            network_type (str, optional): Type of classifier. Defaults to "regression".
+        """
         self.sequential_layers = []
         self.grad_cost = None  # grad(cost)
         self.eta = learning_rate
@@ -257,24 +371,60 @@ class NeuralNetwork:
         self.nbf_parameters = 0
 
     def add(self, layer: Layer):
+        """Method for adding layer to NN
+
+        Args:
+            layer (Layer): Layer to add
+        """
         self.sequential_layers.append(layer)
         self.nbf_parameters += layer.nbf_parameters
 
-    def predict(self, input_):
+    def predict(self, input_: np.ndarray) -> np.ndarray:
+        """Method for propagating through NN and predict
+
+        Args:
+            input_ (np.ndarray): Input data
+
+        Returns:
+            np.ndarray: Predicted values
+        """
         X = input_.copy()
         for layer in self.sequential_layers:
             X = layer.forward_prop(X)
 
         return X
 
-    def logistic_predict(self, input_, threshold=0.5):
+    def logistic_predict(self, input_: np.ndarray, threshold=0.5) -> np.ndarray:
+        """Method for propagating and returning treshholded values
+
+        Args:
+            input_ (np.ndarray): Input data
+            threshold (float, optional): Treshhold value. Defaults to 0.5.
+
+        Returns:
+            np.ndarray: Treshholded values
+        """
+
         X = input_.copy()
         for layer in self.sequential_layers:
             X = layer.forward_prop(X)
 
         return np.where(X > threshold, 1, 0)
 
-    def fit(self, X, t, batch_size, epochs, lr_scheduler=False, verbose=False):
+    def fit(self, X: np.ndarray, t: np.ndarray, batch_size: int, epochs: int, lr_scheduler=False, verbose=False) -> tuple[List, List]:
+        """Method for fitting model
+
+        Args:
+            X (np.ndarray): Input data
+            t (np.ndarray): target Values
+            batch_size (int): Size of minibatch
+            epochs (int): Number of epochs
+            lr_scheduler (bool, optional): Learning rate scheduler. Defaults to False.
+            verbose (bool, optional): TODO. Defaults to False.
+
+        Returns:
+            tuple[List, List]: Tuple with lists containing losses. 
+        """
         # TODO: mention that our implementation is SGD with replacement
         n_batches = int(X.shape[0] // batch_size)
         self.train_losses = []
@@ -304,13 +454,17 @@ class NeuralNetwork:
 
         return np.array(self.train_losses), np.array(self.test_losses)
 
-    def backpropagation(self, X, t):  # fit using feed forward and backprop
+    # fit using feed forward and backprop
+    def backpropagation(self, X: np.ndarray, t: np.ndarray) -> None:
+        """Method for backpropagating through NN
+
+        Args:
+            X (np.ndarray): Input data
+            t (np.ndarray): Target values
+        """
         t_hat = self.predict(X)  # t_hat = output activation
         output_layer = self.sequential_layers[-1]
         n = X.shape[0]
-        # calulating the error at the output
-        # nb... 1/n er foreksjelelig fra mini batch og GD
-        # target-output...
 
         if self.network_type == "classification":
             output_layer.error = -(t.reshape(-1, 1) - t_hat)
@@ -320,9 +474,6 @@ class NeuralNetwork:
                 (t.reshape(-1, 1) - output_layer.output)
 
         output_layer.error = output_layer.error + 2*self.lmb * output_layer.output
-
-        # output_layer.error = (2/n)*(output_layer.output - t.reshape(-1, 1))  # (2/n) = SGD.. GD =
-        # deriverer mtp output.
 
         # Calculating the gradient of the error from the output error
         output_layer.deltas = output_layer.error * \
@@ -367,7 +518,23 @@ class NeuralNetwork:
         return f"Number of network parameters: {self.nbf_parameters}"
 
 
-def NN_regression_comparison(eta, nbf_features, batch_size, epochs, X_test, t_test, lmb=0,  hidden_size=50,  act_func="relu"):
+def NN_regression_comparison(eta: float, nbf_features: int, batch_size: int, epochs: int, X_test: np.ndarray, t_test: np.ndarray, lmb=0,  hidden_size=50,  act_func="relu"):
+    """Method for comparing models
+
+    Args:
+        eta (float): Learning rate
+        nbf_features (int): Input dimensions
+        batch_size (int): Size of mini batch
+        epochs (int): Number of epochs
+        X_test (np.ndarray): Input data
+        t_test (np.ndarray): target labels
+        lmb (int, optional): Regularization term. Defaults to 0.
+        hidden_size (int, optional): Size of neurons in first hidden. Defaults to 50.
+        act_func (str, optional): Activation function. Defaults to "relu".
+
+    Returns:
+        [type]: TODO
+    """
     # Tensorflow model
     tf_model = tf.keras.Sequential()
     tf_model.add(tf.keras.layers.Input(shape=(nbf_features,), name="input"))
@@ -392,7 +559,23 @@ def NN_regression_comparison(eta, nbf_features, batch_size, epochs, X_test, t_te
     return NN_model, sk_model, tf_model
 
 
-def NN_simple_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
+def NN_simple_architecture(eta: float, nbf_features: int, problem_type: str, X_test: np.ndarray, t_test: np.ndarray, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
+    """[summary]
+
+    Args:
+        eta (float): learning rate
+        nbf_features (int): Input dimension
+        problem_type (str): Type of problem, (regression or classification)
+        X_test (np.ndarray): Input data
+        t_test (np.ndarray): target data
+        nbf_outputs (int, optional): Out dimensions. Defaults to 1.
+        lmb (int, optional): Regularization term. Defaults to 0.
+        hidden_size (int, optional): Number of neurons in first hidden. Defaults to 25.
+        act_func (str, optional): Type of activation function. Defaults to "relu".
+
+    Returns:
+        [type]: TODO
+    """
     # Own implemented NN model
     NN_model = NeuralNetwork(learning_rate=eta, lmb=lmb,
                              network_type=problem_type, X_test=X_test, t_test=t_test)
@@ -420,7 +603,24 @@ def NN_simple_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_
     return NN_model, tf_model
 
 
-def NN_large_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
+def NN_large_architecture(eta: float, nbf_features: int, problem_type: str, X_test, t_test, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
+    """Method for comparing mpdels
+
+    Args:
+        eta (float): learning rate
+        nbf_features (int): Input dimension
+        problem_type (str): Type of problem, (regression or classification)
+        X_test (np.ndarray): Input data
+        t_test (np.ndarray): target data
+        nbf_outputs (int, optional): Out dimensions. Defaults to 1.
+        lmb (int, optional): Regularization term. Defaults to 0.
+        hidden_size (int, optional): Number of neurons in first hidden. Defaults to 25.
+        act_func (str, optional): Type of activation function. Defaults to "relu".
+
+    Returns:
+        [type]: TODO
+    """
+
     # Own implemented NN model
     NN_model = NeuralNetwork(learning_rate=eta, lmb=lmb,
                              network_type=problem_type, X_test=X_test, t_test=t_test)
@@ -467,15 +667,25 @@ def NN_large_architecture(eta, nbf_features, problem_type, X_test, t_test, nbf_o
 
     return NN_model, tf_model
 
-# cmap=cm.lajolla
-# cmap="RdYlGn_r"
-
 
 def plot_save_NN_results(parameters: int, model_size: str,
                          eta_list: np.ndarray, lmb_list: np.ndarray,
                          heatmap_mtrx: np.ndarray, heatmap_mtrx_tf: np.ndarray,
                          path: str,
-                         activation_type: str):
+                         activation_type: str) -> None:
+    """Method for creating figures
+
+    Args:
+        parameters (int): Number of parameters
+        model_size (str): Size of model
+        eta_list (np.ndarray): List of eta values
+        lmb_list (np.ndarray): List of lambda values
+        heatmap_mtrx (np.ndarray): Matrix for computing heatmap
+        heatmap_mtrx_tf (np.ndarray): Matrix for computing tensorflow heatmap
+        path (str): Path to save
+        activation_type (str): Typep of activation function
+    """
+
     # Own NN heatmap
     plt.figure(figsize=(12, 10))
     eta_list = np.around(eta_list, decimals=6)
@@ -512,10 +722,25 @@ def plot_save_NN_results(parameters: int, model_size: str,
 
 
 class own_LinRegGD():
+
     def __init__(self):
+        """Linear regression model from Project1
+        """
         self.f = lambda X, W: X @ W
 
-    def fit(self, X_train, t_train, gamma=0.1, epochs=10, diff=0.001):
+    def fit(self, X_train: np.ndarray, t_train: np.ndarray, gamma=0.1, epochs=10, diff=0.001) -> int:
+        """Model for fitting linear regression model
+
+        Args:
+            X_train (np.ndarray): Input data
+            t_train (np.ndarray): Target values
+            gamma (float, optional): Learning rate. Defaults to 0.1.
+            epochs (int, optional): Number of epochs. Defaults to 10.
+            diff (float, optional): Diff to stop training at. Defaults to 0.001.
+
+        Returns:
+            int: NUmber of epochs 
+        """
         k, m = X_train.shape
         # X_train = self.add_bias(X_train)
         self.theta = np.zeros((m, 1))
@@ -532,12 +757,27 @@ class own_LinRegGD():
                 return trained_epochs
         return trained_epochs
 
-    def predict(self, X):
-        # z = self.add_bias(X)
+    def predict(self, X: np.ndarray):
+        """Method for predicting
+
+        Args:
+            X (np.ndarray): Input data
+
+        Returns:
+            [type]: Predicted value
+        """
         t_pred = X @ self.theta
         return t_pred
 
-    def add_bias(self, x):
+    def add_bias(self, x: np.ndarray) -> np.ndarray:
+        """Method for adding bias to design matrix
+
+        Args:
+            x (np.ndarray): Input data
+
+        Returns:
+            np.ndarray: Design matrix with added bias
+        """
         # Bias element = 1 is inserted at index 0
         return np.insert(x, 0, 1, axis=1)
 
@@ -548,13 +788,26 @@ if __name__ == '__main__':
 
 class LogReg():
     def __init__(self, eta=None, lmb=None) -> None:
+        """Logistic Regression class
+
+        Args:
+            eta ([type], optional): Learning rate. Defaults to None.
+            lmb ([type], optional): Regularization Term. Defaults to None.
+        """
         super().__init__()
         self.eta = eta
         self.lmb = lmb
 
-    def fit(self, X_train, t_train, batch_size, epochs, solver="SGD"):
-        """X_train is a Nxm matrix, N data points, m features
-        t_train are the targets values for training data"""
+    def fit(self, X_train: np.ndarray, t_train: np.ndarray, batch_size: int, epochs: int, solver="SGD") -> None:
+        """Method for fitting logistic regression model
+
+        Args:
+            X_train (np.ndarray): Input data
+            t_train (np.ndarray): Target labels
+            batch_size (int): Size of minibatch
+            epochs (int): Number of epochs
+            solver (str, optional): Choice of solver. Defaults to "SGD".
+        """
         m = X_train.shape[1]
         n_batches = np.ceil(X_train.shape[0] / batch_size)
 
@@ -586,16 +839,39 @@ class LogReg():
         else:
             print("Choose SGM og NRM as solver")
 
-    def accuracy(self, X_test, y_test, **kwargs):
+    def accuracy(self, X_test: np.ndarray, y_test: np.ndarray, **kwargs) -> float:
+        """Method for computing accuracy
+
+        Args:
+            X_test (np.ndarray): Input data
+            y_test (np.ndarray): target values
+
+        Returns:
+            float: Accuracy [0,1]
+        """
         pred = self.predict(X_test, **kwargs)
         if len(pred.shape) > 1:
             pred = pred[:, 0]
         return sum(pred == y_test) / len(pred)
 
-    def forward(self, X):
+    def forward(self, X: np.ndaray):
+        """Method for computing logit values
+
+        Args:
+            X (np.ndaray): Input data
+
+        Returns:
+            [type]: Logit values
+        """
         return 1/(1+np.exp(-X @ self.beta))
 
-    def newton_raphson(self, X, y):
+    def newton_raphson(self, X: np.ndarray, y: np.ndarray) -> None:
+        """Method for updating beta values with Newton Raphson
+
+        Args:
+            X (np.ndarray): Input data
+            y (np.ndarray): Target values
+        """
         p = self.forward(X)
         p_1 = 1-p
         score = -X.T @ (y-p)
@@ -608,15 +884,30 @@ class LogReg():
 
         self.beta -= update
 
-    def predict(self, x, threshold=0.5):
-        # z = self.add_bias(x)
+    def predict(self, x, threshold=0.5) -> np.ndarray:
+        """Method for predicting treshholded values
+
+        Args:
+            x (np.ndarray): input data
+            threshold (float, optional): Value to treshhold values. Defaults to 0.5.
+
+        Returns:
+            np.ndarray: Predicted, treshholded values
+        """
         score = self.forward(x)
-        # score = z @ self.theta
         return (score > threshold).astype('int')
 
 
 class TorchNeuralNetwork(nn.Module):
-    def __init__(self, eta, lmb, input_dim, hidden_size):
+    def __init__(self, eta: float, lmb: float, input_dim: int, hidden_size: int):
+        """Class for neural network with PyTorch
+
+        Args:
+            eta (float): learning rate
+            lmb (float): Regularization term
+            input_dim (int): input dimension
+            hidden_size (int): Number of neurons in first hidden layer
+        """
         super(TorchNeuralNetwork, self).__init__()
         self.eta = eta
         self.lmb = lmb
@@ -638,7 +929,13 @@ class TorchNeuralNetwork(nn.Module):
             self.parameters(), lr=self.eta, weight_decay=self.lmb)
         self.criterion = nn.BCELoss()
 
-    def fit(self, epochs, trainloader):
+    def fit(self, epochs: int, trainloader: torch.utils.data.DataLoader):
+        """Method for training NN.
+
+        Args:
+            epochs (int): Number of epochs
+            trainloader (torch.utils.data.DataLoader): PyTorch dataloader
+        """
         for epoch in range(epochs):
             for i, data in enumerate(trainloader, 0):
 
@@ -654,19 +951,51 @@ class TorchNeuralNetwork(nn.Module):
                 loss.backward()
                 self.optimizer.step()
 
-    def forward(self, x):
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        """Method for forward propagating 
+
+        Args:
+            x (np.ndarray): Input data
+
+        Returns:
+            np.ndarray: Logit values
+        """
         logits = self.linear_stack(x)
         return logits
 
-    def torch_accuracy(self, X_test, y_test):
+    def torch_accuracy(self, X_test: np.ndarray, y_test: np.ndarray) -> np.ndarray:
+        """Method for computing accuracy
 
+        Args:
+            X_test (np.ndarray): Input data
+            y_test (np.ndarray): Target values
+
+        Returns:
+            np.ndarray: Accuracy
+        """
         y_hat = self.forward(X_test)
         prediction_val = [1 if x > 0.5 else 0 for x in y_hat.data.numpy()]
         correct_val = (prediction_val == y_test.numpy()).sum()
         return correct_val/len(y_test)
 
 
-def NN_crossval(eta, nbf_features, problem_type, X_test, t_test, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
+def NN_crossval(eta, nbf_features: int, problem_type: str, X_test: np.ndarray, t_test: np.ndarray, nbf_outputs=1, lmb=0,  hidden_size=25,  act_func="relu"):
+    """Method used for cross_val method
+
+    Args:
+        eta ([type]): learning rate
+        nbf_features (int): number of features
+        problem_type (str): Logistic or regression
+        X_test (np.ndarray): Input data
+        t_test (np.ndarray): Target values
+        nbf_outputs (int, optional): Output dimensions. Defaults to 1.
+        lmb (int, optional): Regularization term. Defaults to 0.
+        hidden_size (int, optional): NUmber of neurons in first hidden layer. Defaults to 25.
+        act_func (str, optional): Activation function. Defaults to "relu".
+
+    Returns:
+        [type]: TODO
+    """
     # Own implemented NN model
     NN_model = NeuralNetwork(learning_rate=eta, lmb=lmb,
                              network_type=problem_type, X_test=X_test, t_test=t_test)
@@ -687,9 +1016,22 @@ def NN_crossval(eta, nbf_features, problem_type, X_test, t_test, nbf_outputs=1, 
     return NN_model
 
 
-def cross_val(k: int, X: np.ndarray, z: np.ndarray, eta, batch_size, lmb, epochs, hidden_size, random_state=None) -> np.ndarray:
-    """
-    .........
+def cross_val(k: int, X: np.ndarray, z: np.ndarray, eta: float, batch_size: int, lmb: float, epochs: int, hidden_size: int, random_state=None) -> np.ndarray:
+    """Method for cross-validation from Project1
+
+    Args:
+        k (int): Number of folds
+        X (np.ndarray): Input data
+        z (np.ndarray): Target values
+        eta (float): Learning rate
+        batch_size (int): Size of each minibatch
+        lmb (float): Regularization term
+        epochs (int): Number of epochs
+        hidden_size (int): Number of neurons in first hidden layer
+        random_state ([type], optional): Np.random state. Defaults to None.
+
+    Returns:
+        np.ndarray: cross val MSE scores
     """
 
     kfold = KFold(n_splits=k, shuffle=True, random_state=random_state)
