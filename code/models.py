@@ -217,7 +217,7 @@ class Layer:
 
         # Weight init strategies
         if activation == "sigmoid":
-            # Xavier initializations (http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf)
+            # Glurot (http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf)
             # self.weights = np.random.randn(nbf_inputs, nbf_neurons)
             span = np.sqrt(6.0 / (nbf_inputs + nbf_neurons))
             self.weights = np.random.uniform(-span,
