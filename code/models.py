@@ -1,22 +1,21 @@
-from autograd import grad
-from typing import List
 import autograd.numpy as np
-
-from sklearn.metrics import mean_squared_error as MSE
-from sklearn.metrics import r2_score as R2
-from tqdm import tqdm
-from common import standard_scaling
-import tensorflow as tf
-from sklearn.neural_network import MLPRegressor
-import seaborn as sns
 import matplotlib.pyplot as plt
-from common import INPUT_DATA, REPORT_DATA, REPORT_FIGURES, EX_A, EX_B, EX_C, EX_D, EX_E, EX_F
-from cmcrameri import cm
+import seaborn as sns
+import tensorflow as tf
 import torch
-from torch import nn
 import torch.optim as optim
 import torch.utils.data as data_utils
+from autograd import grad
+from cmcrameri import cm
+from common import standard_scaling
+from common import INPUT_DATA, REPORT_DATA, REPORT_FIGURES, EX_A, EX_B, EX_C, EX_D, EX_E, EX_F
+from sklearn.metrics import mean_squared_error as MSE
+from sklearn.metrics import r2_score as R2
 from sklearn.model_selection import KFold
+from sklearn.neural_network import MLPRegressor
+from torch import nn
+from tqdm import tqdm
+from typing import List
 
 
 def cost_MSE(X, y, theta, lmb=0):
