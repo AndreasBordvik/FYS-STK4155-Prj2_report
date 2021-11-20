@@ -314,7 +314,7 @@ class Layer:
 
         # Weight init strategies
         if activation == "sigmoid":
-            # Xavier initializations (http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf)
+            # Glurot (http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf)
             # self.weights = np.random.randn(nbf_inputs, nbf_neurons)
             span = np.sqrt(6.0 / (nbf_inputs + nbf_neurons))
             self.weights = np.random.uniform(-span,
@@ -469,7 +469,6 @@ class NeuralNetwork:
         if self.network_type == "classification":
             output_layer.error = -(t.reshape(-1, 1) - t_hat)
         else:
-            # (2/n) = SGD.. GD =
             output_layer.error = (1/n) * -2 * \
                 (t.reshape(-1, 1) - output_layer.output)
 

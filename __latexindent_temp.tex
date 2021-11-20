@@ -134,7 +134,7 @@ The \textbf{Universal approximation theorem} states that a Neural Network can ap
 
 When studying regression using our developed Feed-Forward Neural Network code, we will return to the terrain data used in Project 1 when studying polynomial fitting with different variants of Least Squares Regression. Moreover, we will compare our findings in this project with the result of our previous project to further study the differences polynomial fitting and gradient based approximations.
 
-Furthermore, we will study classification using the \href{https://www.kaggle.com/uciml/breast-cancer-wisconsin-data}{Wisconsin Breast Cancer Data} provided by SciKit-learn \cite{scikit-learn}. When studying the accuracy of the Neural Net in the context of classification, we will also develop code for Logistic Regression for comparison.
+Furthermore, we will study classification using the \href{https://www.kaggle.com/uciml/breast-cancer-wisconsin-data}{Wisconsin Breast Cancer Data} provided by SciKit-learn . When studying the accuracy of the Neural Net in the context of classification, we will also develop code for Logistic Regression for comparison.
 
 The following sections will include background theory and proposals to algorithms which will be needed to construct our Feed-Forward Neural Network. All algorithms developed will be discussed in detail, however for the concrete implementation we refer to the GitHub repository linked in the Appendix under the section Source Code.
 
@@ -566,7 +566,7 @@ The values are then tresholded, assigning all probabilities $>$ 0.5 to class 1 a
 Where $I$ is the indicator function, which is 1 if $t_i = y_i$ and 0 otherwise.
 
 \subsubsection{Comparing our own implemented logistic regression with scikit}
-To validate the accuracy of our own logistic regression, we also implmented a logistic regression model from Scikit Learn. This was implmented with both Stochastic Average Gradient descent and Newton´s method as solvers. 
+To validate the accuracy of our own logistic regression, we also implmented two logistic regression models from Scikit Learn. This was implmented with both Stochastic Average Gradient descent and Newton´s method as solvers \cite{scikit-learn}. 
 
 \section{Results}
 When creating the results, we note that all are generated from the Source Code in the appendix. For a further explanation on how to reproduce these results, we refer to the GitHub repository which contains a README explaining how to run the supplied source code. The color maps have been developed by \href{https://www.fabiocrameri.ch/colourmaps/}{Fabio Crameri}, which fairly represents the data as well as being readable for those with color-vision deficiency \cite{Crameri2021}.
