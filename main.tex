@@ -565,6 +565,9 @@ The values are then tresholded, assigning all probabilities $>$ 0.5 to class 1 a
 
 Where $I$ is the indicator function, which is 1 if $t_i = y_i$ and 0 otherwise.
 
+\subsubsection{Comparing our own implemented logistic regression with scikit}
+To validate the accuracy of our own logistic regression, we also implmented a logistic regression model from Scikit Learn. This was implmented with both Stochastic Average Gradient descent and Newton´s method as solvers. 
+
 \section{Results}
 When creating the results, we note that all are generated from the Source Code in the appendix. For a further explanation on how to reproduce these results, we refer to the GitHub repository which contains a README explaining how to run the supplied source code. The color maps have been developed by \href{https://www.fabiocrameri.ch/colourmaps/}{Fabio Crameri}, which fairly represents the data as well as being readable for those with color-vision deficiency \cite{Crameri2021}.
 

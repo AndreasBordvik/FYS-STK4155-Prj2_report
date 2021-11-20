@@ -411,7 +411,7 @@ class NeuralNetwork:
 
         return np.where(X > threshold, 1, 0)
 
-    def fit(self, X: np.ndarray, t: np.ndarray, batch_size: int, epochs: int, lr_scheduler=False, verbose=False) -> tuple[List, List]:
+    def fit(self, X: np.ndarray, t: np.ndarray, batch_size: int, epochs: int, lr_scheduler=False, verbose=False):
         """Method for fitting model
 
         Args:
@@ -854,11 +854,11 @@ class LogReg():
             pred = pred[:, 0]
         return sum(pred == y_test) / len(pred)
 
-    def forward(self, X: np.ndaray):
+    def forward(self, X: np.ndarray):
         """Method for computing logit values
 
         Args:
-            X (np.ndaray): Input data
+            X (np.ndarray): Input data
 
         Returns:
             [type]: Logit values

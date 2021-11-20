@@ -402,7 +402,12 @@ A fix to the dying ReLU problem is to implement the \textbf{Leaky ReLU} as activ
 \end{equation}
 
 \subsubsection{Weight initialization}
+Choosing an optimal weight initialization strategy is essential to consider prior to commencing training of a Neural Network. Just randomly initializing weights often results in the neural net performing poorly especially when gradient descent is applied for optimization \cite{Glorot2010}. Randomly initializing the weights for a given layer often results in both the weights and the gradients being close to zero. When considering a Neural Net having many weights and gradients close to zero, the resulting gradients may vanish in layers further upstream when several small numbers are multiplied across layers during backpropagation. Contrary, having many weights and gradients larger than 1, the multiplication across layers may lead to large numbers, which can result in the gradient exploding, causing values incorporated within the Neural Net to overflow. Both vanishing and exploding gradients force the model to diverge from its optimum with respect to error minimization. Optimal weight initialization
+
 \todo[inline]{EMPTY SECTION}
+% \cite{He2015} for RELU / Leaky ReLu = 7
+% 
+\cite{He2015}, \cite{Geron2019}
 
 \subsubsection{Model architecture}
 For this project, we have developed two different model architectures which we will study in conjunction with the analysis of the datasets. As these different architectures pose different complexities in regards to model parameters and design, our goal is to study model dependency concerning model complexity. Our two proposed model architectures are presented visually in Figure (\ref{fig:small_architecture}) and (\ref{fig:large_architecture}). For a more technical implementation with regards to Source Code, we refer to the GitHub repository in the appendix where both models can be found under \textit{code/models.py}.
@@ -560,6 +565,9 @@ The values are then tresholded, assigning all probabilities $>$ 0.5 to class 1 a
 
 Where $I$ is the indicator function, which is 1 if $t_i = y_i$ and 0 otherwise.
 
+\subsubsection{Comparing our own implemented logistic regression with scikit}
+To validate the accuracy of our own logistic regression, we also implmented a logistic regression model from Scikit Learn. This was implmented with both Stochastic Average Gradient descent and Newton´s method as solvers. 
+
 \section{Results}
 When creating the results, we note that all are generated from the Source Code in the appendix. For a further explanation on how to reproduce these results, we refer to the GitHub repository which contains a README explaining how to run the supplied source code. The color maps have been developed by \href{https://www.fabiocrameri.ch/colourmaps/}{Fabio Crameri}, which fairly represents the data as well as being readable for those with color-vision deficiency \cite{Crameri2021}.
 
@@ -620,16 +628,16 @@ Table (\ref{tab:a_mse}) displays MSE results computed from different configurati
   \caption{\label{tab:a_mse}MSE values from different SGD configurations based on the optimal hyperparameters as found in the grid search}
   \begin{ruledtabular}
     \begin{tabular}{llllll}
-      l2 regularizer & SGD with lr scheduler & Momentum SGD with lr scheduler & SGD w.o. lr scheduler & SciKit-learn & Regression  \\
+      l2 regularizer & SGD with lr scheduler & Momentum SGD with lr scheduler & SGD w.o. lr scheduler & SciKit-learn & Regression \\
       \hline
-      Yes & 0.4783                & 0.4377                         & 0.4203                & 1.0764       & 0.3256 \\
-      No & 0.4778                & 0.4354                         & 0.4171                & 1.0869       & 0.3216 \\
+      Yes            & 0.4783                & 0.4377                         & 0.4203                & 1.0764       & 0.3256     \\
+      No             & 0.4778                & 0.4354                         & 0.4171                & 1.0869       & 0.3216     \\
     \end{tabular}
   \end{ruledtabular}
 \end{table*}
 
 \subsection{Regression}
-Our Neural Network has been implemented with the Feed Forward pass and Backpropagation algorithm as described in Algorithm (\ref{alg:ff}) and (\ref{alg:bp}). Moreover, different model architecture has been implemented following the design of Figure (\ref{fig:small_architecture}) and (\ref{fig:large_architecture}). 
+Our Neural Network has been implemented with the Feed Forward pass and Backpropagation algorithm as described in Algorithm (\ref{alg:ff}) and (\ref{alg:bp}). Moreover, different model architecture has been implemented following the design of Figure (\ref{fig:small_architecture}) and (\ref{fig:large_architecture}).
 
 Figure (\ref{fig:leaky_relu_NN_vs_tf}) display a grid search over different learning rate $\eta$ and regularization terms $\lambda$ for a model with the Leaky ReLU activation function and large model architecture for both our Neural Network and the TensorFlow implementation.
 
@@ -653,7 +661,7 @@ Moreover, Figure (\ref{fig:NN_model_complexity}) plots output MSE for three diff
 \end{figure}
 
 
-Figure (\ref{fig:small_vs_large_architecture_training}) plots the different model architectures and activation function dependance on number of epochs. 
+Figure (\ref{fig:small_vs_large_architecture_training}) plots the different model architectures and activation function dependance on number of epochs.
 \begin{figure*}
   \subfloat[Best fitted NN model using sigmoid and small arhitecture\label{fig:small_sigmoid_training}]{
     \includegraphics[width=.5\textwidth]{figures/EX_B_own_NN_best_training_small_sigmoid_lr_0.1.pdf}
@@ -711,7 +719,7 @@ We have visualized our terrain reconstruction in both Figure (\ref{fig:2D_preds_
 \end{figure*}
 
 
-Table (\ref{tab:cross_val_scores}) shows a 7 fold cross validation of the optimal model, though with the learning rate $\eta = 0.05$. 
+Table (\ref{tab:cross_val_scores}) shows a 7 fold cross validation of the optimal model, though with the learning rate $\eta = 0.05$.
 \begin{table}
   \caption{\label{tab:cross_val_scores}MSE from 7-fold cross-validation on the regression problem with $\eta = 0.05$ as only changed hyperparameter from the optimal architecture}
   \csvautotabular{data/report_data/EX_C_cross_val.csv}
@@ -842,7 +850,7 @@ Moving on to Neural Networks for regression, the architecture in combination wit
 
 In studying the Wisconsin Breast Cancer Data, we saw that all models performed well above a accuracy of $0.9$. Though the preferred model is tied to the classification problem in question, for our dataset all models performed relatively equally except for Newton Raphson which posed a higher misclassification rate. However, not all models are computationally equal, and with regards to computational efficiency as well as a high Accuracy, one could make an argument for Logistic Regression with Stochastic Gradient Descent beeing the preferred model. However, behind the the high obtained accuracy, one can see from figure (\ref{fig:conf_matrix_sgd_nrm}) that the Stochastic Gradient Descent produced 4 false positives. In the context of breast cancer screening, this would be a highly undeseriable behaviour, as this would result in 4 samples beeing predicted as non-cancerous tumour, when the reality is the opposite.  However, this result might also simply arise from the limited size and complexity of the dataset, as it would not seem reasonable for our model to never misclassify a positive.
 
-While working on this Project, we have seen that a Neural Network is able to outperform regression methods given the right architecture. However, though we have tried to explore different hyperparamter combinations through extensive use of grid search, we note that our final model could be outperformed given other unexplored hyperparameter combinations. Furthermore, our Neural Network is implemented in such a way that extending the model with new activation functions, cost functions, weight initializations, gradient clipping and more is relatively simple. Though we have limited itself to three activation functions, two different weight initializations and Stochastic Gradient Descent, improving upon these methods would probably achieve even better results.
+While working on this Project, we have seen that a Neural Network is able to outperform regression methods given the right architecture. However, though we have tried to explore different hyperparamter combinations through extensive use of grid search, we note that our final model could be outperformed given other unexplored hyperparameter combinations. Furthermore, our Neural Network is implemented in such a way that extending the model with new activation functions, cost functions, weight initializations, gradient clipping and more is relatively simple. Though we have limited ourself to three activation functions, two different weight initializations and Stochastic Gradient Descent as optimizer, improving upon these methods would probably achieve even better results. Furthermore, we have only explored one format of the input data when supplied to the Neural Network. Investigating wether some preprocessing of the data, for example feeding the Neural Network with a design matrix akin to the one used for OLS (degree $= 10$), would potentially alter the results. We regard the alterations just discussed as potential performance gain for out Neural Network, and such should be investigated in future works.
 
 Finally, this project have demonstrated the power of the Universal approximation Theorem. We have seen that Neural Networks aptly fit complicated data, even with sparse input dimensionality. Though Regression methods do have their use, especially with regards to computational efficiency and simplicity. With increasingly complex data, is is difficult to disregard the adaptability and extendability made possible with Neural Networks.
 
