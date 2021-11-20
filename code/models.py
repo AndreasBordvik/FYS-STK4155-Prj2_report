@@ -1,6 +1,7 @@
+from autograd import grad
 from typing import List
 import autograd.numpy as np
-from autograd import grad
+
 from sklearn.metrics import mean_squared_error as MSE
 from sklearn.metrics import r2_score as R2
 from tqdm import tqdm
@@ -164,8 +165,8 @@ def rmsprop(X_train: np.ndarray, t_train: np.ndarray, theta: np.ndarray, n_epoch
         n_epoch (int): Number of epochs
         batch_size (int): Size of each mini batch
         eta (float): Learning Rate
-        beta (float, optional): TODO. Defaults to 0.9.
-        eps ([type], optional): TODO. Defaults to 10**(-8).
+        beta (float, optional): Averaging time of the second moment. Defaults to 0.9.
+        eps ([type], optional): Small regularization. Defaults to 10**(-8).
         lr_scheduler (bool, optional): Learning rate scheduler. Defaults to False.
         lmb (int, optional): Regularization term.. Defaults to 0.
         d_cost_MSE ([type], optional): Derived cost. Defaults to grad(cost_MSE, 2).
@@ -208,9 +209,9 @@ def adam(X_train: np.ndarray, t_train: np.ndarray, theta: np.ndarray, n_epoch: i
         n_epoch (int): Number of epochs
         batch_size (int): Size of each mini batch
         eta (float): Learning Rate
-        beta1 (float, optional): TODO. Defaults to 0.9.
-        beta2 (float, optional): TODO. Defaults to 0.99.
-        eps ([type], optional): TODO. Defaults to 10**(-8).
+        beta1 (float, optional): Memory lifetime first moment. Defaults to 0.9.
+        beta2 (float, optional): Memory lifetime second moment. Defaults to 0.99.
+        eps ([type], optional): Small regularization. Defaults to 10**(-8).
         lr_scheduler (bool, optional): Learning rate scheduler . Defaults to False.
         lmb (int, optional): Regularization term.. Defaults to 0.
         d_cost_MSE ([type], optional): Derived cost. Defaults to grad(cost_MSE, 2).

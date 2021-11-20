@@ -1,4 +1,4 @@
-# FYS-STK4155 Project 1
+# FYS-STK4155 Project 2
 
 ## Installation:
 
